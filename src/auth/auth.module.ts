@@ -17,10 +17,9 @@ import { AuthService } from './auth.service';
 
 export class AuthModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(FirebaseMiddleware, JwtMiddleware)
+        consumer.apply(FirebaseMiddleware)
             .forRoutes(
-                {path: '/*/signUp', method: RequestMethod.POST},
-                {path: '/^\\/signUp$/', method: RequestMethod.ALL},
+                {path: '*', method: RequestMethod.POST},
             );
     }
 }

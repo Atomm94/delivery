@@ -23,8 +23,8 @@ export class DriversService {
     }
 
     async create(driverData: Partial<DriverEntity>): Promise<DriverEntity> {
-        driverData.password = await this.authService.hashPassword(driverData.password);
-
+        
+	driverData.password = await this.authService.hashPassword(driverData.password);
         return await this.driverRepository.save(driverData);
     }
 

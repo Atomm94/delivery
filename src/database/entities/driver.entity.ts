@@ -15,63 +15,65 @@ export class DriverEntity {
     @Column({ type: 'varchar', nullable: false })
     lastName: string;
 
-    @Column({ unique: true })
+    @Column({ default: 'default@example.com' })
     @IsEmail({}, { message: 'Invalid email address' })
     email: string;
 
-    @Column({ unique: true })
+    @Column({ type: 'varchar' })
     @IsPhoneNumber(null, { message: 'Invalid phone number format' })
     phone_number: string;
 
-    @Column({ type: 'integer' })
+    @Column({ type: 'integer', nullable: true })
     social_number: number;
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     license: string[];
 
-    @Column({ type: 'varchar' })
+    @Column({ type: 'varchar', nullable: true })
     selfie: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar' })
-    state: string; //enum
+    @Column({ type: 'varchar', default: '' })
+    state: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar' })
-    city: string; //enum
+    @Column({ type: 'varchar', default: '' })
+    city: string;
 
     @Column({
         type: 'geography',
         spatialFeatureType: 'Point',
         srid: 4326,
+	nullable: true,
+	default: 'POINT(0 0)'
     })
     coordinates: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar' })
-    operation_state: string; //enum
+    @Column({ type: 'varchar', default: '' })
+    operation_state: string; 
 
     @IsNotEmpty()
-    @Column({ type: 'varchar' })
-    operation_cities: string[]; //enum
+    @Column({ type: 'varchar', default: '' })
+    operation_cities: string[];
 
     @IsNotEmpty()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: true })
     porter: boolean;
 
     @IsNotEmpty()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     second_porter: boolean;
 
     @IsNotEmpty()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     third_porter: boolean;
 
     @IsNotEmpty()
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     emergency_driver: boolean;
 
-    @Column({ type: 'boolean' })
+    @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
     @IsNotEmpty()

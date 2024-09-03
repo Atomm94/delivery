@@ -12,55 +12,55 @@ export class CustomerEntity {
     company_name: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: '' }) 
     ITN: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     owner: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     owner_social_number: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     city: string; //enum
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     state: string; //enum
 
     @IsNotEmpty()
-    @Column({ type: 'integer', nullable: false })
+    @Column({ type: 'integer', nullable: true  })
     cp_zip_code: number;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     cp_institution_name: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     address: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     cp_name: string;
 
-    @Column({ unique: true })
+    @Column({ type: 'varchar' })
     @IsPhoneNumber(null, { message: 'Invalid phone number format' })
     cp_phone_number: string;
 
-    @Column({ unique: true })
+    @Column({ default: 'default@example.com' })
     @IsEmail({}, { message: 'Invalid email address' })
     cp_email: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     cp_address: string;
 
     @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar', nullable: false, default: ''  })
     organization_docs: string[];
 
     @Column({ unique: true })

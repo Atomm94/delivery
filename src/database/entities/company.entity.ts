@@ -7,7 +7,7 @@ export class CompanyEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true })
+    @Column({ type: 'varchar' })
     @IsPhoneNumber(null, { message: 'Invalid phone number format' })
     phone_number: string;
 
