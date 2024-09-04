@@ -10,13 +10,13 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { databaseConfig, dataSource } from "./configs";
 import {addTransactionalDataSource, initializeTransactionalContext} from 'typeorm-transactional';
 
-import {DriverEntity} from "./database/entities/driver.entity";
+import { Driver } from './database/entities/driver.entity';
 import {DriversService} from "./drivers/drivers.service";
 import {CustomersService} from "./customers/customers.service";
-import {TruckEntity} from "./database/entities/truck.entity";
-import {CustomerEntity} from "./database/entities/customer.entity";
-import {CompanyEntity} from "./database/entities/company.entity";
-import {LoadEntity} from "./database/entities/load.entity";
+import { Truck } from './database/entities/truck.entity';
+import { Customer } from './database/entities/customer.entity';
+import { Company } from './database/entities/company.entity';
+import { Load } from './database/entities/load.entity';
 
 initializeTransactionalContext();
 
@@ -34,11 +34,11 @@ initializeTransactionalContext();
           dataSourceFactory: async () => addTransactionalDataSource(dataSource),
       }),
       TypeOrmModule.forFeature([
-          DriverEntity,
-          TruckEntity,
-          CustomerEntity,
-          CompanyEntity,
-          LoadEntity,
+          Driver,
+          Truck,
+          Customer,
+          Company,
+          Load,
       ]),
       CustomersModule,
       DriversModule,

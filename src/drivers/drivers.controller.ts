@@ -2,7 +2,7 @@ import {Body, Controller, Param, Post, Put, Req, Res} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { DriverEntity } from '../database/entities/driver.entity';
+import { Driver } from '../database/entities/driver.entity';
 
 @Controller('drivers')
 export class DriversController {
@@ -12,7 +12,7 @@ export class DriversController {
     ) {}
 
     @Post('signUp')
-    async signUp(@Req() req, @Res() res, @Body() body: Partial<DriverEntity>) {
+    async signUp(@Req() req, @Res() res, @Body() body: Partial<Driver>) {
 
         const data = await this.driversService.create(body);
         const token = jwt.sign({ id: data.id }, this.configService.get<string>('JWT_SECRET_KEY'));
@@ -21,7 +21,7 @@ export class DriversController {
     }
 
     @Post('signIn')
-    async signIn(@Req() req, @Res() res, @Body() body: Partial<DriverEntity>) {
+    async signIn(@Req() req, @Res() res, @Body() body: Partial<Driver>) {
         try {
             const { phone_number } = body;
             const data = await this.driversService.getByPhone(phone_number);
@@ -38,7 +38,7 @@ export class DriversController {
     }
 
     @Put('update/:id')
-    async update(@Param('id') id: number, @Res() res, @Body() body: Partial<DriverEntity>) {
+    async update(@Param('id') id: number, @Res() res, @Body() body: Partial<Driver>) {
         try {
             const data = await this.driversService.update(id, body);
 

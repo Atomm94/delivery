@@ -1,25 +1,35 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { IsPhoneNumber } from 'class-validator';
-import { TruckEntity } from "./truck.entity";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 'typeorm';
+import { Truck } from './truck.entity';
+import { Driver } from './driver.entity';
+import { UserRole } from '../../common/enums/user-role.enum';
 
-@Entity('company')
-export class CompanyEntity {
+@Entity('Company')
+export class Company {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'varchar' })
-    @IsPhoneNumber(null, { message: 'Invalid phone number format' })
+    @Column({ type: 'varchar', unique: true })
     phone_number: string;
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column({ type: 'varchar' })
     name: string;
 
-    @Column({ type: 'varchar', nullable: false })
+    @Column('simple-array', { nullable: true, array: true })
     license: string[];
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
-    @OneToMany(() => TruckEntity, truck => truck.company)
-    trucks: TruckEntity[];
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.COMPANY,
+    })
+    role: UserRole;
+
+    @OneToMany(() => Truck, truck => truck.company)
+    trucks: Truck[];
+
+    @ManyToMany(() => Driver, driver => driver.companies)
+    drivers: Driver[];
 }

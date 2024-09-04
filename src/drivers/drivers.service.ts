@@ -1,18 +1,18 @@
 import {Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {DriverEntity} from "../database/entities/driver.entity";
+import {Driver} from "../database/entities/driver.entity";
 import {Repository} from "typeorm";
 import {AuthService} from "../auth/auth.service";
 
 @Injectable()
 export class DriversService {
     constructor(
-        @InjectRepository(DriverEntity)
-        private readonly driverRepository: Repository<DriverEntity>,
+        @InjectRepository(Driver)
+        private readonly driverRepository: Repository<Driver>,
         private readonly authService: AuthService,
     ) {}
 
-    async getByPhone(phone_number: string): Promise<DriverEntity> {
+    async getByPhone(phone_number: string): Promise<Driver> {
         const driver = await this.driverRepository.findOneBy({ phone_number });
 
         if (!driver) {
@@ -22,16 +22,16 @@ export class DriversService {
         return driver;
     }
 
-    async create(driverData: Partial<DriverEntity>): Promise<DriverEntity> {
+    async create(driverData: Partial<Driver>): Promise<Driver> {
         
 	driverData.password = await this.authService.hashPassword(driverData.password);
         return await this.driverRepository.save(driverData);
     }
 
-    async update(id: number, updateData: Partial<DriverEntity>): Promise<DriverEntity> {
+    async update(id: number, updateData: Partial<Driver>): Promise<Driver> {
         const { affected } = await this.driverRepository
             .createQueryBuilder()
-            .update(DriverEntity)
+            .update(Driver)
             .set(updateData)
             .where("id = :id", { id })
             .execute();

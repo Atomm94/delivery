@@ -1,88 +1,70 @@
-import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
-import { IsNotEmpty, IsEmail, IsPhoneNumber } from 'class-validator';
-import * as bcrypt from 'bcrypt';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Load } from './load.entity';
+import { UserRole } from '../../common/enums/user-role.enum';
 
-@Entity('customer')
-export class CustomerEntity {
+@Entity('Customer')
+export class Customer {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
-    company_name: string;
+    @Column({ type: 'varchar', nullable: true })
+    person_name: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: '' }) 
-    ITN: string;
+    @Column({ type: 'varchar', unique: true })
+    person_phone_number: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    owner: string;
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    owner_social_number: string;
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    city: string; //enum
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    state: string; //enum
-
-    @IsNotEmpty()
-    @Column({ type: 'integer', nullable: true  })
-    cp_zip_code: number;
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    cp_institution_name: string;
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    address: string;
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    cp_name: string;
+    @Column({ type: 'varchar', nullable: true })
+    person_email: string;
 
     @Column({ type: 'varchar' })
-    @IsPhoneNumber(null, { message: 'Invalid phone number format' })
-    cp_phone_number: string;
+    password: string;
 
-    @Column({ default: 'default@example.com' })
-    @IsEmail({}, { message: 'Invalid email address' })
-    cp_email: string;
+    @Column({ type: 'varchar', nullable: true })
+    name: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    cp_address: string;
+    @Column({ type: 'varchar', nullable: true })
+    email: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    organization_docs: string[];
+    @Column({ type: 'varchar', nullable: true })
+    ITN: string;
 
-    @Column({ unique: true })
-    @IsPhoneNumber(null, { message: 'Invalid phone number format' })
+    @Column({ type: 'varchar', nullable: true })
     phone_number: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    owner: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    owner_social_number: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    address: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    city: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    state: string;
+
+    @Column({ type: 'int', nullable: true })
+    zip_code: number;
+
+    @Column('json', { array: true, nullable: true })
+    addresses: any[];
+
+    @Column('simple-array', { nullable: true, array: true })
+    docs: string[];
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
-    password: string;
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.CUSTOMER,
+    })
+    role: UserRole;
 
-    @BeforeInsert()
-    @BeforeUpdate()
-    async hashPassword() {
-        if (this.password) {
-            this.password = await bcrypt.hash(this.password, 10);
-        }
-    }
-
-    async comparePassword(password: string): Promise<boolean> {
-        return bcrypt.compare(password, this.password);
-    }
+    @OneToMany(() => Load, load => load.customer)
+    loads: Load[];
 }

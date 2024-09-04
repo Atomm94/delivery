@@ -1,85 +1,61 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { IsNotEmpty, IsEmail, IsPhoneNumber } from 'class-validator';
-import { TruckEntity } from "./truck.entity";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 'typeorm';
+import { Truck } from './truck.entity';
+import { Load } from './load.entity';
+import { UserRole } from '../../common/enums/user-role.enum';
+import { Company } from './company.entity';
 
-@Entity('driver')
-export class DriverEntity {
+@Entity('Driver')
+export class Driver {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
-    firstName: string;
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false })
-    lastName: string;
-
-    @Column({ default: 'default@example.com' })
-    @IsEmail({}, { message: 'Invalid email address' })
-    email: string;
-
-    @Column({ type: 'varchar' })
-    @IsPhoneNumber(null, { message: 'Invalid phone number format' })
+    @Column({ type: 'varchar', unique: true })
     phone_number: string;
 
-    @Column({ type: 'integer', nullable: true })
-    social_number: number;
+    @Column({ type: 'varchar' })
+    password: string;
+
+    @Column({ type: 'varchar' })
+    firstName: string;
+
+    @Column({ type: 'varchar' })
+    lastName: string;
 
     @Column({ type: 'varchar', nullable: true })
-    license: string[];
+    email: string;
 
     @Column({ type: 'varchar', nullable: true })
-    selfie: string;
+    social_number: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', default: '' })
-    state: string;
+    @Column({ type: 'varchar', nullable: true })
+    license: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', default: '' })
-    city: string;
+    @Column({ type: 'varchar', nullable: true })
+    identity: string;
 
-    @Column({
-        type: 'geography',
-        spatialFeatureType: 'Point',
-        srid: 4326,
-	nullable: true,
-	default: 'POINT(0 0)'
-    })
-    coordinates: string;
+    @Column({ type: 'varchar', nullable: true })
+    op_state: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', default: '' })
-    operation_state: string; 
-
-    @IsNotEmpty()
-    @Column({ type: 'varchar', default: '' })
-    operation_cities: string[];
-
-    @IsNotEmpty()
-    @Column({ type: 'boolean', default: true })
-    porter: boolean;
-
-    @IsNotEmpty()
-    @Column({ type: 'boolean', default: false })
-    second_porter: boolean;
-
-    @IsNotEmpty()
-    @Column({ type: 'boolean', default: false })
-    third_porter: boolean;
-
-    @IsNotEmpty()
-    @Column({ type: 'boolean', default: false })
-    emergency_driver: boolean;
+    @Column('simple-array', { nullable: true, array: true })
+    op_cities: string[];
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar' })
-    password: string;
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.COURIER,
+    })
+    role: UserRole;
 
-    @OneToMany(() => TruckEntity, truck => truck.driver)
-    trucks: TruckEntity[];
+    @OneToMany(() => Truck, truck => truck.driver)
+    trucks: Truck[];
+
+    @OneToMany(() => Load, load => load.driver)
+    loads: Load[];
+
+    @ManyToMany(() => Company, company => company.drivers)
+    companies: Company[];
 }
+

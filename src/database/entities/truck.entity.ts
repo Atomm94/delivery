@@ -1,65 +1,73 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
-import { IsNotEmpty } from 'class-validator';
-import { DriverEntity } from "./driver.entity";
-import { CompanyEntity } from './company.entity';
+import { Company } from './company.entity';
+import { Driver } from './driver.entity';
+import { TruckCondition } from '../../common/enums/truck-condition.enum';
 
-@Entity('truck')
-export class TruckEntity {
+@Entity('Truck')
+export class Truck {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    mark: string; //enum
+    @Column({ type: 'varchar' })
+    mark: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    model: string; //enum
+    @Column({ type: 'varchar' })
+    model: string;
 
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    date: string;
+    @Column({ type: 'varchar' })
+    year: string;
 
-    @Column({ type: 'varchar', unique: true })
+    @Column({ type: 'varchar' })
     vin_code: string;
 
-    @Column({ type: 'varchar', nullable: false, default: ''  })
+    @Column({ type: 'varchar' })
     license_plate_number: string;
 
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     max_capacity: number;
 
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     length: number;
 
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     width: number;
 
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     height: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    type: string; //enum
+    @Column({ type: 'varchar' })
+    type: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    condition: string; //enum
+    @Column({
+        type: 'enum',
+        enum: TruckCondition,
+    })
+    condition: TruckCondition;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    vehicle_title: string[]; //photos
+    @Column('simple-array', { array: true })
+    vehicle_title: string[];
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    insurance: string[]; //photos
+    @Column('simple-array', { array: true })
+    insurances: string[];
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    photos: string[]; // car photos
+    @Column('simple-array', { array: true })
+    photos: string[];
 
-    @ManyToOne(() => DriverEntity, driver => driver.trucks)
-    driver: DriverEntity;
+    @Column({ type: 'boolean', default: false })
+    porter: boolean;
 
-    @ManyToOne(() => CompanyEntity, company => company.trucks)
-    company: CompanyEntity;
+    @Column({ type: 'boolean', default: false })
+    second_porter: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    third_porter: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    emergency_driver: boolean;
+
+    @ManyToOne(() => Driver, driver => driver.trucks)
+    driver: Driver;
+
+    @ManyToOne(() => Company, company => company.trucks)
+    company: Company;
 }

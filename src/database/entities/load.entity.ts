@@ -1,45 +1,44 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
-import { IsNotEmpty } from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Customer } from './customer.entity';
+import { Driver } from './driver.entity';
 
-@Entity('load')
-export class LoadEntity {
+@Entity('Load')
+export class Load {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: '' })
-    state: string; //enum
+    @Column({ type: 'varchar' })
+    state: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'varchar', nullable: false, default: ''  })
-    city: string; //enum
+    @Column({ type: 'varchar' })
+    city: string;
 
     @Column({
         type: 'geography',
         spatialFeatureType: 'Point',
         srid: 4326,
-	nullable: true,
-	default: 'POINT(0 0)'
+        nullable: true,
     })
     coordinates: string;
 
-    @IsNotEmpty()
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     zip_code: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     price: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     width: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     length: number;
 
-    @IsNotEmpty()
-    @Column({ type: 'integer', nullable: true  })
+    @Column('int')
     height: number;
+
+    @ManyToOne(() => Customer, customer => customer.loads)
+    customer: Customer;
+
+    @ManyToOne(() => Driver, driver => driver.loads)
+    driver: Driver;
 }
