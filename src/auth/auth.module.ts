@@ -16,10 +16,18 @@ import { AuthService } from './auth.service';
 })
 
 export class AuthModule implements NestModule {
+    private readonly firebasePath = /\/(signIn|signUp)$/;
+    private readonly jwTPath = /^(?!.*\/(signIn|signUp)).*/;
+
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(FirebaseMiddleware)
             .forRoutes(
-                {path: '*', method: RequestMethod.POST},
+                {path: `${this.firebasePath}`, method: RequestMethod.POST},
             );
+
+        consumer.apply(JwtMiddleware)
+          .forRoutes(
+            {path: `${this.jwTPath}`, method: RequestMethod.POST},
+          );
     }
 }

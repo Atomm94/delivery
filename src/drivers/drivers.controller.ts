@@ -15,9 +15,8 @@ export class DriversController {
     async signUp(@Req() req, @Res() res, @Body() body: Partial<Driver>) {
 
         const data = await this.driversService.create(body);
-        const token = jwt.sign({ id: data.id }, this.configService.get<string>('JWT_SECRET_KEY'));
 
-        return res.json({ message: 'Signed Up', data: { data, token } });
+        return res.json({ message: 'Signed Up', data: { data } });
     }
 
     @Post('signIn')

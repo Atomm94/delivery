@@ -23,6 +23,7 @@ export class JwtMiddleware implements NestMiddleware {
 
             next();
         }catch (error) {
+            console.log('jwt error', error);
             return this.accessDenied(req.url, res);
         }
     }
