@@ -29,7 +29,6 @@ export class FirebaseMiddleware implements NestMiddleware {
                 next();
             })
             .catch((error) => {
-                console.log('firebase error', error);
                 return this.accessDenied(req.url, res);
             });
     }

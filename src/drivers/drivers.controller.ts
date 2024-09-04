@@ -1,5 +1,4 @@
 import {Body, Controller, Param, Post, Put, Req, Res} from '@nestjs/common';
-import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
 import { Driver } from '../database/entities/driver.entity';
@@ -17,23 +16,6 @@ export class DriversController {
         const data = await this.driversService.create(body);
 
         return res.json({ message: 'Signed Up', data: { data } });
-    }
-
-    @Post('signIn')
-    async signIn(@Req() req, @Res() res, @Body() body: Partial<Driver>) {
-        try {
-            const { phone_number } = body;
-            const data = await this.driversService.getByPhone(phone_number);
-            const token = jwt.sign({ id: data.id }, this.configService.get<string>('JWT_SECRET_KEY'));
-
-            return res.json({ message: 'Signed in', data, token });
-        } catch (error) {
-            return res.status(400).json({
-                statusCode: 400,
-                timestamp: new Date().toISOString(),
-                message: error.message,
-            })
-        }
     }
 
     @Put('update/:id')

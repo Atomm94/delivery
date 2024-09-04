@@ -12,19 +12,10 @@ export class DriversService {
         private readonly authService: AuthService,
     ) {}
 
-    async getByPhone(phone_number: string): Promise<Driver> {
-        const driver = await this.driverRepository.findOneBy({ phone_number });
-
-        if (!driver) {
-            throw new Error('Invalid phone number');
-        }
-
-        return driver;
-    }
 
     async create(driverData: Partial<Driver>): Promise<Driver> {
-        
-	driverData.password = await this.authService.hashPassword(driverData.password);
+        driverData.password = await this.authService.hashPassword(driverData.password);
+
         return await this.driverRepository.save(driverData);
     }
 
