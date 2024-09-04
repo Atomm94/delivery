@@ -5,7 +5,6 @@
 
 # secret credentials
 /auth.credentials.json
-/app.json
 
 # Logs
 logs
