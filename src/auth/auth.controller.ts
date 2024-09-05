@@ -15,7 +15,7 @@ export class AuthController {
   async signIn(@Req() req, @Res() res, @Body() signInDto: SignInDto) {
     try {
       const user = await this.authService.signIn(signInDto);
-      const token = jwt.sign({ id: user['id'] }, this.configService.get<string>('JWT_SECRET_KEY'));
+      const token = jwt.sign({ role: user['role'], phone_number: user['phone_number'] }, this.configService.get<string>('JWT_SECRET_KEY'));
 
       return res.json({ message: 'Signed in', user, token });
     } catch (error) {
