@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -17,6 +17,7 @@ import { Truck } from './database/entities/truck.entity';
 import { Customer } from './database/entities/customer.entity';
 import { Company } from './database/entities/company.entity';
 import { Load } from './database/entities/load.entity';
+import { JwtMiddleware } from './auth/jwt/jwt.middleware';
 
 initializeTransactionalContext();
 
@@ -49,4 +50,9 @@ initializeTransactionalContext();
   providers: [AppService, DriversService, CustomersService],
 })
 
-export class AppModule {}
+export class AppModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(JwtMiddleware)
+          .forRoutes(AppController);
+    }
+}

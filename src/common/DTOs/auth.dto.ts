@@ -1,19 +1,19 @@
-import {IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MinLength } from 'class-validator';
+import {IsEnum, IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 import { UserRole } from '../enums/user-role.enum';
 
 
 export class SignInDto {
-  @IsOptional()
-  @IsString({ message: 'Phone number must be a string' })
-  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'Phone number must be a valid international phone number' }) // Example validation
+  @IsNotEmpty({ message: 'phone number is required' })
+  @IsString({ message: 'phone number must be a string' })
+  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phone number must be a valid international phone number' })
   phone_number: string;
 
-  @IsOptional() // Optional field
-  @IsEnum(UserRole, { message: 'Role must be either user or admin' })
+  @IsNotEmpty({ message: 'role is required' })
+  @IsEnum(UserRole, { message: 'role must be either customer | company | courier' })
   role: UserRole;
 
-  @IsString({ message: 'Password must be a string' })
-  @IsNotEmpty({ message: 'Password is required' })
-  @MinLength(6, { message: 'Password must be at least 6 characters long' })
+  @IsNotEmpty({ message: 'password is required' })
+  @IsString({ message: 'password must be a string' })
+  @MinLength(6, { message: 'password must be at least 6 characters long' })
   password: string;
 }

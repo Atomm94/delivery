@@ -18,7 +18,8 @@ export class JwtMiddleware implements NestMiddleware {
             const decodedToken = await jwt.verify(token.replace('Bearer ', ''), this.configService.get('JWT_SECRET_KEY'));
 
             req['user'] = {
-                phone: decodedToken['phone_number']
+                phone_number: decodedToken['phone_number'],
+                role: decodedToken['role'],
             };
 
             next();

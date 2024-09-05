@@ -4,7 +4,7 @@ import { SignInDto } from '../common/DTOs/auth.dto';
 import { AuthService } from './auth.service';
 import {ConfigService} from "@nestjs/config";
 
-@Controller()
+@Controller('auth')
 export class AuthController {
   constructor(
     private readonly configService: ConfigService,
@@ -12,9 +12,9 @@ export class AuthController {
   ) {}
 
   @Post('signIn')
-  async signIn(@Req() req, @Res() res, @Body() body: SignInDto) {
+  async signIn(@Req() req, @Res() res, @Body() signInDto: SignInDto) {
     try {
-      const user = await this.authService.signIn(body);
+      const user = await this.authService.signIn(signInDto);
       const token = jwt.sign({ id: user['id'] }, this.configService.get<string>('JWT_SECRET_KEY'));
 
       return res.json({ message: 'Signed in', user, token });
