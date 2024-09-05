@@ -44,13 +44,13 @@ export class Truck {
     })
     condition: TruckCondition;
 
-    @Column('simple-array', { array: true })
+    @Column('simple-array')
     vehicle_title: string[];
 
-    @Column('simple-array', { array: true })
+    @Column('simple-array')
     insurances: string[];
 
-    @Column('simple-array', { array: true })
+    @Column('simple-array')
     photos: string[];
 
     @Column({ type: 'boolean', default: false })

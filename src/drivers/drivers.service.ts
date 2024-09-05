@@ -3,6 +3,8 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Driver} from "../database/entities/driver.entity";
 import {Repository} from "typeorm";
 import {AuthService} from "../auth/auth.service";
+import { CompleteDataDto } from '../common/DTOs/driver.dto';
+import { dtoToPartialDriverEntity } from '../common/helpers/dtoToPartialEntity';
 
 @Injectable()
 export class DriversService {
@@ -19,7 +21,9 @@ export class DriversService {
         return await this.driverRepository.save(driverData);
     }
 
-    async update(id: number, updateData: Partial<Driver>): Promise<Driver> {
+    async update(id: number, completeDataDto: CompleteDataDto): Promise<Driver> {
+        const updateData = dtoToPartialDriverEntity(completeDataDto);
+
         const { affected } = await this.driverRepository
             .createQueryBuilder()
             .update(Driver)

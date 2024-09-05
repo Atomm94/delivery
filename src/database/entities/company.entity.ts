@@ -14,7 +14,7 @@ export class Company {
     @Column({ type: 'varchar' })
     name: string;
 
-    @Column('simple-array', { nullable: true, array: true })
+    @Column('simple-array', { nullable: true })
     license: string[];
 
     @Column({ type: 'boolean', default: false })

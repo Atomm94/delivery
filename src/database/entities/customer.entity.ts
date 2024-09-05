@@ -52,7 +52,7 @@ export class Customer {
     @Column('json', { array: true, nullable: true })
     addresses: any[];
 
-    @Column('simple-array', { nullable: true, array: true })
+    @Column('simple-array', { nullable: true })
     docs: string[];
 
     @Column({ type: 'boolean', default: false })

@@ -1,7 +1,7 @@
 import {Body, Controller, Param, Post, Put, Req, Res} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { Driver } from '../database/entities/driver.entity';
+import { CompleteDataDto, SignUpDto } from '../common/DTOs/driver.dto';
 
 @Controller('drivers')
 export class DriversController {
@@ -11,17 +11,16 @@ export class DriversController {
     ) {}
 
     @Post('signUp')
-    async signUp(@Req() req, @Res() res, @Body() body: Partial<Driver>) {
-
-        const data = await this.driversService.create(body);
+    async signUp(@Req() req, @Res() res, @Body() signUpDto: SignUpDto) {
+        const data = await this.driversService.create(signUpDto);
 
         return res.json({ message: 'Signed Up', data: { data } });
     }
 
-    @Put('update/:id')
-    async update(@Param('id') id: number, @Res() res, @Body() body: Partial<Driver>) {
+    @Put('complete/:id')
+    async update(@Param('id') id: number, @Res() res, @Body() completeDataDto: CompleteDataDto) {
         try {
-            const data = await this.driversService.update(id, body);
+            const data = await this.driversService.update(id, completeDataDto);
 
             return res.json({ message: 'Successfully updated', data });
         } catch (error) {

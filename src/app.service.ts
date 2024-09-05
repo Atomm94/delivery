@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Customer } from './database/entities/customer.entity';
 import { Company } from './database/entities/company.entity';
 import { UserRole } from './common/enums/user-role.enum';
-import { GetUserData } from './common/interfaces/getUserData.interface';
+import { GetUserData } from './common/interfaces/common.interface';
 
 @Injectable()
 export class AppService {

@@ -36,7 +36,7 @@ export class Driver {
     @Column({ type: 'varchar', nullable: true })
     op_state: string;
 
-    @Column('simple-array', { nullable: true, array: true })
+    @Column('simple-array', { nullable: true })
     op_cities: string[];
 
     @Column({ type: 'boolean', default: false })
