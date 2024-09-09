@@ -27,7 +27,7 @@ export class AuthModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(FirebaseMiddleware)
             .forRoutes(
-                {path: '/*/signUp', method: RequestMethod.POST},
+                {path: '/bg/signUp', method: RequestMethod.POST},
             );
 
         // consumer.apply(JwtMiddleware)

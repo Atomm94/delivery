@@ -53,18 +53,6 @@ export class Truck {
     @Column('simple-array')
     photos: string[];
 
-    @Column({ type: 'boolean', default: false })
-    porter: boolean;
-
-    @Column({ type: 'boolean', default: false })
-    second_porter: boolean;
-
-    @Column({ type: 'boolean', default: false })
-    third_porter: boolean;
-
-    @Column({ type: 'boolean', default: false })
-    emergency_driver: boolean;
-
     @ManyToOne(() => Driver, driver => driver.trucks)
     driver: Driver;
 
