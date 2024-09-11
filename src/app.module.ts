@@ -7,7 +7,7 @@ import { DriversModule } from './drivers/drivers.module';
 import { CompaniesModule } from './companies/companies.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { databaseConfig, dataSource, MulterConfigService } from './configs';
+import { databaseConfig, dataSource, multerConfig } from './configs';
 import {addTransactionalDataSource, initializeTransactionalContext} from 'typeorm-transactional';
 
 import { Driver } from './database/entities/driver.entity';
@@ -19,6 +19,7 @@ import { Company } from './database/entities/company.entity';
 import { Load } from './database/entities/load.entity';
 import { JwtMiddleware } from './auth/jwt/jwt.middleware';
 import { MulterModule } from '@nestjs/platform-express';
+import { DriverFileInterceptor } from './interceptors/driver.file.interceptor';
 
 initializeTransactionalContext();
 
@@ -42,16 +43,14 @@ initializeTransactionalContext();
           Company,
           Load,
       ]),
-      // MulterModule.registerAsync({
-      //     useClass: MulterConfigService,
-      // }),
+      MulterModule.register(multerConfig),
       CustomersModule,
       DriversModule,
       CompaniesModule,
       AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService, DriversService, CustomersService],
+  providers: [AppService, DriversService, CustomersService, DriverFileInterceptor],
 })
 
 export class AppModule {

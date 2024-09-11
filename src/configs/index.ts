@@ -1,5 +1,5 @@
 import databaseConfig from './database.config';
 import dataSource from './ormconfig';
-import { MulterConfigService } from './multer.config';
+import { multerConfig } from './multer.config';
 
-export { databaseConfig, dataSource, MulterConfigService };
+export { databaseConfig, dataSource, multerConfig };

@@ -6,17 +6,16 @@ import {
     Put,
     Req,
     Res,
-    UploadedFile,
     UploadedFiles,
     UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
 import { CompleteDataDto, SignUpDto } from '../common/DTOs/driver.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { DriverFileInterceptor } from '../interceptors/driver.file.interceptor';
 
 @Controller('drivers')
-export class DriversController {
+export class DriversController{
     constructor(
         private readonly configService: ConfigService,
         private readonly driversService: DriversService,
@@ -30,35 +29,35 @@ export class DriversController {
     }
 
     @Put('complete/:id')
-    @UseInterceptors(
-      FileInterceptor('license', { dest: './uploads' }), // Single file upload
-      FileInterceptor('identity', { dest: './uploads' }), // Single file upload
-      FilesInterceptor('trucks[0][vehicle_title][]', 10, { dest: './uploads' }), // Multiple files under vehicle_title
-      FilesInterceptor('trucks[0][insurances][]', 10, { dest: './uploads' }), // Multiple files under insurances
-      FilesInterceptor('trucks[0][photos][]', 10, { dest: './uploads' }), // Multiple files under photos
-    )
+    @UseInterceptors(DriverFileInterceptor)
     async update(
       @Param('id') id: number,
       @Res() res,
       @Body() completeDataDto: CompleteDataDto,
-      @UploadedFile('license') license: Express.Multer.File,
-      @UploadedFile('identity') identity: Express.Multer.File,
-      @UploadedFiles('trucks[0][vehicle_title][]') vehicleTitles: Express.Multer.File[],
-      @UploadedFiles('trucks[0][insurances][]') insurances: Express.Multer.File[],
-      @UploadedFiles('trucks[0][photos][]') photos: Express.Multer.File[],
+      @UploadedFiles() files: any,
     ) {
         try {
+            //console.log(completeDataDto, 'ok driver data...');
+            const { trucks, ...driverData } = completeDataDto;
 
-            console.log(completeDataDto, 'ok driver data...');
-            console.log('License File:', license);
-            console.log('Identity File:', identity);
-            console.log('Vehicle Titles:', vehicleTitles);
-            console.log('Insurances:', insurances);
-            console.log('Photos:', photos);
+            //console.log('trucks', trucks);
+            //console.log('driverData', driverData);
+            //console.log('files', files);
+            for (const key in files) {
+                console.log(key.split(''));
+                if (key.split('').includes('trucks')) {
+                    console.log(files[key]);
+                }
+            }
+            // console.log('License File:', files['license']);
+            // console.log('Identity File:', files['identity']);
+            // console.log('Vehicle Titles:', files['trucks[0][vehicle_title][]']);
+            // console.log('Insurances:', files['trucks[0][insurances][]']);
+            // console.log('Photos:', files['trucks[0][photos][]']);
 
-            const data = await this.driversService.update(id, completeDataDto);
+            //const data = await this.driversService.update(id, completeDataDto);
 
-            return res.json({ message: 'Successfully updated', data });
+            return res.json({ message: 'Successfully updated', msg: 'data' });
         } catch (error) {
             return res.status(404).json({
                 statusCode: 404,

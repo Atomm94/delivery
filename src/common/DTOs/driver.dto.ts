@@ -56,17 +56,17 @@ export class CompleteDataDto {
   @IsString({ each: true, message: 'Each city in operations cities must be a string' })
   op_cities?: string[];
 
-  @IsBoolean()
-  porter: boolean;
-
-  @IsBoolean()
-  second_porter: boolean;
-
-  @IsBoolean()
-  third_porter: boolean;
-
-  @IsBoolean()
-  emergency_driver: boolean;
+  // @IsBoolean()
+  // porter: boolean;
+  //
+  // @IsBoolean()
+  // second_porter: boolean;
+  //
+  // @IsBoolean()
+  // third_porter: boolean;
+  //
+  // @IsBoolean()
+  // emergency_driver: boolean;
 
   @IsArray()
   @ValidateNested({ each: true })

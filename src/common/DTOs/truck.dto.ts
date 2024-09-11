@@ -17,17 +17,17 @@ export class TruckDto {
   @IsString()
   license_plate_number: string;
 
-  @IsInt()
-  max_capacity: number;
-
-  @IsInt()
-  length: number;
-
-  @IsInt()
-  width: number;
-
-  @IsInt()
-  height: number;
+  // @IsInt()
+  // max_capacity: number;
+  //
+  // @IsInt()
+  // length: number;
+  //
+  // @IsInt()
+  // width: number;
+  //
+  // @IsInt()
+  // height: number;
 
   @IsString()
   type: string;
@@ -35,18 +35,18 @@ export class TruckDto {
   @IsEnum(TruckCondition)
   condition: TruckCondition;
 
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  vehicle_title: string[];
-
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  insurances: string[];
-
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsString({ each: true })
-  photos: string[];
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @IsString({ each: true })
+  // vehicle_title: string[];
+  //
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @IsString({ each: true })
+  // insurances: string[];
+  //
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @IsString({ each: true })
+  // photos: string[];
 }

@@ -1,20 +1,21 @@
-// import { MulterOptions, MulterOptionsFactory } from '@nestjs/platform-express';
-// import { Injectable } from '@nestjs/common';
-// import * as multer from 'multer';
-//
-// @Injectable()
-// export class MulterConfigService implements MulterOptionsFactory {
-//   createMulterOptions(): MulterOptions {
-//     return {
-//       limits: {
-//         fileSize: 5e6, // 5 MB
-//       },
-//       storage: multer.diskStorage({
-//         destination: './uploads',
-//         filename: (req, file, callback) => {
-//           callback(null, `${Date.now()}-${file.originalname}`);
-//         },
-//       }),
-//     };
-//   }
-// }
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+
+export const multerConfig = {
+  storage: diskStorage({
+    destination: './uploads',
+    filename: (req, file, callback) => {
+      const filename = `${Math.floor(Math.random() * 9000000) + 1000000}${extname(file.originalname)}`;
+      callback(null, filename);
+    },
+  }),
+  fileFilter: (req, file, callback) => {
+    const allowedMimeTypes = ['image/jpeg', 'image/png'];
+    if (allowedMimeTypes.includes(file.mimetype)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Invalid file type'), false);
+    }
+  },
+};
+
