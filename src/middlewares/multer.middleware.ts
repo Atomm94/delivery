@@ -1,19 +1,13 @@
-// multer.middleware.ts
 import * as multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
-import { multerConfig } from '../configs'; // Adjust the path accordingly
+import { multerConfig } from '../configs';
+import { FieldConfig } from '../common/interfaces/common.interface';
 
-export function multerMiddleware() {
+export function multerMiddleware(fields: FieldConfig[]) {
   const upload = multer(multerConfig);
 
   return function (req: Request, res: Response, next: NextFunction) {
-    upload.fields([
-      { name: 'license' },
-      { name: 'identity' },
-      { name: 'trucks[0][vehicle_title][]', maxCount: 10 },
-      { name: 'trucks[0][insurances][]', maxCount: 10 },
-      { name: 'trucks[0][photos][]', maxCount: 10 },
-    ])(req, res, (err: any) => {
+    upload.fields(fields)(req, res, (err: any) => {
       if (err) {
         return next(err);
       }

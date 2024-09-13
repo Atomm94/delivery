@@ -1,14 +1,12 @@
 import {
-  IsArray, IsBoolean,
+  IsArray,
   IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
-  MinLength, ValidateNested,
+  MinLength,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { TruckDto } from './truck.dto';
 
 export class SignUpDto {
   @IsNotEmpty({ message: 'first name is required' })
@@ -67,9 +65,4 @@ export class CompleteDataDto {
   //
   // @IsBoolean()
   // emergency_driver: boolean;
-
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => TruckDto)
-  trucks: TruckDto[];
 }

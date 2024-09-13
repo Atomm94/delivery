@@ -1,5 +1,4 @@
 import { CompleteDataDto } from '../DTOs/driver.dto';
-import { Driver } from '../../database/entities/driver.entity';
 
 export function dtoToPartialDriverEntity(dto: CompleteDataDto) {
   return {
@@ -13,6 +12,5 @@ export function dtoToPartialDriverEntity(dto: CompleteDataDto) {
     // second_porter: dto.second_porter,
     // third_porter: dto.third_porter,
     // emergency_driver: dto.emergency_driver,
-    trucks: dto.trucks ? dto.trucks : null,
   };
 }

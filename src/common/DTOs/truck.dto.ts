@@ -1,7 +1,7 @@
 import { IsString, IsInt, IsEnum, IsArray, ArrayNotEmpty } from 'class-validator';
 import { TruckCondition } from '../enums/truck-condition.enum';
 
-export class TruckDto {
+export class CompleteDataDto {
   @IsString()
   mark: string;
 
