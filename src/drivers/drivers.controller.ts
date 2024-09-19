@@ -46,7 +46,7 @@ export class DriversController{
 
             return res.json({ message: 'Successfully updated', data });
         } catch (error) {
-            await removeFiles(files)
+            //await removeFiles(files)
 
             return res.status(404).json({
                 statusCode: 404,
