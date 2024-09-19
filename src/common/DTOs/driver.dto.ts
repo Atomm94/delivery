@@ -6,9 +6,7 @@ import {
   IsString,
   Matches,
   MinLength,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 
 export class SignUpDto {
   @IsNotEmpty({ message: 'first name is required' })
@@ -30,7 +28,7 @@ export class SignUpDto {
   password: string;
 }
 
-export class CompleteDataDto {
+export class CompleteDriverDataDto {
   @IsOptional()
   @IsEmail({}, { message: 'Invalid email format' })
   email?: string;
@@ -55,4 +53,16 @@ export class CompleteDataDto {
   @IsArray({ message: 'operations cities must be an array' })
   @IsString({ each: true, message: 'Each city in operations cities must be a string' })
   op_cities?: string[];
+
+  // @IsBoolean()
+  // porter: boolean;
+  //
+  // @IsBoolean()
+  // second_porter: boolean;
+  //
+  // @IsBoolean()
+  // third_porter: boolean;
+  //
+  // @IsBoolean()
+  // emergency_driver: boolean;
 }

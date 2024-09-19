@@ -49,6 +49,18 @@ export class Driver {
     })
     role: UserRole;
 
+    @Column({ type: 'boolean', default: false })
+    porter: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    second_porter: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    third_porter: boolean;
+
+    @Column({ type: 'boolean', default: false })
+    emergency_driver: boolean;
+
     @OneToMany(() => Truck, truck => truck.driver)
     trucks: Truck[];
 

@@ -1,58 +1,75 @@
-import { IsString, IsInt, IsArray, IsEnum, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsString, IsInt, IsEnum, IsArray, ArrayNotEmpty, ValidateNested } from 'class-validator';
 import { TruckCondition } from '../enums/truck-condition.enum';
+import { Type } from 'class-transformer';
 
-export class CreateTruckDto {
+export class CreateTruckDataDto {
   @IsString()
-  @IsNotEmpty()
   mark: string;
 
   @IsString()
-  @IsNotEmpty()
   model: string;
 
   @IsString()
-  @IsNotEmpty()
   year: string;
 
   @IsString()
-  @IsNotEmpty()
   vin_code: string;
 
   @IsString()
-  @IsNotEmpty()
   license_plate_number: string;
 
-  @IsInt()
-  max_capacity: number;
-
-  @IsInt()
-  length: number;
-
-  @IsInt()
-  width: number;
-
-  @IsInt()
-  height: number;
+  // @IsInt()
+  // max_capacity: number;
+  //
+  // @IsInt()
+  // length: number;
+  //
+  // @IsInt()
+  // width: number;
+  //
+  // @IsInt()
+  // height: number;
 
   @IsString()
-  @IsNotEmpty()
+  max_capacity: string;
+
+  @IsString()
+  length: string;
+
+  @IsString()
+  width: string;
+
+  @IsString()
+  height: string;
+
+  @IsString()
   type: string;
 
   @IsEnum(TruckCondition)
   condition: TruckCondition;
 
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  vehicle_title?: string[];
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @IsString({ each: true })
+  // vehicle_title: string[];
+  //
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @IsString({ each: true })
+  // insurances: string[];
+  //
+  // @IsArray()
+  // @ArrayNotEmpty()
+  // @IsString({ each: true })
+  // photos: string[];
+}
+
+export class CreateMultipleTrucksDto {
+  //@IsInt()
+  driverId: number;
 
   @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  insurances?: string[];
-
-  @IsArray()
-  @IsOptional()
-  @IsString({ each: true })
-  photos?: string[];
+  @ValidateNested({ each: true })
+  @Type(() => CreateTruckDataDto)
+  trucks: CreateTruckDataDto[];
 }

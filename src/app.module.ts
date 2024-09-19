@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -7,7 +7,7 @@ import { DriversModule } from './drivers/drivers.module';
 import { CompaniesModule } from './companies/companies.module';
 import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { databaseConfig, dataSource } from "./configs";
+import { databaseConfig, dataSource, multerConfig } from './configs';
 import {addTransactionalDataSource, initializeTransactionalContext} from 'typeorm-transactional';
 
 import { Driver } from './database/entities/driver.entity';
@@ -18,6 +18,12 @@ import { Customer } from './database/entities/customer.entity';
 import { Company } from './database/entities/company.entity';
 import { Load } from './database/entities/load.entity';
 import { JwtMiddleware } from './auth/jwt/jwt.middleware';
+import { MulterModule } from '@nestjs/platform-express';
+import { DriverFilesInterceptor } from './interceptors/driver.files.interceptor';
+import { TrucksModule } from './trucks/trucks.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+
 
 initializeTransactionalContext();
 
@@ -41,13 +47,18 @@ initializeTransactionalContext();
           Company,
           Load,
       ]),
+      MulterModule.register(multerConfig),
+      ServeStaticModule.forRoot({
+          rootPath: join(__dirname, '..', 'uploads'),
+      }),
       CustomersModule,
       DriversModule,
       CompaniesModule,
-      AuthModule
+      AuthModule,
+      TrucksModule
   ],
   controllers: [AppController],
-  providers: [AppService, DriversService, CustomersService],
+  providers: [AppService, DriversService, CustomersService, DriverFilesInterceptor],
 })
 
 export class AppModule {
