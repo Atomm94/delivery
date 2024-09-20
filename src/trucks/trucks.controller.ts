@@ -36,7 +36,7 @@ export class TrucksController {
 
       const data = await this.trucksService.bulkInsert(driverId, completeDataDto);
 
-      return res.json({ message: 'Successfully updated', data });
+      return res.json({ message: 'Successfully added', data });
     } catch (error) {
       //await removeFiles(files)
 
