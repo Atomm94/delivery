@@ -2,7 +2,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { unlinkSync } from 'fs';
 
-const FILE_HOSTING_URL = process.env.FILE_HOSTING_URL || 'http://localhost:3000';
+const FILE_HOSTING_URL = process.env.HOSTING || 'http://localhost:3000';
 
 export const multerConfig = {
   storage: diskStorage({

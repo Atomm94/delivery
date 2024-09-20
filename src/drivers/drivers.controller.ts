@@ -39,7 +39,7 @@ export class DriversController{
     ) {
         try {
             Object.entries(files).forEach(([key, value]) => {
-                completeDataDto[key] = getFileUrl(value['filename']);
+                completeDataDto[value['fieldname']] = getFileUrl(value['filename']);
             })
 
             const data = await this.driversService.update(id, completeDataDto);
