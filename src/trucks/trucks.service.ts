@@ -14,23 +14,21 @@ export class TrucksService {
     private readonly driverRepository: Repository<Driver>,
   ) {}
 
-  async bulkInsert(data: CreateMultipleTrucksDto): Promise<Truck[]> {
+  async bulkInsert(driverId: number, data: CreateMultipleTrucksDto): Promise<Truck[]> {
 
     const driver = await this.driverRepository.findOne({
-      where: {id: data.driverId}
+      where: {id: driverId}
     });
     if (!driver) {
       throw new NotFoundException('Driver not found');
     }
 
     const savedData = data.trucks.map((truckData) => {
-      truckData['driverId'] = data.driverId;
+      truckData['driver'] = driverId;
 
-      return this.truckRepository.insert([truckData]);
+      return this.truckRepository.save([truckData]);
     });
 
-    const promises = await Promise.all(savedData);
-
-    return promises.map(result => result.generatedMaps[0] as Truck)
+    return await Promise.all(savedData);
   }
 }

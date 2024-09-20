@@ -10,9 +10,10 @@ export class TrucksController {
     private readonly trucksService: TrucksService,
   ) {}
 
-  @Post('insert')
+  @Post('insert/:driverId')
   @UseInterceptors(TruckFilesInterceptor)
   async insert(
+    @Param('driverId') driverId: number,
     @Res() res,
     @Body() completeDataDto: CreateMultipleTrucksDto,
     @UploadedFiles() files: any,
@@ -33,7 +34,7 @@ export class TrucksController {
       })
 
 
-      const data = await this.trucksService.bulkInsert(completeDataDto);
+      const data = await this.trucksService.bulkInsert(driverId, completeDataDto);
 
       return res.json({ message: 'Successfully updated', data });
     } catch (error) {

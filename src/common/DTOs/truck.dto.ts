@@ -65,9 +65,6 @@ export class CreateTruckDataDto {
 }
 
 export class CreateMultipleTrucksDto {
-  //@IsInt()
-  driverId: number;
-
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateTruckDataDto)
