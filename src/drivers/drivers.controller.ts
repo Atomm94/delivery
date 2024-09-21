@@ -26,7 +26,7 @@ export class DriversController{
     async signUp(@Req() req, @Res() res, @Body() signUpDto: SignUpDto) {
         const driver = await this.driversService.getByPhone(signUpDto.phone_number);
 
-        if (!driver) {
+        if (driver) {
             return res.status(400).json({ message: 'phone number is exists' })
         }
 

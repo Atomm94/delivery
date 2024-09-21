@@ -56,15 +56,8 @@ export class CompleteDriverDataDto {
   @IsString({ each: true, message: 'Each city in operations cities must be a string' })
   op_cities?: string[];
 
-  // @IsBoolean()
-  // porter: boolean;
-  //
-  // @IsBoolean()
-  // second_porter: boolean;
-  //
-  // @IsBoolean()
-  // third_porter: boolean;
-  //
-  // @IsBoolean()
-  // emergency_driver: boolean;
+  porter: boolean;
+  second_porter: boolean;
+  third_porter: boolean;
+  emergency_driver: boolean;
 }
