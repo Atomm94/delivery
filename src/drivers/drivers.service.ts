@@ -15,7 +15,17 @@ export class DriversService {
     ) {}
 
 
+    async getByPhone(phone_number: string): Promise<Driver> {
+        return await this.driverRepository.findOne({ where: { phone_number } });
+    }
+
     async create(driverData: Partial<Driver>): Promise<Driver> {
+        const driver = await this.getByPhone(driverData.phone_number);
+
+        if (!driver) {
+            throw new Error('phone number is exists');
+        }
+
         driverData.password = await this.authService.hashPassword(driverData.password);
 
         return await this.driverRepository.save(driverData);

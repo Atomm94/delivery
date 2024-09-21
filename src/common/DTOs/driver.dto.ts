@@ -5,8 +5,9 @@ import {
   IsOptional,
   IsString,
   Matches,
-  MinLength,
+  MinLength, Validate,
 } from 'class-validator';
+import { IsDriverPhoneNumberUnique } from '../../validators/unique.validation';
 
 export class SignUpDto {
   @IsNotEmpty({ message: 'first name is required' })
@@ -20,6 +21,7 @@ export class SignUpDto {
   @IsNotEmpty({ message: 'phone number is required' })
   @IsString({ message: 'phone number must be a string' })
   @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phone number must be a valid international phone number' })
+  //@Validate(IsDriverPhoneNumberUnique)
   phone_number: string;
 
   @IsNotEmpty({ message: 'password is required' })
