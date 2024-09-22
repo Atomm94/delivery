@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Truck } from '../database/entities/truck.entity';
@@ -28,6 +28,17 @@ export class TrucksService {
 
       return this.truckRepository.save([truckData]);
     });
+
+    const { affected } = await this.driverRepository
+      .createQueryBuilder()
+      .update(Driver)
+      .set({ isVerified: true })
+      .where("id = :id", { id: driverId })
+      .execute();
+
+    if (!affected) {
+      throw new UnauthorizedException('Driver is not verified');
+    }
 
     return await Promise.all(savedData);
   }

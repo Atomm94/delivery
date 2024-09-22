@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {Driver} from "../database/entities/driver.entity";
 import {Repository} from "typeorm";
@@ -20,6 +20,14 @@ export class DriversService {
     }
 
     async create(driverData: Partial<Driver>): Promise<Driver> {
+        const driver = await this.driverRepository.findOne({
+            where: { phone_number: driverData.phone_number }
+        });
+
+        if (driver) {
+            throw new ConflictException('phone number is already exists');
+        }
+
         driverData.password = await this.authService.hashPassword(driverData.password);
 
         return await this.driverRepository.save(driverData);
@@ -36,7 +44,7 @@ export class DriversService {
             .execute();
 
         if (!affected) {
-            throw new Error('Driver not found');
+            throw new NotFoundException('Driver not found');
         }
 
         return await this.driverRepository.findOneBy({ id });

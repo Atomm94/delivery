@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from "bcrypt";
 import { SignInDto } from '../common/DTOs/auth.dto';
 import { UserRole } from '../common/enums/user-role.enum';
@@ -33,20 +33,34 @@ export class AuthService {
 
         switch (role) {
             case UserRole.COURIER:
-                user = await this.driverRepository.findOneBy({ phone_number });
+                user = await this.driverRepository.findOne({
+                    where: { phone_number },
+                    relations: ['trucks']
+                });
+                if (!user) {
+                    throw new NotFoundException(`${role} in this phone number is not found`)
+                }
                 break;
             case UserRole.COMPANY:
                 user = await this.companyRepository.findOneBy({ phone_number });
+                if (!user) {
+                    throw new NotFoundException(`${role} in this phone number is not found`)
+                }
                 break;
             case UserRole.CUSTOMER:
                 user = await this.customerRepository.findOneBy({ phone_number });
+                if (!user) {
+                    throw new NotFoundException(`${role} in this phone number is not found`)
+                }
                 break;
+            default:
+                throw new NotFoundException(`${role} is not found`)
         }
 
         const match = await this.comparePassword(user.password, password);
 
         if (!match) {
-            throw 'passwords do not match';
+            throw new UnauthorizedException('passwords do not match');
         }
 
         return user;

@@ -23,7 +23,10 @@ export class AppService {
 
     switch (role) {
       case UserRole.COURIER:
-        return await this.driverRepository.findOneBy({ phone_number });
+        return await this.driverRepository.findOne({
+          where: { phone_number },
+          relations: ['truckers']
+        });
       case UserRole.COMPANY:
         return await this.companyRepository.findOneBy({ phone_number });
       case UserRole.CUSTOMER:
