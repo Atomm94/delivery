@@ -12,6 +12,5 @@ export function dtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
     second_porter: Boolean(Number(dto.second_porter)),
     third_porter: Boolean(Number(dto.third_porter)),
     emergency_driver: Boolean(Number(dto.emergency_driver)),
-    isVerified: Boolean(Number(dto.isVerified)),
   };
 }

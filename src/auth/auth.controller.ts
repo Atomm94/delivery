@@ -19,6 +19,8 @@ export class AuthController {
 
       return res.json({ message: 'Signed in', user, token });
     } catch (error) {
+      console.log(error)
+
       return res.status(400).json({
         statusCode: 400,
         timestamp: new Date().toISOString(),

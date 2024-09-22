@@ -67,7 +67,4 @@ export class CompleteDriverDataDto {
 
   @IsOptional()
   emergency_driver: boolean;
-
-  @IsOptional()
-  isVerified: boolean;
 }

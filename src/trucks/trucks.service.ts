@@ -15,10 +15,10 @@ export class TrucksService {
   ) {}
 
   async bulkInsert(driverId: number, data: CreateMultipleTrucksDto): Promise<Truck[]> {
-
     const driver = await this.driverRepository.findOne({
       where: {id: driverId}
     });
+
     if (!driver) {
       throw new NotFoundException('Driver not found');
     }
