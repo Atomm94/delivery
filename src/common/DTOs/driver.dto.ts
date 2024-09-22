@@ -1,5 +1,5 @@
 import {
-  IsArray,
+  IsArray, IsBoolean,
   IsEmail,
   IsNotEmpty,
   IsOptional,
@@ -56,8 +56,18 @@ export class CompleteDriverDataDto {
   @IsString({ each: true, message: 'Each city in operations cities must be a string' })
   op_cities?: string[];
 
+  @IsOptional()
   porter: boolean;
+
+  @IsOptional()
   second_porter: boolean;
+
+  @IsOptional()
   third_porter: boolean;
+
+  @IsOptional()
   emergency_driver: boolean;
+
+  @IsOptional()
+  isVerified: boolean;
 }

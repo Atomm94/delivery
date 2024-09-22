@@ -8,9 +8,10 @@ export function dtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
     identity: dto.identity,
     op_state: dto.op_state,
     op_cities: dto.op_cities ? dto.op_cities : null,
-    porter: Number(dto.porter),
-    second_porter: Number(dto.second_porter),
-    third_porter: Number(dto.third_porter),
-    emergency_driver: Number(dto.emergency_driver),
+    porter: Boolean(Number(dto.porter)),
+    second_porter: Boolean(Number(dto.second_porter)),
+    third_porter: Boolean(Number(dto.third_porter)),
+    emergency_driver: Boolean(Number(dto.emergency_driver)),
+    isVerified: Boolean(Number(dto.isVerified)),
   };
 }
