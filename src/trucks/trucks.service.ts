@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Truck } from '../database/entities/truck.entity';
 import { Driver } from '../database/entities/driver.entity';
-import { CreateMultipleTrucksDto } from '../common/DTOs/truck.dto';
+import { CreateMultipleTrucksDto, TruckDataDto } from '../common/DTOs/truck.dto';
+import { updateDtoToPartialTruckEntity } from '../common/helpers/dtoToPartialEntity';
 
 @Injectable()
 export class TrucksService {
@@ -42,4 +43,22 @@ export class TrucksService {
 
     return await Promise.all(savedData);
   }
+
+  async update(id: number, updatedData: TruckDataDto): Promise<Truck> {
+    const updateData = updateDtoToPartialTruckEntity(updatedData);
+
+    const { affected } = await this.truckRepository
+      .createQueryBuilder()
+      .update(Truck)
+      .set(updateData)
+      .where("id = :id", { id })
+      .execute();
+
+    if (!affected) {
+      throw new NotFoundException('Truck not found');
+    }
+
+    return await this.truckRepository.findOneBy({ id });
+  }
+
 }

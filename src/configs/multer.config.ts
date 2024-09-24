@@ -1,6 +1,5 @@
 import { diskStorage } from 'multer';
-import { extname, parse } from 'path';
-import { unlinkSync } from 'fs';
+import { parse } from 'path';
 
 const FILE_HOSTING_URL = process.env.HOSTING || 'http://ec2-13-60-241-214.eu-north-1.compute.amazonaws.com';
 
@@ -24,16 +23,4 @@ export const multerConfig = {
 
 export function getFileUrl(filename: string): string {
   return `${FILE_HOSTING_URL}/${filename}`;
-}
-
-export async function removeFiles(files: string[]) {
-  files.forEach(file => {
-    try {
-      console.log(file);
-      unlinkSync(file[0]['filepath']);
-      console.log(`Successfully deleted file: ${file[0]['filepath']}`);
-    } catch (err) {
-      console.error(`Failed to delete file: ${file[0]['filepath']}`, err);
-    }
-  });
 }

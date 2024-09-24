@@ -11,9 +11,10 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { CompleteDriverDataDto, SignUpDto } from '../common/DTOs/driver.dto';
-import { DriverFilesInterceptor } from '../interceptors/driver.files.interceptor';
-import { getFileUrl, removeFiles } from '../configs/multer.config';
+import { CompleteDriverDataDto, SignUpDto, UpdateDataDto } from '../common/DTOs/driver.dto';
+import { getFileUrl } from '../configs/multer.config';
+import { removeFiles } from '../common/helpers/filePaths';
+import { FilesInterceptor } from '../interceptors/files.interceptor';
 
 @Controller('drivers')
 export class DriversController{
@@ -30,23 +31,25 @@ export class DriversController{
     }
 
     @Put('complete/:id')
-    @UseInterceptors(DriverFilesInterceptor)
-    async update(
+    @UseInterceptors(FilesInterceptor)
+    async complete(
       @Param('id') id: number,
       @Res() res,
       @Body() completeDataDto: CompleteDriverDataDto,
       @UploadedFiles() files: any,
     ) {
         try {
-            Object.entries(files).forEach(([key, value]) => {
-                completeDataDto[value['fieldname']] = getFileUrl(value['filename']);
-            })
+            if (files) {
+                Object.entries(files).forEach(([key, value]) => {
+                    completeDataDto[value['fieldname']] = getFileUrl(value['filename'] as string);
+                })
+            }
 
-            const data = await this.driversService.update(id, completeDataDto);
+            const data = await this.driversService.complete(id, completeDataDto);
 
-            return res.json({ message: 'Successfully updated', data });
+            return res.json({ message: 'Successfully completed', data });
         } catch (error) {
-            //await removeFiles(files)
+            await removeFiles(files)
 
             return res.status(404).json({
                 statusCode: 404,
@@ -54,5 +57,34 @@ export class DriversController{
                 message: error.message,
             })
         }
+   }
+
+   @Put('/:id')
+   @UseInterceptors(FilesInterceptor)
+   async update(
+     @Param('id') id: number,
+     @Res() res,
+     @Body() updateDataDto: UpdateDataDto,
+     @UploadedFiles() files: any,
+   ) {
+      try {
+          if (files) {
+              Object.entries(files).forEach(([key, value]) => {
+                  updateDataDto[value['fieldname']] = getFileUrl(value['filename'] as string);
+              })
+          }
+
+          const data = await this.driversService.update(id, updateDataDto);
+
+          return res.json({ message: 'Successfully updated', data });
+      } catch (error) {
+          await removeFiles(files)
+
+          return res.status(404).json({
+              statusCode: 404,
+              timestamp: new Date().toISOString(),
+              message: error.message,
+          })
+      }
    }
 }

@@ -19,7 +19,7 @@ import { Company } from './database/entities/company.entity';
 import { Load } from './database/entities/load.entity';
 import { JwtMiddleware } from './auth/jwt/jwt.middleware';
 import { MulterModule } from '@nestjs/platform-express';
-import { DriverFilesInterceptor } from './interceptors/driver.files.interceptor';
+import { FilesInterceptor } from './interceptors/files.interceptor';
 import { TrucksModule } from './trucks/trucks.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -58,7 +58,7 @@ initializeTransactionalContext();
       TrucksModule
   ],
   controllers: [AppController],
-  providers: [AppService, DriversService, CustomersService, DriverFilesInterceptor],
+  providers: [AppService, DriversService, CustomersService, FilesInterceptor],
 })
 
 export class AppModule {
