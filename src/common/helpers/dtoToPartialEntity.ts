@@ -49,7 +49,8 @@ export function updateDtoToPartialTruckEntity(dto: TruckDataDto) {
     type: dto.type,
     condition: dto.condition,
     vehicle_title: dto.vehicle_title ? dto.vehicle_title : null,
-    insurances: dto.insurances ? dto.insurances : null,
+    insurance_photos: dto.insurance_photos ? dto.insurance_photos : null,
+    insurance_files: dto.insurance_files ? dto.insurance_files : null,
     photos: dto.photos ? dto.photos : null
   };
 }

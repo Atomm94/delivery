@@ -37,19 +37,24 @@ export class TruckDataDto {
   condition: TruckCondition;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  vehicle_title: string[];
+  @IsArray({ message: 'vehicle_title must be an array' })
+  @IsString({ each: true, message: 'Each vehicle_title in vehicle_titles must be a string' })
+  vehicle_title?: string[];
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  insurances: string[];
+  @IsArray({ message: 'insurance_photos must be an array' })
+  @IsString({ each: true, message: 'Each insurance_photo in insurance_photos must be a string' })
+  insurance_photos?: string[];
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  photos: string[];
+  @IsArray({ message: 'insurance_files must be an array' })
+  @IsString({ each: true, message: 'Each insurance_file in insurance_files must be a string' })
+  insurance_files?: string[];
+
+  @IsOptional()
+  @IsArray({ message: 'photos must be an array' })
+  @IsString({ each: true, message: 'Each photo in photos must be a string' })
+  photos?: string[];
 }
 
 export class CreateMultipleTrucksDto {

@@ -47,6 +47,12 @@ export class TrucksService {
   async update(id: number, updatedData: TruckDataDto): Promise<Truck> {
     const updateData = updateDtoToPartialTruckEntity(updatedData);
 
+    for (let key in updateData) {
+      if (!key) {
+        delete updateData[key];
+      }
+    }
+
     const { affected } = await this.truckRepository
       .createQueryBuilder()
       .update(Truck)

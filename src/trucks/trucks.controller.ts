@@ -24,15 +24,38 @@ export class TrucksController {
         completeDataDto.trucks.map((truck, index) => {
           const regexKey = /trucks\[(\d+)\]\[(.+)\]/;
           const regexIndex = /trucks\[(\d+)\]/;
+          let vehicle_title = []
+          let insurance_files = []
+          let insurance_photos = []
+          let photos = []
 
           files.map(file => {
             const matchIndex = file['fieldname'].match(regexIndex);
 
             if (matchIndex[1] == index) {
               const matchKey = file['fieldname'].match(regexKey);
+              switch (matchKey[2]) {
+                case 'vehicle_title':
+                  vehicle_title.push(getFileUrl(file['filename']));
+                  break;
+                case 'insurance_files':
+                  insurance_files.push(getFileUrl(file['filename']));
+                  break;
+                case 'insurance_photos':
+                  insurance_photos.push(getFileUrl(file['filename']));
+                  break;
+                case 'photos':
+                  photos.push(getFileUrl(file['filename']));
+              }
+
               truck[matchKey[2]] = getFileUrl(file['filename']);
             }
           })
+
+          truck['vehicle_title'] = vehicle_title;
+          truck['insurance_files'] = insurance_files;
+          truck['insurance_photos'] = insurance_photos;
+          truck['photos'] = photos;
         })
       }
 

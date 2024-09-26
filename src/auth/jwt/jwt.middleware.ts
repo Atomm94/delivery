@@ -10,8 +10,6 @@ export class JwtMiddleware implements NestMiddleware {
     async use(req: Request, res: Response, next: NextFunction) {
         try {
             const token = req.headers['authorization'];
-            
-            console.log(token)
 
             if (!token) {
                 return this.accessDenied(req.url, res);
