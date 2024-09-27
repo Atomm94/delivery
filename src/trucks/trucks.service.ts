@@ -48,7 +48,7 @@ export class TrucksService {
     const updateData = updateDtoToPartialTruckEntity(updatedData);
 
     for (let key in updateData) {
-      if (!key) {
+      if (!key || !updatedData[key]?.length) {
         delete updateData[key];
       }
     }
