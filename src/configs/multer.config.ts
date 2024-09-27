@@ -11,14 +11,6 @@ export const multerConfig = {
       callback(null, filename);
     },
   }),
-  fileFilter: (req, file, callback) => {
-    const allowedMimeTypes = ['image/jpeg', 'image/png'];
-    if (allowedMimeTypes.includes(file.mimetype)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Invalid file type'), false);
-    }
-  },
 };
 
 export function getFileUrl(filename: string): string {

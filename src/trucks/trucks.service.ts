@@ -67,4 +67,15 @@ export class TrucksService {
     return await this.truckRepository.findOneBy({ id });
   }
 
+  async remove(id: number): Promise<number> {
+
+    const { affected } = await this.truckRepository.delete({ id });
+
+    if (!affected) {
+      throw new NotFoundException('Truck not found');
+    }
+
+    return affected;
+  }
+
 }

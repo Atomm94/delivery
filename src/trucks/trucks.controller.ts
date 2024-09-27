@@ -1,4 +1,15 @@
-import { Body, Controller, Param, ParseIntPipe, Post, Put, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Res,
+  UploadedFiles,
+  UseInterceptors,
+} from '@nestjs/common';
 import { CreateMultipleTrucksDto, TruckDataDto } from '../common/DTOs/truck.dto';
 import { getFileUrl } from '../configs/multer.config';
 import { TrucksService } from './trucks.service';
@@ -83,9 +94,31 @@ export class TrucksController {
   ) {
     try {
       if (files) {
+        let vehicle_title = []
+        let insurance_files = []
+        let insurance_photos = []
+        let photos = []
         Object.entries(files).forEach(([key, value]) => {
+          switch (value['fieldname']) {
+            case 'vehicle_title':
+              vehicle_title.push(getFileUrl(value['filename'] as string));
+              break;
+            case 'insurance_files':
+              insurance_files.push(getFileUrl(value['filename'] as string));
+              break;
+            case 'insurance_photos':
+              insurance_photos.push(getFileUrl(value['filename'] as string));
+              break;
+            case 'photos':
+              photos.push(getFileUrl(value['filename'] as string));
+          }
           updateDataDto[value['fieldname']] = getFileUrl(value['filename'] as string);
         })
+
+        updateDataDto['vehicle_title'] = vehicle_title;
+        updateDataDto['insurance_files'] = insurance_files;
+        updateDataDto['insurance_photos'] = insurance_photos;
+        updateDataDto['photos'] = photos;
       }
 
       const data = await this.trucksService.update(id, updateDataDto);
@@ -101,4 +134,24 @@ export class TrucksController {
       })
     }
   }
+
+  @Delete('/:id')
+  async remove(
+    @Param('id') id: number,
+    @Res() res,
+  ) {
+    try {
+      const data = await this.trucksService.remove(id);
+
+      return res.json({ message: 'Successfully removed', data });
+    } catch (error) {
+      return res.status(404).json({
+        statusCode: 404,
+        timestamp: new Date().toISOString(),
+        message: error.message,
+      })
+    }
+  }
+
 }
+
