@@ -9,6 +9,7 @@ export class CardsService {
   constructor(
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Driver>,
+    @InjectRepository(Card)
     private readonly cardRepository: Repository<Card>,
   ) {}
 
