@@ -1,4 +1,4 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Delete, Get, Req, Res } from '@nestjs/common';
 import { AppService } from './app.service';
 
 @Controller()
@@ -10,5 +10,12 @@ export class AppController {
     const { user } = req;
 
     return this.appService.getUserData(user);
+  }
+
+  @Delete('/users')
+  deleteUser(@Req() req, @Res() res) {
+    const { user } = req;
+
+    return this.appService.deleteUserData(user);
   }
 }

@@ -1,12 +1,13 @@
 import {
   IsArray, IsBoolean,
-  IsEmail,
+  IsEmail, IsEnum, IsInt,
   IsNotEmpty,
   IsOptional,
   IsString,
   Matches,
   MinLength, Validate,
 } from 'class-validator';
+import { Rating } from '../enums/rating.enum';
 
 export class SignUpDto {
   @IsNotEmpty({ message: 'first name is required' })
@@ -123,4 +124,10 @@ export class UpdateDataDto {
 
   @IsOptional()
   emergency_driver: boolean;
+}
+
+export class RateDto {
+  @IsNotEmpty()
+  @IsInt()
+  rate: number;
 }

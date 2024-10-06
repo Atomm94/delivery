@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { CompleteDriverDataDto, SignUpDto, UpdateDataDto } from '../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, RateDto, SignUpDto, UpdateDataDto } from '../common/DTOs/driver.dto';
 import { getFileUrl } from '../configs/multer.config';
 import { removeFiles } from '../common/helpers/filePaths';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
@@ -86,5 +86,16 @@ export class DriversController{
               message: error.message,
           })
       }
+   }
+
+   @Put('rate')
+   async doRate(
+     @Param('id') id: number,
+     @Res() res,
+     @Body() rateDto: number,
+   ) {
+        const rate = await this.driversService.doRate(id, rateDto);
+
+        return res.json({ rate })
    }
 }

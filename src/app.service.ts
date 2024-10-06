@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { Customer } from './database/entities/customer.entity';
 import { Company } from './database/entities/company.entity';
 import { UserRole } from './common/enums/user-role.enum';
-import { GetUserData } from './common/interfaces/common.interface';
+import { AuthUserData } from './common/interfaces/common.interface';
 
 @Injectable()
 export class AppService {
@@ -18,7 +18,7 @@ export class AppService {
     private readonly companyRepository: Repository<Company>,
   ) {}
 
-  async getUserData(user: GetUserData): Promise<any> {
+  async getUserData(user: AuthUserData): Promise<any> {
     const { role, phone_number } = user;
 
     switch (role) {
@@ -31,6 +31,19 @@ export class AppService {
         return await this.companyRepository.findOneBy({ phone_number });
       case UserRole.CUSTOMER:
         return await this.customerRepository.findOneBy({ phone_number });
+    }
+  }
+
+  async deleteUserData(user: AuthUserData): Promise<any> {
+    const { role, phone_number } = user;
+
+    switch (role) {
+      case UserRole.COURIER:
+        return await this.driverRepository.delete({ phone_number });
+      case UserRole.COMPANY:
+        return await this.companyRepository.delete({ phone_number });
+      case UserRole.CUSTOMER:
+        return await this.customerRepository.delete({ phone_number });
     }
   }
 }

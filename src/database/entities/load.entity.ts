@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Customer } from './customer.entity';
 import { Driver } from './driver.entity';
 
@@ -36,9 +36,11 @@ export class Load {
     @Column('int')
     height: number;
 
-    @ManyToOne(() => Customer, customer => customer.loads)
+    @ManyToOne(() => Customer, customer => customer.loads, { onDelete: 'CASCADE', nullable: true })
+    @JoinColumn({ name: 'customerId' })
     customer: Customer;
 
-    @ManyToOne(() => Driver, driver => driver.loads)
+    @ManyToOne(() => Driver, driver => driver.loads, { onDelete: 'CASCADE', nullable: true })
+    @JoinColumn({ name: 'driverId' })
     driver: Driver;
 }

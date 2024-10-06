@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
 import { Company } from './company.entity';
 import { Driver } from './driver.entity';
 import { TruckCondition } from '../../common/enums/truck-condition.enum';
@@ -57,9 +57,11 @@ export class Truck {
     @Column('simple-array', { nullable: true })
     photos: string[] | null;
 
-    @ManyToOne(() => Driver, driver => driver.trucks, { nullable: true })
+    @ManyToOne(() => Driver, driver => driver.trucks, { onDelete: 'CASCADE', nullable: true })
+    @JoinColumn({ name: 'driverId' })
     driver: Driver | null;
 
-    @ManyToOne(() => Company, company => company.trucks, { nullable: true })
+    @ManyToOne(() => Company, company => company.trucks, { onDelete: 'CASCADE', nullable: true })
+    @JoinColumn({ name: 'companyId' })
     company: Company | null;
 }

@@ -23,6 +23,8 @@ import { FilesInterceptor } from './interceptors/files.interceptor';
 import { TrucksModule } from './trucks/trucks.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CardsModule } from './cards/cards.module';
+import { Card } from './database/entities/card.entity';
 
 
 initializeTransactionalContext();
@@ -46,6 +48,7 @@ initializeTransactionalContext();
           Customer,
           Company,
           Load,
+          Card
       ]),
       MulterModule.register(multerConfig),
       ServeStaticModule.forRoot({
@@ -55,7 +58,8 @@ initializeTransactionalContext();
       DriversModule,
       CompaniesModule,
       AuthModule,
-      TrucksModule
+      TrucksModule,
+      CardsModule
   ],
   controllers: [AppController],
   providers: [AppService, DriversService, CustomersService, FilesInterceptor],

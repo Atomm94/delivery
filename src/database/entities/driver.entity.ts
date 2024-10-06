@@ -1,8 +1,9 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinColumn } from 'typeorm';
 import { Truck } from './truck.entity';
 import { Load } from './load.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Company } from './company.entity';
+import { Card } from './card.entity';
 
 @Entity('Driver')
 export class Driver {
@@ -39,6 +40,9 @@ export class Driver {
     @Column('simple-array', { nullable: true })
     op_cities: string[];
 
+    @Column({ type: 'int', nullable: true })
+    rate: number;
+
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
@@ -67,7 +71,11 @@ export class Driver {
     @OneToMany(() => Load, load => load.driver)
     loads: Load[];
 
-    @ManyToMany(() => Company, company => company.drivers)
+    @ManyToMany(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
+    @JoinColumn({ name: 'companyId' })
     companies: Company[];
+
+    @OneToMany(() => Card, (card) => card.driver)
+    cards: Card[];
 }
 
