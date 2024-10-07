@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { CompleteDriverDataDto, RateDto, SignUpDto, UpdateDataDto } from '../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, SignUpDto as driverSignUpDto, UpdateDataDto } from '../common/DTOs/driver.dto';
 import { getFileUrl } from '../configs/multer.config';
 import { removeFiles } from '../common/helpers/filePaths';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
@@ -24,7 +24,7 @@ export class DriversController{
     ) {}
 
     @Post('signUp')
-    async signUp(@Req() req, @Res() res, @Body() signUpDto: SignUpDto) {
+    async signUp(@Req() req, @Res() res, @Body() signUpDto: driverSignUpDto) {
         const data = await this.driversService.create(signUpDto);
 
         return res.json({ message: 'Signed Up', data: { data } });

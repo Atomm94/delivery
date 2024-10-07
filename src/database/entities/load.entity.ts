@@ -21,8 +21,8 @@ export class Load {
     })
     coordinates: string;
 
-    @Column('int')
-    zip_code: number;
+    @Column('varchar')
+    zip_code: string;
 
     @Column('int')
     price: number;

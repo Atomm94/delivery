@@ -1,5 +1,6 @@
 import { CompleteDriverDataDto, UpdateDataDto } from '../DTOs/driver.dto';
 import { TruckDataDto } from '../DTOs/truck.dto';
+import { CompleteCustomerDataDto } from '../DTOs/customer.dto';
 
 export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
   return {
@@ -52,6 +53,17 @@ export function updateDtoToPartialTruckEntity(dto: TruckDataDto) {
     insurance_photos: dto.insurance_photos ? dto.insurance_photos : null,
     insurance_files: dto.insurance_files ? dto.insurance_files : null,
     photos: dto.photos ? dto.photos : null
+  };
+}
+
+
+export function DtoToPartialCustomerEntity(dto: CompleteCustomerDataDto) {
+  return {
+    company_address: dto.company_address,
+    company_info: dto.company_info,
+    contact_info: dto.contact_info,
+    orgz_docs: dto.orgz_docs ? dto.orgz_docs : null,
+    adresses: dto.adresses,
   };
 }
 

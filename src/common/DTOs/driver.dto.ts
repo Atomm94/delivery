@@ -7,7 +7,6 @@ import {
   Matches,
   MinLength, Validate,
 } from 'class-validator';
-import { Rating } from '../enums/rating.enum';
 
 export class SignUpDto {
   @IsNotEmpty({ message: 'first name is required' })

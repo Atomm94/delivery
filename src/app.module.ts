@@ -25,6 +25,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { CardsModule } from './cards/cards.module';
 import { Card } from './database/entities/card.entity';
+import { Address } from './database/entities/address.entity';
 
 
 initializeTransactionalContext();
@@ -48,7 +49,8 @@ initializeTransactionalContext();
           Customer,
           Company,
           Load,
-          Card
+          Card,
+          Address
       ]),
       MulterModule.register(multerConfig),
       ServeStaticModule.forRoot({

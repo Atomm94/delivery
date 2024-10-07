@@ -1,6 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Load } from './load.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
+import { Address } from './address.entity';
 
 @Entity('Customer')
 export class Customer {
@@ -8,55 +9,28 @@ export class Customer {
     id: number;
 
     @Column({ type: 'varchar', nullable: true })
-    person_name: string;
-
-    @Column({ type: 'varchar', unique: true })
-    person_phone_number: string;
+    phone_number: string;
 
     @Column({ type: 'varchar', nullable: true })
-    person_email: string;
-
-    @Column({ type: 'varchar' })
-    password: string;
-
-    @Column({ type: 'varchar', nullable: true })
-    name: string;
+    company_name: string;
 
     @Column({ type: 'varchar', nullable: true })
     email: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    ITN: string;
+    @Column({ type: 'varchar' })
+    password: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    phone_number: string;
+    @Column({ type: 'jsonb', nullable: true })
+    company_info: { [key: string]: any };
 
-    @Column({ type: 'varchar', nullable: true })
-    owner: string;
+    @Column({ type: 'jsonb', nullable: true })
+    company_address: { [key: string]: any };
 
-    @Column({ type: 'varchar', nullable: true })
-    owner_social_number: string;
+    @Column({ type: 'jsonb', nullable: true })
+    contact_info: { [key: string]: any };
 
-    @Column({ type: 'varchar', nullable: true })
-    address: string;
-
-    @Column({ type: 'varchar', nullable: true })
-    city: string;
-
-    @Column({ type: 'varchar', nullable: true })
-    state: string;
-
-    @Column({ type: 'int', nullable: true })
-    zip_code: number;
-
-    @Column('json', { array: true, nullable: true })
-    addresses: any[];
-
-    @Column('simple-array', { nullable: true })
-    docs: string[];
-
-    @Column({ type: 'boolean', default: false })
-    isVerified: boolean;
+    @Column({ type: 'simple-array', nullable: true })
+    orgz_docs: string[] | null;
 
     @Column({
         type: 'enum',
@@ -67,4 +41,7 @@ export class Customer {
 
     @OneToMany(() => Load, load => load.customer)
     loads: Load[];
+
+    @OneToMany(() => Address, (address) => address.customer)
+    addresses: Address[];
 }
