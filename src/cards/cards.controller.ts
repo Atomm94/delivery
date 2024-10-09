@@ -6,17 +6,18 @@ import { CardDto } from '../common/DTOs/card.dto';
 export class CardsController {
   constructor(private readonly cardsService: CardsService) {}
 
-  @Get()
+  @Get('/:id')
   async get(
     @Param('id') id: number,
     @Res() res,
   ) {
+
     return res.send(await this.cardsService.get(id));
   }
 
-  @Post()
+  @Post('/:id')
   async create(
-    @Param('driverId') driverId: number,
+    @Param('id') driverId: number,
     @Res() res,
     @Body() cardDto: CardDto,
   ) {

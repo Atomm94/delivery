@@ -67,13 +67,22 @@ export class DriversService {
         return await this.driverRepository.findOneBy({ id });
     }
 
-    async doRate(id: number, rate: number) {
+    async doRate(id: number, rateData: any) {
+        const { rate } = rateData;
         const driver = await this.driverRepository.findOne({ where: { id } });
 
         if (!driver) {
             throw new NotFoundException('Driver is not found');
         }
 
-        return Math.ceil((driver.rate + rate) / 2);
+        if (!driver.rate) {
+            driver.rate = rate;
+        } else {
+            driver.rate = Math.ceil((driver.rate + rate) / 2);
+        }
+
+        await this.driverRepository.save(driver);
+
+        return driver.rate;
     }
 }

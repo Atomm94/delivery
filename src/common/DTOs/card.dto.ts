@@ -7,7 +7,6 @@ export class CardDto {
 
   @IsString()
   @IsNotEmpty()
-  @IsDateString()
   card_date: string;
 
   @IsString()

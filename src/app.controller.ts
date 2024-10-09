@@ -6,16 +6,16 @@ export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get('/users')
-  getUser(@Req() req) {
+  async getUser(@Req() req, @Res() res) {
     const { user } = req;
 
-    return this.appService.getUserData(user);
+    return res.send(await this.appService.getUserData(user));
   }
 
   @Delete('/users')
-  deleteUser(@Req() req, @Res() res) {
+  async deleteUser(@Req() req, @Res() res) {
     const { user } = req;
 
-    return this.appService.deleteUserData(user);
+    return res.send(await this.appService.deleteUserData(user));
   }
 }

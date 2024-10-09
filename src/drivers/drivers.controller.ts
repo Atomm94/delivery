@@ -88,7 +88,7 @@ export class DriversController{
       }
    }
 
-   @Put('rate')
+   @Put('rate/:id')
    async doRate(
      @Param('id') id: number,
      @Res() res,
