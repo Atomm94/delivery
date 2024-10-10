@@ -3,7 +3,9 @@ import * as jwt from 'jsonwebtoken';
 import { SignInDto } from '../common/DTOs/auth.dto';
 import { AuthService } from './auth.service';
 import {ConfigService} from "@nestjs/config";
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags( 'auth' )
 @Controller('auth')
 export class AuthController {
   constructor(

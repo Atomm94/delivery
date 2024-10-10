@@ -21,7 +21,6 @@ export function updateDtoToPartialDriverEntity(dto: UpdateDataDto) {
   return {
     firstName: dto.firstName,
     lastName: dto.lastName,
-    phone_number: dto.phone_number,
     password: dto.password,
     email: dto.email,
     social_number: dto.social_number,
@@ -63,7 +62,7 @@ export function DtoToPartialCustomerEntity(dto: CompleteCustomerDataDto) {
     company_info: dto.company_info,
     contact_info: dto.contact_info,
     orgz_docs: dto.orgz_docs ? dto.orgz_docs : null,
-    adresses: dto.adresses,
+    addresses: dto.addresses,
   };
 }
 

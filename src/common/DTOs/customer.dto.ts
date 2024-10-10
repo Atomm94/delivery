@@ -102,9 +102,9 @@ class AddressDto {
   @IsString()
   zip_code: string;
 
-  @IsOptional()
-  @IsBoolean()
-  main_address: boolean;
+  // @IsOptional()
+  // @IsBoolean()
+  // main_address: boolean;
 }
 
 export class CompleteCustomerDataDto {
@@ -125,7 +125,7 @@ export class CompleteCustomerDataDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AddressDto)
-  adresses: AddressDto[];
+  addresses: AddressDto[];
 }
 
 export class UpdateCustomerDataDto {
@@ -146,5 +146,5 @@ export class UpdateCustomerDataDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AddressDto)
-  adresses: AddressDto[];
+  addresses: AddressDto[];
 }

@@ -37,27 +37,32 @@ export class CustomersService {
     return await this.customerRepository.save(customerData);
   }
 
-  // async complete(id: number, completeDataDto: CompleteCustomerDataDto): Promise<Customer> {
-  //   const updateData = DtoToPartialCustomerEntity(completeDataDto);
-  //
-  //   const { ...completeCustomerInfo, addresses } = updateData //?????????
-  //
-  //   const { affected } = await this.customerRepository
-  //     .createQueryBuilder()
-  //     .update(Customer)
-  //     .set(completeCustomerInfo)
-  //     .where("id = :id", { id })
-  //     .execute();
-  //
-  //   if (!affected) {
-  //     throw new NotFoundException('Customer not found');
-  //   }
-  //
-  //   await this.addressRepository.insert(addresses);
-  //
-  //   return await this.customerRepository.findOneBy({ where: { id }, relations: ['addresses'] });
-  // }
-  //
+  async complete(id: number, completeDataDto: CompleteCustomerDataDto): Promise<Customer> {
+    const updateData = DtoToPartialCustomerEntity(completeDataDto);
+
+    const { addresses, ...completeCustomerInfo } = updateData //?????????
+
+    const ok: any = completeCustomerInfo
+
+    console.log(addresses);
+    console.log(completeCustomerInfo);
+
+    const { affected } = await this.customerRepository
+      .createQueryBuilder()
+      .update(Customer)
+      .set(ok)
+      .where("id = :id", { id })
+      .execute();
+
+    if (!affected) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    await this.addressRepository.insert(addresses);
+
+    return await this.customerRepository.findOne({ where: { id }, relations: ['addresses'] });
+  }
+
   // async update(id: number, updateDataDto: UpdateCustomerDataDto): Promise<Customer> {
   //   const updateData = DtoToPartialCustomerEntity(updateDataDto);
   //

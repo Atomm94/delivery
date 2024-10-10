@@ -15,7 +15,9 @@ import { getFileUrl } from '../configs/multer.config';
 import { TrucksService } from './trucks.service';
 import { removeFiles } from '../common/helpers/filePaths';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags( 'trucks' )
 @Controller('trucks')
 export class TrucksController {
   constructor(

@@ -23,6 +23,10 @@ export class CardsService {
     return card;
   }
 
+  async getAll(condition: any): Promise<Card[]> {
+    return await this.cardRepository.find({ where: condition });
+  }
+
   async create(driverId, card: Partial<Card>): Promise<Card> {
     const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 

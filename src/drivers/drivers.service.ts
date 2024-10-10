@@ -15,8 +15,12 @@ export class DriversService {
     ) {}
 
 
-    async getByPhone(phone_number: string): Promise<Driver> {
-        return await this.driverRepository.findOne({ where: { phone_number } });
+    async get(condition: any): Promise<Driver> {
+        return await this.driverRepository.findOne({ where: condition });
+    }
+
+    async getAll(condition: any): Promise<Driver[]> {
+        return await this.driverRepository.find({ where: condition });
     }
 
     async create(driverData: Partial<Driver>): Promise<Driver> {

@@ -15,7 +15,9 @@ import { CompleteDriverDataDto, SignUpDto as driverSignUpDto, UpdateDataDto } fr
 import { getFileUrl } from '../configs/multer.config';
 import { removeFiles } from '../common/helpers/filePaths';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags( 'drivers' )
 @Controller('drivers')
 export class DriversController{
     constructor(
