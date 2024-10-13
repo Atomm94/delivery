@@ -39,6 +39,9 @@ export class Customer {
     })
     role: UserRole;
 
+    @Column({ type: 'boolean', default: false })
+    isVerified: boolean;
+
     @OneToMany(() => Load, load => load.customer)
     loads: Load[];
 

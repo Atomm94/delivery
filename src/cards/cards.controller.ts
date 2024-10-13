@@ -7,7 +7,7 @@ import { ApiTags } from '@nestjs/swagger';
 @Controller('cards')
 export class CardsController {
   constructor(
-    private readonly cardsService: CardsService
+    private readonly cardsService: CardsService,
   ) {}
 
   @Get('/:id')
@@ -15,7 +15,7 @@ export class CardsController {
     @Param('id') driverId: number,
     @Res() res,
   ) {
-    return res.send(await this.cardsService.getAll( { driverId, relations: ['drivers'] }));
+    return res.send(await this.cardsService.getAll( { driverId }));
   }
 
   @Post('/:id')

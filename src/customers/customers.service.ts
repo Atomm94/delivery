@@ -40,9 +40,9 @@ export class CustomersService {
   async complete(id: number, completeDataDto: CompleteCustomerDataDto): Promise<Customer> {
     const updateData = DtoToPartialCustomerEntity(completeDataDto);
 
-    const { addresses, ...completeCustomerInfo } = updateData //?????????
+    const { addresses, ...completeCustomerInfo } = updateData
 
-    const ok: any = completeCustomerInfo
+    const completedInfo: any = completeCustomerInfo
 
     console.log(addresses);
     console.log(completeCustomerInfo);
@@ -50,7 +50,7 @@ export class CustomersService {
     const { affected } = await this.customerRepository
       .createQueryBuilder()
       .update(Customer)
-      .set(ok)
+      .set(completedInfo)
       .where("id = :id", { id })
       .execute();
 
@@ -63,20 +63,20 @@ export class CustomersService {
     return await this.customerRepository.findOne({ where: { id }, relations: ['addresses'] });
   }
 
-  // async update(id: number, updateDataDto: UpdateCustomerDataDto): Promise<Customer> {
-  //   const updateData = DtoToPartialCustomerEntity(updateDataDto);
-  //
-  //   const { affected } = await this.customerRepository
-  //     .createQueryBuilder()
-  //     .update(Customer)
-  //     .set(updateData)
-  //     .where("id = :id", { id })
-  //     .execute();
-  //
-  //   if (!affected) {
-  //     throw new NotFoundException('Customer not found');
-  //   }
-  //
-  //   return await this.customerRepository.findOneBy({ id });
-  // }
+  async update(id: number, updateDataDto: UpdateCustomerDataDto): Promise<Customer> {
+    const updateData: any = DtoToPartialCustomerEntity(updateDataDto);
+
+    const { affected } = await this.customerRepository
+      .createQueryBuilder()
+      .update(Customer)
+      .set(updateData)
+      .where("id = :id", { id })
+      .execute();
+
+    if (!affected) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    return await this.customerRepository.findOneBy({ id });
+  }
 }

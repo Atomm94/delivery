@@ -10,6 +10,7 @@ export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
     identity: dto.identity,
     op_state: dto.op_state,
     op_cities: dto.op_cities ? dto.op_cities : null,
+    isVerified: true,
     porter: Boolean(Number(dto.porter)),
     second_porter: Boolean(Number(dto.second_porter)),
     third_porter: Boolean(Number(dto.third_porter)),
@@ -63,6 +64,7 @@ export function DtoToPartialCustomerEntity(dto: CompleteCustomerDataDto) {
     contact_info: dto.contact_info,
     orgz_docs: dto.orgz_docs ? dto.orgz_docs : null,
     addresses: dto.addresses,
+    isVerified: true,
   };
 }
 

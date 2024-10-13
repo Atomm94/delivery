@@ -61,7 +61,7 @@ initializeTransactionalContext();
       CompaniesModule,
       AuthModule,
       TrucksModule,
-      CardsModule
+      CardsModule,
   ],
   controllers: [AppController],
   providers: [AppService, DriversService, CustomersService, FilesInterceptor],
