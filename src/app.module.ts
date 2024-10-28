@@ -25,8 +25,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PaymentsModule } from './payments/payments.module';
 import { Address } from './database/entities/address.entity';
-import { RedisModule } from './redis/redis.module';
-import { GeoModule } from './geo/geo.module';
+// import { RedisModule } from './redis/redis.module';
+// import { GeoModule } from './geo/geo.module';
 import { OrdersModule } from './orders/orders.module';
 import { Card } from './database/entities/card.entity';
 import { ProductsModule } from './products/products.module';
@@ -66,8 +66,8 @@ initializeTransactionalContext();
       AuthModule,
       TrucksModule,
       PaymentsModule,
-      RedisModule,
-      GeoModule,
+      // RedisModule,
+      // GeoModule,
       OrdersModule,
       ProductsModule,
   ],
