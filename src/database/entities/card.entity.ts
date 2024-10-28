@@ -1,22 +1,21 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
-import { Driver } from './driver.entity';
+import { Customer } from './customer.entity';
 
-@Entity('Card')
+@Entity()
 export class Card {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column()
   card_number: string;
 
-  @Column({ type: 'varchar' })
+  @Column()
   card_date: string;
 
-  @Column({ type: 'varchar' })
+  @Column()
   card_cvv: string;
 
-  @ManyToOne(() => Driver, (driver) => driver.cards, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn({ name: 'driverId' })
-  driver: Driver | null;
+  @ManyToOne(() => Customer, (customer) => customer.cards, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'customerId' })
+  customer: Customer | null;
 }
-

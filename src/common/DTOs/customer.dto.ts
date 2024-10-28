@@ -1,7 +1,7 @@
 import {
   IsArray,
   IsBoolean,
-  IsEmail,
+  IsEmail, IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
@@ -13,6 +13,8 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { TruckCondition } from '../enums/truck-condition.enum';
+import { AddressType } from '../enums/address-type.enum';
 
 export class SignUpDto {
   @ApiProperty({ description: 'Company name', example: 'My Company' })
@@ -130,6 +132,15 @@ class AddressDto {
   @IsOptional()
   @IsBoolean()
   main_address: boolean;
+
+  @ApiProperty({
+    enum: AddressType,
+    description: 'The type of address ` shipping || load',
+    example: AddressType.SHIPPING,
+  })
+  @IsOptional()
+  @IsEnum(AddressType)
+  type?: AddressType;
 }
 
 export class CompleteCustomerDataDto {
