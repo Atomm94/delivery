@@ -12,7 +12,7 @@ async function bootstrap() {
     .setDescription('delivery service')
     .setVersion('1.0')
     .addServer('http://localhost:3000/', 'Local environment')
-    .addServer('ec2-13-60-241-214.eu-north-1.compute.amazonaws.com', 'Staging')
+    .addServer('ec2-16-170-148-100.eu-north-1.compute.amazonaws.com', 'Staging')
     .addTag('Delivery')
     .build();
   const document = SwaggerModule.createDocument(app, options);
