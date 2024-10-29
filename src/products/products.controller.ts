@@ -11,17 +11,17 @@ export class ProductsController {
 
   @Post(':id')
   async create(@Param('id') customerId: number, @Body() createProductDto: CreateProductDto, @Res() res): Promise<Product> {
-    return res.send(this.productsService.create(customerId, createProductDto));
+    return res.send(await this.productsService.create(customerId, createProductDto));
   }
 
   @Get('/all/:id')
   async getAll(@Param('customerId') customerId: number, @Res() res): Promise<Product[]> {
-    return res.send(this.productsService.getAll(customerId));
+    return res.send(await this.productsService.getAll(customerId));
   }
 
   @Get(':id')
   async getOne(@Param('productId') productId: number, @Res() res): Promise<Product> {
-    return res.send(this.productsService.getOne(productId));
+    return res.send(await this.productsService.getOne(productId));
   }
 
   @Put(':id')
@@ -30,6 +30,6 @@ export class ProductsController {
     @Body() updateProductDto: CreateProductDto,
     @Res() res
   ): Promise<Product> {
-    return res.send(this.productsService.update(productId, updateProductDto));
+    return res.send(await this.productsService.update(productId, updateProductDto));
   }
 }

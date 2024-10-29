@@ -15,8 +15,8 @@ export class OrdersService {
   // Create a new route
   async create(customer: number, createRouteDto: CreateRouteDto): Promise<any> {
     const createRoute: any = Object.assign(customer, createRouteDto);
-    const route = this.routeRepository.create(createRoute);
-    return this.routeRepository.save(route);
+    const route = await this.routeRepository.create(createRoute);
+    return await this.routeRepository.save(route);
   }
 
   // Find a single route by ID
@@ -47,6 +47,6 @@ export class OrdersService {
   async update(id: number, updateRouteDto: CreateRouteDto): Promise<Route> {
     const route = await this.getOne(id);
     Object.assign(route, updateRouteDto);
-    return this.routeRepository.save(route);
+    return await this.routeRepository.save(route);
   }
 }

@@ -105,8 +105,8 @@ export class PaymentsService {
   // Create a new card
   async create(customer: number, cardDto: CardDto): Promise<Card> {
     const createCard = Object.assign(customer, cardDto);
-    const card = this.cardRepository.create(createCard);
-    return this.cardRepository.save(card);
+    const card = await this.cardRepository.create(createCard);
+    return await this.cardRepository.save(card);
   }
 
   // Get all cards
@@ -132,6 +132,6 @@ export class PaymentsService {
     }
 
     await this.cardRepository.update(id, updateCardDto);
-    return this.getOne(id); // Return the updated card
+    return await this.getOne(id); // Return the updated card
   }
 }

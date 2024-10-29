@@ -11,26 +11,26 @@ export class OrdersController {
 
   // POST - Create a new route
   @Post(':id')
-  create(@Param('id') id: number, @Body() createRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
-    return res.send(this.ordersService.create(id, createRouteDto));
+  async create(@Param('id') id: number, @Body() createRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
+    return res.send(await this.ordersService.create(id, createRouteDto));
   }
 
   // GET - Retrieve a single route by ID
   @Get(':id')
-  getOne(@Param('id') id: number, @Res() res): Promise<Route> {
-    return res.send(this.ordersService.getOne(id));
+  async getOne(@Param('id') id: number, @Res() res): Promise<Route> {
+    return res.send(await this.ordersService.getOne(id));
   }
 
   // GET - Retrieve all routes
 
   @Get('/all/:id')
-  getAll(@Param('id') id: number, @Res() res): Promise<Route[]> {
-    return res.send(this.ordersService.getAll(id));
+  async getAll(@Param('id') id: number, @Res() res): Promise<Route[]> {
+    return res.send(await this.ordersService.getAll(id));
   }
 
   // PUT - Update an existing route
   @Put(':id')
-  update(@Param('id') id: number, @Body() updateRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
-    return res.send(this.ordersService.update(id, updateRouteDto));
+  async update(@Param('id') id: number, @Body() updateRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
+    return res.send(await this.ordersService.update(id, updateRouteDto));
   }
 }

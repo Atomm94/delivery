@@ -13,19 +13,19 @@ export class ProductsService {
 
   async create(customer: number, createProductDto: Partial<Product>): Promise<Product> {
     const createProduct = Object.assign(customer, createProductDto);
-    const newProduct = this.productsRepository.create(createProduct);
-    return this.productsRepository.save(newProduct);
+    const newProduct = await this.productsRepository.create(createProduct);
+    return await this.productsRepository.save(newProduct);
   }
 
   async getAll(customerId: number): Promise<Product[]> {
-    return this.productsRepository
+    return await this.productsRepository
       .createQueryBuilder('product')
       .andWhere('route.customer = :customerId', { customerId })
       .getMany();
   }
 
   async getOne(productId: number): Promise<Product> {
-    return this.productsRepository.findOne({
+    return await this.productsRepository.findOne({
       where: {
         id: productId,
       },
@@ -39,6 +39,6 @@ export class ProductsService {
     }
 
     Object.assign(product, updateProductDto);
-    return this.productsRepository.save(product);
+    return await this.productsRepository.save(product);
   }
 }
