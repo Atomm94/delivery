@@ -2,7 +2,7 @@ import { Body, Controller, Param, Post, Put, Req, Res, UploadedFiles, UseInterce
 import {ConfigService} from "@nestjs/config";
 import {
     CompleteCustomerDataDto,
-    SignUpDto as customerSignUpDto,
+    SignUpDto,
     UpdateCustomerDataDto,
 } from '../common/DTOs/customer.dto';
 import { CustomersService } from './customers.service';
@@ -21,7 +21,7 @@ export class CustomersController {
     ) {}
 
     @Post('signUp')
-    async signUp(@Req() req, @Res() res, @Body() signUpDto: customerSignUpDto) {
+    async signUp(@Req() req, @Res() res, @Body() signUpDto: SignUpDto) {
         const data = await this.customerService.create(signUpDto);
 
         return res.json({ message: 'Signed Up', data: { data } });
