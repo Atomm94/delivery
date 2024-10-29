@@ -89,25 +89,25 @@ export class PaymentsController {
 
   // Create a new card
   @Post(':id')
-  async createCard(@Param('id') customerId: number, @Body() cardDto: Partial<Card>): Promise<Card> {
-    return this.paymentsService.create(customerId, cardDto);
+  async createCard(@Param('id') customerId: number, @Body() cardDto: Partial<Card>, @Res() res): Promise<Card> {
+    return res.send(this.paymentsService.create(customerId, cardDto));
   }
 
   // Get all cards
   @Get('/all/:id')
-  async getAllCards(@Param('id') customerId: number): Promise<Card[]> {
-    return this.paymentsService.getAll(customerId);
+  async getAllCards(@Param('id') customerId: number, @Res() res): Promise<Card[]> {
+    return res.send(this.paymentsService.getAll(customerId));
   }
 
   // Get a card by ID
   @Get(':id')
-  async getCardById(@Param('id') id: number): Promise<Card> {
-    return this.paymentsService.getOne(id);
+  async getCardById(@Param('id') id: number, @Res() res): Promise<Card> {
+    return res.send(this.paymentsService.getOne(id));
   }
 
   // Update a card
   @Put(':id')
-  async updateCard(@Param('id') id: number, @Body() updateCardDto: Partial<Card>): Promise<Card> {
-    return this.paymentsService.updateCard(id, updateCardDto);
+  async updateCard(@Param('id') id: number, @Body() updateCardDto: Partial<Card>, @Res() res): Promise<Card> {
+    return res.send(this.paymentsService.updateCard(id, updateCardDto));
   }
 }

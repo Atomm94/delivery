@@ -16,7 +16,7 @@ async function bootstrap() {
     .addTag('Delivery')
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('', app, document);
+  SwaggerModule.setup('/swagger', app, document);
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
     whitelist: true,
