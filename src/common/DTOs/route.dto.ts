@@ -1,6 +1,8 @@
-import { IsString, IsEnum, IsOptional, IsObject, IsArray, IsNumber } from 'class-validator';
+import { IsString, IsEnum, IsOptional, IsArray, IsNumber, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Status } from '../../common/enums/route.enum';
+import { Type } from 'class-transformer';
+import { TruckDataDto } from './truck.dto';
 
 class ItemDto {
   @ApiProperty({
@@ -112,6 +114,7 @@ export class CreateRouteDto {
   })
   @IsOptional()
   @IsArray()
+  @IsNumber({}, { each: true }) // Ensure each item in the array is a number
   addresses?: number[];
 
   @ApiProperty({
@@ -120,5 +123,7 @@ export class CreateRouteDto {
     required: true,
   })
   @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ItemDto)
   items: ItemDto[];
 }

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Card } from '../database/entities/card.entity';
 import { Repository } from 'typeorm';
 import { Customer } from '../database/entities/customer.entity';
+import { CardDto } from '../common/DTOs/card.dto';
 // import { Payment } from '../database/entities/payment.entity';
 // import { InjectRepository } from '@nestjs/typeorm';
 // import { Driver } from '../database/entities/driver.entity';
@@ -102,7 +103,7 @@ export class PaymentsService {
 //
 
   // Create a new card
-  async create(customer: number, cardDto: Partial<Card>): Promise<Card> {
+  async create(customer: number, cardDto: CardDto): Promise<Card> {
     const createCard = Object.assign(customer, cardDto);
     const card = this.cardRepository.create(createCard);
     return this.cardRepository.save(card);
@@ -123,7 +124,7 @@ export class PaymentsService {
   }
 
   // Update a card
-  async updateCard(id: number, updateCardDto: Partial<Card>): Promise<Card> {
+  async updateCard(id: number, updateCardDto: CardDto): Promise<Card> {
     const card = await this.getOne(id); // Check if the card exists
 
     if (!card) {

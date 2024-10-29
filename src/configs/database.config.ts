@@ -1,12 +1,10 @@
 import { registerAs } from '@nestjs/config';
 
 const {
-    //DB_HOST = 'delivery.c7gk2uuwsdol.eu-north-1.rds.amazonaws.com',
     DB_HOST = 'localhost',
     DB_PORT = 5432,
     DB_USERNAME = 'postgres',
     DB_PASSWORD = 'root',
-    //DB_NAME = 'delivery-project',
     DB_NAME = 'delivery',
 } = process.env;
 

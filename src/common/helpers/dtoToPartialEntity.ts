@@ -1,6 +1,8 @@
 import { CompleteDriverDataDto, UpdateDataDto } from '../DTOs/driver.dto';
 import { TruckDataDto } from '../DTOs/truck.dto';
 import { CompleteCustomerDataDto } from '../DTOs/customer.dto';
+import { Route } from '../../database/entities/route.entity';
+import { CreateRouteDto } from '../DTOs/route.dto';
 
 export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
   return {
@@ -65,6 +67,29 @@ export function DtoToPartialCustomerEntity(dto: CompleteCustomerDataDto) {
     orgz_docs: dto.orgz_docs ? dto.orgz_docs : null,
     addresses: dto.addresses,
     isVerified: true,
+  };
+}
+
+
+export function createRouteDtoToPartialRouteEntity(customer: number, dto: CreateRouteDto) {
+  return {
+    onloading_time: dto.onloading_time,
+    start_time: dto.start_time,
+    car_type: dto.car_type,
+    porter: dto.porter || null, // Assuming this can be null
+    status: dto.status || null,
+    addresses: dto.addresses || null,
+    items: dto.items.map(item => ({
+      name: item.name,
+      count: item.count,
+      price: item.price,
+      weight: item.weight,
+      length: item.length,
+      width: item.width,
+      height: item.height,
+      measure: item.measure || null,
+    })),
+    customer,
   };
 }
 

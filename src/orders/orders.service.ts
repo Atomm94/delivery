@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Route } from '../database/entities/route.entity';
 import { Repository } from 'typeorm';
 import { CreateRouteDto } from '../common/DTOs/route.dto';
+import { createRouteDtoToPartialRouteEntity } from '../common/helpers/dtoToPartialEntity';
 
 @Injectable()
 export class OrdersService {
@@ -12,8 +13,8 @@ export class OrdersService {
   ) {}
 
   // Create a new route
-  async create(customer: number, createRouteDto: Partial<Route>): Promise<Route> {
-    const createRoute = Object.assign(customer, createRouteDto);
+  async create(customer: number, createRouteDto: CreateRouteDto): Promise<any> {
+    const createRoute: any = Object.assign(customer, createRouteDto);
     const route = this.routeRepository.create(createRoute);
     return this.routeRepository.save(route);
   }

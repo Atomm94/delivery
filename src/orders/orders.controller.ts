@@ -5,13 +5,13 @@ import { Route } from '../database/entities/route.entity';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'routes' )
-@Controller('orders')
+@Controller('routes')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   // POST - Create a new route
   @Post(':id')
-  create(@Param('id') id: number, @Body() createRouteDto: Partial<Route>, @Res() res): Promise<Route> {
+  create(@Param('id') id: number, @Body() createRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
     return res.send(this.ordersService.create(id, createRouteDto));
   }
 

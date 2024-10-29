@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { ApiTags } from '@nestjs/swagger';
 import { Card } from '../database/entities/card.entity';
+import { CardDto } from '../common/DTOs/card.dto';
 
 @ApiTags( 'payments' )
 @Controller('payments')
@@ -89,7 +90,7 @@ export class PaymentsController {
 
   // Create a new card
   @Post(':id')
-  async createCard(@Param('id') customerId: number, @Body() cardDto: Partial<Card>, @Res() res): Promise<Card> {
+  async createCard(@Param('id') customerId: number, @Body() cardDto: CardDto, @Res() res): Promise<Card> {
     return res.send(this.paymentsService.create(customerId, cardDto));
   }
 
@@ -107,7 +108,7 @@ export class PaymentsController {
 
   // Update a card
   @Put(':id')
-  async updateCard(@Param('id') id: number, @Body() updateCardDto: Partial<Card>, @Res() res): Promise<Card> {
+  async updateCard(@Param('id') id: number, @Body() updateCardDto: CardDto, @Res() res): Promise<Card> {
     return res.send(this.paymentsService.updateCard(id, updateCardDto));
   }
 }
