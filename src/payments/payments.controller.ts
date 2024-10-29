@@ -89,14 +89,14 @@ export class PaymentsController {
 //   }
 
   // Create a new card
-  @Post(':id')
-  async createCard(@Param('id') customerId: number, @Body() cardDto: CardDto, @Res() res): Promise<Card> {
+  @Post(':customerId')
+  async createCard(@Param('customerId') customerId: number, @Body() cardDto: CardDto, @Res() res): Promise<Card> {
     return res.send(await this.paymentsService.create(customerId, cardDto));
   }
 
   // Get all cards
-  @Get('/all/:id')
-  async getAllCards(@Param('id') customerId: number, @Res() res): Promise<Card[]> {
+  @Get('/all/:customerId')
+  async getAllCards(@Param('customerId') customerId: number, @Res() res): Promise<Card[]> {
     return res.send(await this.paymentsService.getAll(customerId));
   }
 

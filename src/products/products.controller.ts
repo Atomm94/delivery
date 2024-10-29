@@ -9,24 +9,24 @@ import { ApiTags } from '@nestjs/swagger';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post(':id')
-  async create(@Param('id') customerId: number, @Body() createProductDto: CreateProductDto, @Res() res): Promise<Product> {
+  @Post(':customerId')
+  async create(@Param('customerId') customerId: number, @Body() createProductDto: CreateProductDto, @Res() res): Promise<Product> {
     return res.send(await this.productsService.create(customerId, createProductDto));
   }
 
-  @Get('/all/:id')
+  @Get('/all/:customerId')
   async getAll(@Param('customerId') customerId: number, @Res() res): Promise<Product[]> {
     return res.send(await this.productsService.getAll(customerId));
   }
 
   @Get(':id')
-  async getOne(@Param('productId') productId: number, @Res() res): Promise<Product> {
+  async getOne(@Param('id') productId: number, @Res() res): Promise<Product> {
     return res.send(await this.productsService.getOne(productId));
   }
 
   @Put(':id')
   async update(
-    @Param('productId') productId: number,
+    @Param('id') productId: number,
     @Body() updateProductDto: CreateProductDto,
     @Res() res
   ): Promise<Product> {

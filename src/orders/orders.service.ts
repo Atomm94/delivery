@@ -14,8 +14,8 @@ export class OrdersService {
 
   // Create a new route
   async create(customer: number, createRouteDto: CreateRouteDto): Promise<any> {
-    const createRoute: any = Object.assign(customer, createRouteDto);
-    const route = await this.routeRepository.create(createRoute);
+    const createRoute: any = { customer, ...createRouteDto };
+    const route = this.routeRepository.create(createRoute);
     return await this.routeRepository.save(route);
   }
 
@@ -32,7 +32,7 @@ export class OrdersService {
   async getAll(customerId: number) {
     const routes = await this.routeRepository
       .createQueryBuilder('route')
-      .andWhere('route.customer = :customerId', { customerId })
+      .andWhere('route.customerId = :customerId', { customerId })
       .leftJoinAndSelect('route.addresses', 'addresses')
       .getMany();
 

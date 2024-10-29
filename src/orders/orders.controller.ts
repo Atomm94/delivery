@@ -10,9 +10,9 @@ export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
   // POST - Create a new route
-  @Post(':id')
-  async create(@Param('id') id: number, @Body() createRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
-    return res.send(await this.ordersService.create(id, createRouteDto));
+  @Post(':customerId')
+  async create(@Param('customerId') customerId: number, @Body() createRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
+    return res.send(await this.ordersService.create(customerId, createRouteDto));
   }
 
   // GET - Retrieve a single route by ID
@@ -23,9 +23,9 @@ export class OrdersController {
 
   // GET - Retrieve all routes
 
-  @Get('/all/:id')
-  async getAll(@Param('id') id: number, @Res() res): Promise<Route[]> {
-    return res.send(await this.ordersService.getAll(id));
+  @Get('/all/:customerId')
+  async getAll(@Param('customerId') customerId: number, @Res() res): Promise<Route[]> {
+    return res.send(await this.ordersService.getAll(customerId));
   }
 
   // PUT - Update an existing route

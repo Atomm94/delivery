@@ -19,12 +19,6 @@ export class Route {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
-    count: number;
-
-    @Column()
-    price: number;
-
     @Column({ type: 'varchar' })
     onloading_time: string;
 

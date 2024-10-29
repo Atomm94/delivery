@@ -103,15 +103,18 @@ export class PaymentsService {
 //
 
   // Create a new card
-  async create(customer: number, cardDto: CardDto): Promise<Card> {
-    const createCard = Object.assign(customer, cardDto);
-    const card = await this.cardRepository.create(createCard);
+  async create(customer: number, cardDto: CardDto): Promise<any> {
+    const createCard: any = { customer, ...cardDto };
+    const card = this.cardRepository.create(createCard);
     return await this.cardRepository.save(card);
   }
 
   // Get all cards
-  async getAll(customerId): Promise<Card[]> {
-    return await this.cardRepository.find({ where: { customer: customerId } });
+  async getAll(customerId: number): Promise<Card[]> {
+    return await this.cardRepository
+      .createQueryBuilder('card')
+      .andWhere('card.customerId = :customerId', { customerId })
+      .getMany();
   }
 
   // Get a card by ID

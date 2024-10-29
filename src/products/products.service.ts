@@ -11,16 +11,16 @@ export class ProductsService {
     private readonly productsRepository: Repository<Product>,
   ) {}
 
-  async create(customer: number, createProductDto: Partial<Product>): Promise<Product> {
-    const createProduct = Object.assign(customer, createProductDto);
-    const newProduct = await this.productsRepository.create(createProduct);
+  async create(customer: number, createProductDto: CreateProductDto): Promise<any> {
+    const createProduct: any = { customer, ...createProductDto };
+    const newProduct = this.productsRepository.create(createProduct);
     return await this.productsRepository.save(newProduct);
   }
 
   async getAll(customerId: number): Promise<Product[]> {
     return await this.productsRepository
       .createQueryBuilder('product')
-      .andWhere('route.customer = :customerId', { customerId })
+      .andWhere('product.customerId = :customerId', { customerId })
       .getMany();
   }
 
