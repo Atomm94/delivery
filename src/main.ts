@@ -11,12 +11,12 @@ async function bootstrap() {
     .setTitle('delivery')
     .setDescription('delivery service')
     .setVersion('1.0')
-    .addServer('http://localhost:3000/', 'Local environment')
-    .addServer('ec2-16-170-148-100.eu-north-1.compute.amazonaws.com', 'Staging')
+    // .addServer('http://localhost:3000/', 'Local environment')
+    // .addServer('ec2-16-170-148-100.eu-north-1.compute.amazonaws.com', 'Staging')
     .addTag('Delivery')
     .build();
   const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api-docs', app, document);
+  SwaggerModule.setup('', app, document);
   app.useGlobalPipes(new ValidationPipe({
     transform: true,
     whitelist: true,
