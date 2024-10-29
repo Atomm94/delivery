@@ -16,7 +16,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TruckCondition } from '../enums/truck-condition.enum';
 import { AddressType } from '../enums/address-type.enum';
 
-export class SignUpDto {
+export class CustomersSignUpDto {
   @ApiProperty({ description: 'Company name', example: 'My Company' })
   @IsNotEmpty({ message: 'company name is required' })
   @IsString({ message: 'company name must be a string' })
