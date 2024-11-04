@@ -30,13 +30,14 @@ export class AuthModule implements NestModule {
                 {path: '/bg/signUp', method: RequestMethod.POST},
             );
 
-        // consumer.apply(JwtMiddleware)
-        //   .exclude(
-        //     {path: '/*/signUp', method: RequestMethod.POST},
-        //     {path: '/*/signIn', method: RequestMethod.POST},
-        //   )
-        //   .forRoutes(
-        //     {path: '*', method: RequestMethod.ALL},
-        //   );
+        consumer.apply(JwtMiddleware)
+          .exclude(
+            {path: 'drivers/signUp', method: RequestMethod.POST},
+            {path: 'customers/signUp', method: RequestMethod.POST},
+            {path: 'auth/signIn', method: RequestMethod.POST},
+          )
+          .forRoutes(
+            {path: '*', method: RequestMethod.ALL},
+          );
     }
 }

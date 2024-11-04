@@ -3,9 +3,9 @@ import {
   Controller,
   Delete,
   Param,
-  ParseIntPipe,
   Post,
   Put,
+  Req,
   Res,
   UploadedFiles,
   UseInterceptors,
@@ -15,19 +15,22 @@ import { getFileUrl } from '../configs/multer.config';
 import { TrucksService } from './trucks.service';
 import { removeFiles } from '../common/helpers/filePaths';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'trucks' )
 @Controller('trucks')
+@ApiBearerAuth('Authorization')
 export class TrucksController {
   constructor(
     private readonly trucksService: TrucksService,
   ) {}
 
-  @Post('insert/:driverId')
+  @Post()
   @UseInterceptors(FilesInterceptor)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateMultipleTrucksDto })
   async insert(
-    @Param('driverId') driverId: number,
+    @Req() req,
     @Res() res,
     @Body() completeDataDto: CreateMultipleTrucksDto,
     @UploadedFiles() files: any,
@@ -72,7 +75,9 @@ export class TrucksController {
         })
       }
 
-      const data = await this.trucksService.bulkInsert(driverId, completeDataDto);
+      const { user: driver } = req;
+
+      const data = await this.trucksService.bulkInsert(driver.id, completeDataDto);
 
       return res.json({ message: 'Successfully added', data });
     } catch (error) {
@@ -88,6 +93,8 @@ export class TrucksController {
 
   @Put('/:id')
   @UseInterceptors(FilesInterceptor)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: TruckDataDto })
   async update(
     @Param('id') id: number,
     @Res() res,
@@ -138,6 +145,7 @@ export class TrucksController {
   }
 
   @Delete('/:id')
+  @ApiConsumes('multipart/form-data')
   async remove(
     @Param('id') id: number,
     @Res() res,

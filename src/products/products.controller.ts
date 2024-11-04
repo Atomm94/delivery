@@ -1,22 +1,28 @@
-import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from '../database/entities/product.entity';
 import { CreateProductDto } from '../common/DTOs/product.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'products' )
 @Controller('products')
+@ApiBearerAuth('Authorization')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @Post(':customerId')
-  async create(@Param('customerId') customerId: number, @Body() createProductDto: CreateProductDto, @Res() res): Promise<Product> {
-    return res.send(await this.productsService.create(customerId, createProductDto));
+  @ApiConsumes('multipart/form-data')
+  @Post()
+  async create(@Req() req, @Res() res, @Body() createProductDto: CreateProductDto): Promise<Product> {
+    const { user: customer } = req;
+
+    return res.send(await this.productsService.create(customer.id, createProductDto));
   }
 
-  @Get('/all/:customerId')
-  async getAll(@Param('customerId') customerId: number, @Res() res): Promise<Product[]> {
-    return res.send(await this.productsService.getAll(customerId));
+  @Get()
+  async getAll(@Req() req, @Res() res): Promise<Product[]> {
+    const { user: customer } = req;
+
+    return res.send(await this.productsService.getAll(customer.id));
   }
 
   @Get(':id')
@@ -24,6 +30,7 @@ export class ProductsController {
     return res.send(await this.productsService.getOne(productId));
   }
 
+  @ApiConsumes('multipart/form-data')
   @Put(':id')
   async update(
     @Param('id') productId: number,

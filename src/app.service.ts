@@ -30,7 +30,7 @@ export class AppService {
       case UserRole.COMPANY:
         return await this.companyRepository.findOneBy({ phone_number });
       case UserRole.CUSTOMER:
-        return await this.customerRepository.findOneBy({ phone_number });
+        return await this.customerRepository.findOne({ where: { phone_number }, relations: ['addresses'] });
     }
   }
 

@@ -11,8 +11,17 @@ async function bootstrap() {
     .setTitle('delivery')
     .setDescription('delivery service')
     .setVersion('1.0')
-    // .addServer('http://localhost:3000/', 'Local environment')
-    // .addServer('ec2-16-170-148-100.eu-north-1.compute.amazonaws.com', 'Staging')
+    .addBearerAuth(
+      {
+        description: `Bearer <JWT>`,
+        name: 'Authorization',
+        bearerFormat: 'Bearer',
+        scheme: 'Bearer',
+        type: 'http',
+        in: 'Header'
+      },
+      'Authorization',
+    )
     .addTag('Delivery')
     .build();
   const document = SwaggerModule.createDocument(app, options);

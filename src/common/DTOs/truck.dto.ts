@@ -83,7 +83,7 @@ export class TruckDataDto {
   condition: TruckCondition;
 
   @ApiProperty({
-    type: [String],
+    type: 'array', items: { type: 'string', format: 'binary' },
     description: 'An array of vehicle titles',
     example: ['Title1', 'Title2'],
   })
@@ -93,7 +93,7 @@ export class TruckDataDto {
   vehicle_title?: string[];
 
   @ApiProperty({
-    type: [String],
+    type: 'array', items: { type: 'string', format: 'binary' },
     description: 'An array of insurance photos',
     example: ['insurance1.jpg', 'insurance2.jpg'],
   })
@@ -103,7 +103,7 @@ export class TruckDataDto {
   insurance_photos?: string[];
 
   @ApiProperty({
-    type: [String],
+    type: 'array', items: { type: 'string', format: 'binary' },
     description: 'An array of insurance files',
     example: ['insurance-file1.pdf', 'insurance-file2.pdf'],
   })
@@ -113,7 +113,7 @@ export class TruckDataDto {
   insurance_files?: string[];
 
   @ApiProperty({
-    type: [String],
+    type: 'array', items: { type: 'string', format: 'binary' },
     description: 'An array of photos',
     example: ['photo1.jpg', 'photo2.jpg'],
   })

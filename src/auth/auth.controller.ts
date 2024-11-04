@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { SignInDto } from '../common/DTOs/auth.dto';
 import { AuthService } from './auth.service';
 import {ConfigService} from "@nestjs/config";
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'auth' )
 @Controller('auth')
@@ -14,10 +14,11 @@ export class AuthController {
   ) {}
 
   @Post('signIn')
+  @ApiConsumes('multipart/form-data')
   async signIn(@Req() req, @Res() res, @Body() signInDto: SignInDto) {
     try {
       const user = await this.authService.signIn(signInDto);
-      const token = jwt.sign({ role: user['role'], phone_number: user['phone_number'] }, this.configService.get<string>('JWT_SECRET_KEY'));
+      const token = jwt.sign({ id: user['id'], role: user['role'], phone_number: user['phone_number'] }, this.configService.get<string>('JWT_SECRET_KEY'));
 
       return res.json({ message: 'Signed in', user, token });
     } catch (error) {

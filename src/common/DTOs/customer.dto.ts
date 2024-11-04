@@ -15,6 +15,7 @@ import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { TruckCondition } from '../enums/truck-condition.enum';
 import { AddressType } from '../enums/address-type.enum';
+import { Binary } from 'typeorm';
 
 export class CustomersSignUpDto {
   @ApiProperty({ description: 'Company name', example: 'My Company' })
@@ -157,9 +158,9 @@ export class CompleteCustomerDataDto {
   contact_info?: ContactInfoDto;
 
   @ApiProperty({
-    type: [String],
+    type: 'array', items: { type: 'string', format: 'binary' },
     description: 'Organization documents',
-    example: ['doc1.pdf', 'doc2.pdf'],
+    example: ['pdf1', 'pdf2'],
   })
   @IsOptional()
   @IsArray({ message: 'organization docs must be an array' })
@@ -197,7 +198,7 @@ export class UpdateCustomerDataDto {
   @IsOptional()
   contact_info?: ContactInfoDto;
 
-  @ApiProperty({ type: [String], description: 'Organization documents' })
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' }, description: 'Organization documents' })
   @IsOptional()
   @IsArray({ message: 'organization docs must be an array' })
   @IsString({ each: true, message: 'Each doc in organization docs must be a string' })

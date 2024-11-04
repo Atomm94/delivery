@@ -63,7 +63,7 @@ export class CompleteDriverDataDto {
   social_number?: string;
 
   @ApiProperty({
-    type: String,
+    type: 'string',
     format: 'binary',
     description: 'file uploads',
   })
@@ -72,7 +72,7 @@ export class CompleteDriverDataDto {
   license?: string;
 
   @ApiProperty({
-    type: String,
+    type: 'string',
     format: 'binary',
     description: 'file uploads',
   })
@@ -168,7 +168,7 @@ export class UpdateDataDto {
   social_number?: string;
 
   @ApiProperty({
-    type: String,
+    type: 'string',
     format: 'binary',
     description: 'file uploads',
   })
@@ -177,7 +177,7 @@ export class UpdateDataDto {
   license?: string;
 
   @ApiProperty({
-    type: String,
+    type: 'string',
     format: 'binary',
     description: 'file uploads',
   })

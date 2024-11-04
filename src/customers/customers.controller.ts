@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import {ConfigService} from "@nestjs/config";
 import {
     CompleteCustomerDataDto,
@@ -7,10 +7,9 @@ import {
 } from '../common/DTOs/customer.dto';
 import { CustomersService } from './customers.service';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
-import { CompleteDriverDataDto, UpdateDataDto } from '../common/DTOs/driver.dto';
 import { getFileUrl } from '../configs/multer.config';
 import { removeFiles } from '../common/helpers/filePaths';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'customers' )
 @Controller('customers')
@@ -21,16 +20,20 @@ export class CustomersController {
     ) {}
 
     @Post('signUp')
+    @ApiConsumes('multipart/form-data')
     async signUp(@Req() req, @Res() res, @Body() signUpDto: CustomersSignUpDto) {
         const data = await this.customerService.create(signUpDto);
 
         return res.json({ message: 'Signed Up', data: { data } });
     }
 
-    @Put('complete/:id')
+    @Put('complete')
+    @ApiBearerAuth('Authorization')
+    @ApiConsumes('multipart/form-data')
     @UseInterceptors(FilesInterceptor)
+    @ApiBody({ type: CompleteCustomerDataDto })
     async complete(
-      @Param('id') id: number,
+      @Req() req,
       @Res() res,
       @Body() completeDataDto: CompleteCustomerDataDto,
       @UploadedFiles() files: any,
@@ -42,7 +45,9 @@ export class CustomersController {
                 })
             }
 
-            const data = await this.customerService.complete(id, completeDataDto);
+            const { user: customer } = req;
+
+            const data = await this.customerService.complete(customer.id, completeDataDto);
 
             return res.json({ message: 'Successfully completed', data });
         } catch (error) {
@@ -56,10 +61,13 @@ export class CustomersController {
         }
     }
 
-    @Put('/:id')
+    @Put()
     @UseInterceptors(FilesInterceptor)
+    @ApiBearerAuth('Authorization')
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ type: UpdateCustomerDataDto })
     async update(
-      @Param('id') id: number,
+      @Req() req,
       @Res() res,
       @Body() updateDataDto: UpdateCustomerDataDto,
       @UploadedFiles() files: any,
@@ -71,7 +79,9 @@ export class CustomersController {
                 })
             }
 
-            const data = await this.customerService.update(id, updateDataDto);
+            const { user: customer } = req;
+
+            const data = await this.customerService.update(customer.id, updateDataDto);
 
             return res.json({ message: 'Successfully updated', data });
         } catch (error) {

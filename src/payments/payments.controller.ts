@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Card } from '../database/entities/card.entity';
 import { CardDto } from '../common/DTOs/card.dto';
 
 @ApiTags( 'payments' )
 @Controller('payments')
+@ApiBearerAuth('Authorization')
 export class PaymentsController {
   constructor(
     private readonly paymentsService: PaymentsService,
@@ -89,25 +90,32 @@ export class PaymentsController {
 //   }
 
   // Create a new card
-  @Post(':customerId')
-  async createCard(@Param('customerId') customerId: number, @Body() cardDto: CardDto, @Res() res): Promise<Card> {
-    return res.send(await this.paymentsService.create(customerId, cardDto));
+  @ApiConsumes('multipart/form-data')
+  @Post()
+  async createCard(@Req() req, @Res() res, @Body() cardDto: CardDto): Promise<Card> {
+    const { user } = req;
+
+    return res.send(await this.paymentsService.create(user.id, cardDto));
   }
 
   // Get all cards
-  @Get('/all/:customerId')
-  async getAllCards(@Param('customerId') customerId: number, @Res() res): Promise<Card[]> {
-    return res.send(await this.paymentsService.getAll(customerId));
+  @Get()
+  async getAllCards(@Req() req, @Res() res): Promise<Card[]> {
+    const { user } = req;
+
+    return res.send(await this.paymentsService.getAll(user.id));
   }
 
   // Get a card by ID
   @Get(':id')
+  @ApiConsumes('multipart/form-data')
   async getCardById(@Param('id') id: number, @Res() res): Promise<Card> {
     return res.send(await this.paymentsService.getOne(id));
   }
 
   // Update a card
   @Put(':id')
+  @ApiConsumes('multipart/form-data')
   async updateCard(@Param('id') id: number, @Body() updateCardDto: CardDto, @Res() res): Promise<Card> {
     return res.send(await this.paymentsService.updateCard(id, updateCardDto));
   }

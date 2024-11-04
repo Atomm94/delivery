@@ -44,9 +44,6 @@ export class CustomersService {
 
     const completedInfo: any = completeCustomerInfo
 
-    console.log(addresses);
-    console.log(completeCustomerInfo);
-
     const { affected } = await this.customerRepository
       .createQueryBuilder()
       .update(Customer)

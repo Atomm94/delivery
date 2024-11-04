@@ -1,7 +1,6 @@
 import {
     Body,
     Controller,
-    Param,
     Post,
     Put,
     Req,
@@ -15,7 +14,7 @@ import { CompleteDriverDataDto, DriversSignUpDto, UpdateDataDto } from '../commo
 import { getFileUrl } from '../configs/multer.config';
 import { removeFiles } from '../common/helpers/filePaths';
 import { FilesInterceptor } from '../interceptors/files.interceptor';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'drivers' )
 @Controller('drivers')
@@ -26,16 +25,20 @@ export class DriversController{
     ) {}
 
     @Post('signUp')
+    @ApiConsumes('multipart/form-data')
     async signUp(@Req() req, @Res() res, @Body() signUpDto: DriversSignUpDto) {
         const data = await this.driversService.create(signUpDto);
 
         return res.json({ message: 'Signed Up', data: { data } });
     }
 
-    @Put('complete/:id')
+    @Put('complete')
+    @ApiBearerAuth('Authorization')
+    @ApiConsumes('multipart/form-data')
     @UseInterceptors(FilesInterceptor)
+    @ApiBody({ type: CompleteDriverDataDto })
     async complete(
-      @Param('id') id: number,
+      @Req() req,
       @Res() res,
       @Body() completeDataDto: CompleteDriverDataDto,
       @UploadedFiles() files: any,
@@ -47,7 +50,9 @@ export class DriversController{
                 })
             }
 
-            const data = await this.driversService.complete(id, completeDataDto);
+            const { user: driver } = req;
+
+            const data = await this.driversService.complete(driver.id, completeDataDto);
 
             return res.json({ message: 'Successfully completed', data });
         } catch (error) {
@@ -61,10 +66,13 @@ export class DriversController{
         }
    }
 
-   @Put('/:id')
+   @Put()
+   @ApiBearerAuth('Authorization')
+   @ApiConsumes('multipart/form-data')
    @UseInterceptors(FilesInterceptor)
+   @ApiBody({ type: UpdateDataDto })
    async update(
-     @Param('id') id: number,
+     @Req() req,
      @Res() res,
      @Body() updateDataDto: UpdateDataDto,
      @UploadedFiles() files: any,
@@ -76,7 +84,9 @@ export class DriversController{
               })
           }
 
-          const data = await this.driversService.update(id, updateDataDto);
+          const { user: driver } = req;
+
+          const data = await this.driversService.update(driver.id, updateDataDto);
 
           return res.json({ message: 'Successfully updated', data });
       } catch (error) {
@@ -90,13 +100,17 @@ export class DriversController{
       }
    }
 
-   @Put('rate/:id')
+   @Put('rate')
+   @ApiConsumes('multipart/form-data')
+   @ApiBearerAuth('Authorization')
    async doRate(
-     @Param('id') id: number,
+     @Req() req,
      @Res() res,
      @Body() rateDto: number,
    ) {
-        const rate = await this.driversService.doRate(id, rateDto);
+        const { user: driver } = req;
+
+        const rate = await this.driversService.doRate(driver.id, rateDto);
 
         return res.json({ rate })
    }
