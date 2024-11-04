@@ -7,7 +7,7 @@ import { Customer } from '../database/entities/customer.entity';
 import { CompleteDriverDataDto, UpdateDataDto } from '../common/DTOs/driver.dto';
 import {
   completeDtoToPartialDriverEntity,
-  DtoToPartialCustomerEntity,
+  DtoToPartialCustomerEntity, UpdateDtoToPartialCustomerEntity,
   updateDtoToPartialDriverEntity,
 } from '../common/helpers/dtoToPartialEntity';
 import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../common/DTOs/customer.dto';
@@ -64,7 +64,7 @@ export class CustomersService {
   }
 
   async update(id: number, updateDataDto: UpdateCustomerDataDto): Promise<Customer> {
-    const updateData: any = DtoToPartialCustomerEntity(updateDataDto);
+    const updateData: any = UpdateDtoToPartialCustomerEntity(updateDataDto);
 
     const { affected } = await this.customerRepository
       .createQueryBuilder()

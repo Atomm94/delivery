@@ -3,13 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Route } from '../database/entities/route.entity';
 import { Repository } from 'typeorm';
 import { CreateRouteDto } from '../common/DTOs/route.dto';
-import { createRouteDtoToPartialRouteEntity } from '../common/helpers/dtoToPartialEntity';
+import { Customer } from '../database/entities/customer.entity';
 
 @Injectable()
 export class OrdersService {
   constructor(
     @InjectRepository(Route)
     private readonly routeRepository: Repository<Route>,
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
   ) {}
 
   // Create a new route
@@ -21,7 +23,7 @@ export class OrdersService {
 
   // Find a single route by ID
   async getOne(id: number): Promise<Route> {
-    const route = await this.routeRepository.findOne({ where: { id }, relations: ['addresses', 'products'] });
+    const route = await this.routeRepository.findOne({ where: { id }, relations: ['addresses'] });
     if (!route) {
       throw new NotFoundException(`Route with ID ${id} not found`);
     }
@@ -30,17 +32,17 @@ export class OrdersService {
 
   // Find all routes
   async getAll(customerId: number) {
-    const routes = await this.routeRepository
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+
+    if (!customer) {
+      throw new NotFoundException('customer is not found');
+    }
+
+    return await this.routeRepository
       .createQueryBuilder('route')
       .andWhere('route.customerId = :customerId', { customerId })
       .leftJoinAndSelect('route.addresses', 'addresses')
       .getMany();
-
-    if (!routes.length) {
-      throw new NotFoundException(`No routes found for customer with ID ${customerId}`);
-    }
-
-    return routes;
   }
 
   // Update an existing route

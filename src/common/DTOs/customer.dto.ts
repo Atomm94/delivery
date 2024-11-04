@@ -167,13 +167,24 @@ export class CompleteCustomerDataDto {
   orgz_docs?: string[];
 
   @ApiProperty({ type: [AddressDto], description: 'List of addresses' })
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => AddressDto)
-  addresses: AddressDto[];
+  addresses?: AddressDto[];
 }
 
 export class UpdateCustomerDataDto {
+  @ApiProperty({ description: 'Company name', example: 'My Company' })
+  @IsOptional()
+  @IsString({ message: 'company name must be a string' })
+  company_name?: string;
+
+  @ApiProperty({ description: 'Email address', example: 'user@example.com' })
+  @IsOptional()
+  @IsEmail({}, { message: 'Invalid email format' })
+  email?: string;
+
   @ApiProperty({ type: CompanyInfoDto })
   @IsOptional()
   company_info?: CompanyInfoDto;

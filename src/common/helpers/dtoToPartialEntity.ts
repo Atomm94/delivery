@@ -1,6 +1,6 @@
 import { CompleteDriverDataDto, UpdateDataDto } from '../DTOs/driver.dto';
 import { TruckDataDto } from '../DTOs/truck.dto';
-import { CompleteCustomerDataDto } from '../DTOs/customer.dto';
+import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../DTOs/customer.dto';
 import { Route } from '../../database/entities/route.entity';
 import { CreateRouteDto } from '../DTOs/route.dto';
 
@@ -70,6 +70,17 @@ export function DtoToPartialCustomerEntity(dto: CompleteCustomerDataDto) {
   };
 }
 
+export function UpdateDtoToPartialCustomerEntity(dto: UpdateCustomerDataDto) {
+  return {
+    company_name: dto.company_name,
+    email: dto.email,
+    company_address: dto.company_address,
+    company_info: dto.company_info,
+    contact_info: dto.contact_info,
+    orgz_docs: dto.orgz_docs ? dto.orgz_docs : null,
+    addresses: dto.addresses,
+  };
+}
 
 export function createRouteDtoToPartialRouteEntity(customer: number, dto: CreateRouteDto) {
   return {

@@ -11,7 +11,6 @@ import { Address } from './address.entity';
 import { Customer } from './customer.entity';
 import { Driver } from './driver.entity';
 import { Status } from '../../common/enums/route.enum';
-import { Product } from './product.entity';
 
 
 @Entity()
