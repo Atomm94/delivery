@@ -1,42 +1,68 @@
-import { Body, Controller, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
+import { Controller, Post, Body, Put, Param, Get, Request } from '@nestjs/common';
 import { OrdersService } from './orders.service';
-import { CreateRouteDto } from '../common/DTOs/route.dto';
-import { Route } from '../database/entities/route.entity';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { CreateOrderDto } from '../common/DTOs/order.dto';
+import { Order } from '../database/entities/order.entity';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 
-@ApiTags( 'routes' )
-@Controller('routes')
+@ApiTags('Orders')
+@Controller('orders')
 @ApiBearerAuth('Authorization')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
-  // POST - Create a new route
+  // Create a new order for the authenticated customer
   @Post()
-  @ApiConsumes('multipart/form-data')
-  async create(@Req() req, @Res() res, @Body() createRouteDto: CreateRouteDto): Promise<Route> {
-    const { user: customer } = req;
-    return res.send(await this.ordersService.create(customer.id, createRouteDto));
+  @ApiOperation({ summary: 'Create a new order for the authenticated customer' })
+  @ApiResponse({
+    status: 201,
+    description: 'The order has been successfully created.',
+  })
+  async create(
+    @Request() req,  // Use the Request object to access req.user
+    @Body() createOrderDto: CreateOrderDto,
+  ): Promise<Order> {
+    const { user: customer } = req;  // Extract customer from req.user
+    return this.ordersService.create(customer.id, createOrderDto);  // Pass customer.id to service
   }
 
-  // GET - Retrieve a single route by ID
+  // Get a specific order by ID for the authenticated customer
   @Get(':id')
-  @ApiConsumes('multipart/form-data')
-  async getOne(@Param('id') id: number, @Res() res): Promise<Route> {
-    return res.send(await this.ordersService.getOne(id));
+  @ApiOperation({ summary: 'Get an order by its ID with routes, addresses, and products' })
+  @ApiResponse({
+    status: 200,
+    description: 'The order has been successfully retrieved.',
+  })
+  async getOne(
+    @Request() req,  // Use the Request object to access req.user
+    @Param('id') id: number,
+  ): Promise<Order> {
+    return this.ordersService.getOne(id);  // Pass customer.id to service to validate ownership
   }
 
-  // GET - Retrieve all routes
-
+  // Get all orders for the authenticated customer
   @Get()
-  async getAll(@Req() req, @Res() res): Promise<Route[]> {
-    const { user: customer } = req;
-    return res.send(await this.ordersService.getAll(customer.id));
+  @ApiOperation({ summary: 'Get all orders for the authenticated customer with their routes, addresses, and products' })
+  @ApiResponse({
+    status: 200,
+    description: 'A list of orders for the customer with their associated routes, addresses, and products.',
+  })
+  async getAll(@Request() req): Promise<Order[]> {
+    const { user: customer } = req;  // Extract customer from req.user
+    return this.ordersService.getAll(customer.id);  // Pass customer.id to service
   }
 
-  // PUT - Update an existing route
+  // Update an existing order by ID for the authenticated customer
   @Put(':id')
-  @ApiConsumes('multipart/form-data')
-  async update(@Param('id') id: number, @Body() updateRouteDto: CreateRouteDto, @Res() res): Promise<Route> {
-    return res.send(await this.ordersService.update(id, updateRouteDto));
+  @ApiOperation({ summary: 'Update an existing order by ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'The order has been successfully updated.',
+  })
+  async update(
+    @Request() req,  // Use the Request object to access req.user
+    @Param('id') id: number,
+    @Body() updateOrderDto: CreateOrderDto,
+  ): Promise<Order> {
+    return this.ordersService.update(id, updateOrderDto);  // Pass customer.id to service for validation
   }
 }

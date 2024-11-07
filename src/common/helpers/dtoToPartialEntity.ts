@@ -82,25 +82,25 @@ export function UpdateDtoToPartialCustomerEntity(dto: UpdateCustomerDataDto) {
   };
 }
 
-export function createRouteDtoToPartialRouteEntity(customer: number, dto: CreateRouteDto) {
-  return {
-    onloading_time: dto.onloading_time,
-    start_time: dto.start_time,
-    car_type: dto.car_type,
-    porter: dto.porter || null, // Assuming this can be null
-    status: dto.status || null,
-    addresses: dto.addresses || null,
-    items: dto.items.map(item => ({
-      name: item.name,
-      count: item.count,
-      price: item.price,
-      weight: item.weight,
-      length: item.length,
-      width: item.width,
-      height: item.height,
-      measure: item.measure || null,
-    })),
-    customer,
-  };
-}
+// export function createRouteDtoToPartialRouteEntity(customer: number, dto: CreateRouteDto) {
+//   return {
+//     onloading_time: dto.onloading_time,
+//     start_time: dto.start_time,
+//     car_type: dto.car_type,
+//     porter: dto.porter || null, // Assuming this can be null
+//     status: dto.status || null,
+//     addresses: dto.addresses || null,
+//     items: dto.items.map(item => ({
+//       name: item.name,
+//       count: item.count,
+//       price: item.price,
+//       weight: item.weight,
+//       length: item.length,
+//       width: item.width,
+//       height: item.height,
+//       measure: item.measure || null,
+//     })),
+//     customer,
+//   };
+// }
 

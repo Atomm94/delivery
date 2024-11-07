@@ -4,6 +4,7 @@ import { UserRole } from '../../common/enums/user-role.enum';
 import { Address } from './address.entity';
 import { Product } from './product.entity';
 import { Card } from './card.entity';
+import { Order } from './order.entity';
 
 @Entity('Customer')
 export class Customer {
@@ -44,14 +45,11 @@ export class Customer {
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
-    @OneToMany(() => Route, route => route.customer, { onDelete: 'CASCADE', nullable: true })
-    routes: Route[];
+    @OneToMany(() => Order, order => order.customer, { onDelete: 'CASCADE', nullable: true })
+    orders: Order[];
 
     @OneToMany(() => Address, (address) => address.customer, { onDelete: 'CASCADE', nullable: true })
     addresses: Address[];
-
-    @OneToMany(() => Product, (product) => product.customer, { onDelete: 'CASCADE', nullable: true })
-    products: Product[];
 
     @OneToMany(() => Card, (card) => card.customer, { onDelete: 'CASCADE', nullable: true })
     cards: Card[];

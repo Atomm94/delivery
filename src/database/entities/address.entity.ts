@@ -1,6 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Customer } from './customer.entity';
-import { UserRole } from '../../common/enums/user-role.enum';
 import { AddressType } from '../../common/enums/address-type.enum';
 import { Route } from './route.entity';
 
@@ -34,8 +33,7 @@ export class Address {
   })
   type: AddressType;
 
-  @ManyToMany(() => Route, (route) => route.addresses, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn({ name: 'routes' })
+  @OneToMany(() => Route, (route) => route.address)
   routes: Route[];
 
   @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE', nullable: true })

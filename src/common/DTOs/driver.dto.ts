@@ -88,9 +88,10 @@ export class CompleteDriverDataDto {
   op_state?: string;
 
   @ApiProperty({
-    type: [String],
-    description: 'An array of Operational cities',
-    example: ['Phoenix', 'Tucson'],
+    type: [String],  // Specifies that the property is an array of strings
+    description: 'A list of operational cities', // Description for Swagger
+    example: ['New York', 'Los Angeles'], // Example values for Swagger UI
+    required: false,  // Since the field is optional, this should be false
   })
   @IsOptional()
   @IsArray({ message: 'Operational cities must be an array' })

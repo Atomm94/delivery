@@ -14,7 +14,6 @@ export class AuthController {
   ) {}
 
   @Post('signIn')
-  @ApiConsumes('multipart/form-data')
   async signIn(@Req() req, @Res() res, @Body() signInDto: SignInDto) {
     try {
       const user = await this.authService.signIn(signInDto);

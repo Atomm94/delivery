@@ -30,6 +30,7 @@ import { Address } from './database/entities/address.entity';
 import { OrdersModule } from './orders/orders.module';
 import { Card } from './database/entities/card.entity';
 import { ProductsModule } from './products/products.module';
+import { AddressModule } from './address/address.module';
 
 
 initializeTransactionalContext();
@@ -70,6 +71,7 @@ initializeTransactionalContext();
       // GeoModule,
       OrdersModule,
       ProductsModule,
+      AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService, DriversService, CustomersService, FilesInterceptor],

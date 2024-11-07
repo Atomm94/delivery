@@ -68,14 +68,8 @@ export class Driver {
     @OneToMany(() => Truck, truck => truck.driver)
     trucks: Truck[];
 
-    @OneToMany(() => Route, route => route.driver, { onDelete: 'CASCADE', nullable: true })
-    routes: Route[];
-
     @ManyToMany(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'companyId' })
     companies: Company[];
-
-    // @OneToMany(() => Card, (card) => card.driver)
-    // cards: Card[];
 }
 

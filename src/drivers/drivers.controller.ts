@@ -25,7 +25,7 @@ export class DriversController{
     ) {}
 
     @Post('signUp')
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     async signUp(@Req() req, @Res() res, @Body() signUpDto: DriversSignUpDto) {
         const data = await this.driversService.create(signUpDto);
 
