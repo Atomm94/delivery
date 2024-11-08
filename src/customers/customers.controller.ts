@@ -20,7 +20,7 @@ export class CustomersController {
     ) {}
 
     @Post('signUp')
-    @ApiConsumes('multipart/form-data')
+    @ApiConsumes('application/json')
     async signUp(@Req() req, @Res() res, @Body() signUpDto: CustomersSignUpDto) {
         const data = await this.customerService.create(signUpDto);
 

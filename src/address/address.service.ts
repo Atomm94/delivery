@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Address } from '../database/entities/address.entity';
 import { CreateAddressDto } from '../common/DTOs/address.dto';
+import { UserRole } from '../common/enums/user-role.enum';
 
 @Injectable()
 export class AddressService {
@@ -11,16 +12,30 @@ export class AddressService {
     private readonly addressRepository: Repository<Address>,
   ) {}
 
-  async create(customer: number, createAddressDto: CreateAddressDto): Promise<any> {
-    const createAddress: any = { customer, ...createAddressDto };
+  async create(userId: number, role, createAddressDto: CreateAddressDto): Promise<any> {
+    let createAddress: any = { customer: userId, ...createAddressDto };
+    if (role === UserRole.COURIER) {
+      createAddress = { driver: userId, ...createAddressDto };
+    }
+
+    if (createAddress.latitude && createAddress.longitude) {
+      const {latitude, longitude, ...Dto} = createAddress;
+      createAddress = {location: `SRID=4326;POINT(${latitude} ${longitude})`, ...Dto}
+    }
+
     const newAddress = this.addressRepository.create(createAddress);
     return await this.addressRepository.save(newAddress);
   }
 
-  async getAll(customerId: number): Promise<Address[]> {
+  async getAll(userId: number, role): Promise<Address[]> {
+    let query = 'address.customerId = :customerId'
+    if (role === UserRole.COURIER) {
+      query = 'address.driverId = :driverId'
+    }
+
     return await this.addressRepository
       .createQueryBuilder('address')
-      .andWhere('address.customerId = :customerId', { customerId })
+      .andWhere(query, { userId })
       .getMany();
   }
 

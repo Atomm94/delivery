@@ -1,8 +1,9 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinColumn } from 'typeorm';
 import { Truck } from './truck.entity';
-import { Route } from './route.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Company } from './company.entity';
+import { Address } from './address.entity';
+import { Route } from './route.entity';
 //import { Card } from './payment.entity';
 
 @Entity('Driver')
@@ -67,6 +68,12 @@ export class Driver {
 
     @OneToMany(() => Truck, truck => truck.driver)
     trucks: Truck[];
+
+    @OneToMany(() => Address, (address) => address.driver, { onDelete: 'CASCADE', nullable: true })
+    addresses: Address[];
+
+    @OneToMany(() => Route, route => route.driver, { onDelete: 'CASCADE', nullable: true })
+    routes: Route[];
 
     @ManyToMany(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'companyId' })

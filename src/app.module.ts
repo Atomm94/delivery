@@ -16,7 +16,6 @@ import {CustomersService} from "./customers/customers.service";
 import { Truck } from './database/entities/truck.entity';
 import { Customer } from './database/entities/customer.entity';
 import { Company } from './database/entities/company.entity';
-import { Route } from './database/entities/route.entity';
 import { JwtMiddleware } from './auth/jwt/jwt.middleware';
 import { MulterModule } from '@nestjs/platform-express';
 import { FilesInterceptor } from './interceptors/files.interceptor';
@@ -27,11 +26,11 @@ import { PaymentsModule } from './payments/payments.module';
 import { Address } from './database/entities/address.entity';
 // import { RedisModule } from './redis/redis.module';
 // import { GeoModule } from './geo/geo.module';
-import { OrdersModule } from './orders/orders.module';
 import { Card } from './database/entities/card.entity';
 import { ProductsModule } from './products/products.module';
 import { AddressModule } from './address/address.module';
 import { RouteModule } from './route/route.module';
+import { Route } from './database/entities/route.entity';
 
 
 initializeTransactionalContext();
@@ -70,7 +69,6 @@ initializeTransactionalContext();
       PaymentsModule,
       // RedisModule,
       // GeoModule,
-      OrdersModule,
       ProductsModule,
       AddressModule,
       RouteModule,

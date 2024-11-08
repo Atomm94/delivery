@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsEnum, IsPostalCode } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsEnum, IsPostalCode, IsPositive, IsNumber } from 'class-validator';
 import { AddressType } from '../../common/enums/address-type.enum';
 
 export class CreateAddressDto {
@@ -51,6 +51,26 @@ export class CreateAddressDto {
   @IsBoolean()
   @IsOptional()
   main: boolean = false;  // Default value
+
+  @ApiProperty({
+    description: 'The latitude of the location (in decimal degrees)',
+    type: Number,
+    example: 40.712776,  // Example latitude (e.g., New York)
+  })
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  latitude?: number;
+
+  @ApiProperty({
+    description: 'The longitude of the location (in decimal degrees)',
+    type: Number,
+    example: -74.005974,  // Example longitude (e.g., New York)
+  })
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  longitude?: number;
 
   @ApiProperty({
     description: 'The type of the address (e.g., load, shipping)',

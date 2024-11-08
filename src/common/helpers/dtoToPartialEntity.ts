@@ -1,7 +1,6 @@
 import { CompleteDriverDataDto, UpdateDataDto } from '../DTOs/driver.dto';
 import { TruckDataDto } from '../DTOs/truck.dto';
 import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../DTOs/customer.dto';
-import { Route } from '../../database/entities/route.entity';
 import { CreateRouteDto } from '../DTOs/route.dto';
 
 export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {

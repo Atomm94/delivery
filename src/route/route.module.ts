@@ -4,9 +4,11 @@ import { RouteController } from './route.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from '../database/entities/customer.entity';
 import { Route } from '../database/entities/route.entity';
+import { Order } from '../database/entities/order.entity';
+import { Product } from '../database/entities/product.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Route, Customer])],
+  imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product])],
   providers: [RouteService],
   controllers: [RouteController]
 })

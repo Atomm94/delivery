@@ -1,7 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
 import { Measure } from '../../common/enums/product.enum';
 import { ProductType } from '../../common/enums/product-type.enum';
-import { Route } from './route.entity';
+import { Order } from './order.entity';
 
 @Entity()
 export class Product {
@@ -38,6 +38,6 @@ export class Product {
   })
   type: ProductType;
 
-  @OneToMany(() => Route, (route) => route.product)
-  routes: Route[];
+  @ManyToMany(() => Order, (order) => order.products)
+  orders: Order[];
 }

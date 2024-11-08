@@ -1,10 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
-import { Route } from './route.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Address } from './address.entity';
-import { Product } from './product.entity';
 import { Card } from './card.entity';
-import { Order } from './order.entity';
+import { Route } from './route.entity';
 
 @Entity('Customer')
 export class Customer {
@@ -45,8 +43,8 @@ export class Customer {
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
-    @OneToMany(() => Order, order => order.customer, { onDelete: 'CASCADE', nullable: true })
-    orders: Order[];
+    @OneToMany(() => Route, route => route.customer, { onDelete: 'CASCADE', nullable: true })
+    routes: Route[];
 
     @OneToMany(() => Address, (address) => address.customer, { onDelete: 'CASCADE', nullable: true })
     addresses: Address[];

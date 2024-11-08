@@ -1,11 +1,12 @@
-import { IsString, IsNumber, IsEnum, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { Measure } from '../../common/enums/product.enum';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
+import { Measure } from '../enums/product.enum';
+import { ProductType } from '../enums/product-type.enum';
 
 export class CreateProductDto {
   @ApiProperty({
     description: 'The name of the product',
-    example: 'Sample Product',
+    example: 'Sample Product',  // Example product name
   })
   @IsOptional()
   @IsString()
@@ -13,7 +14,7 @@ export class CreateProductDto {
 
   @ApiProperty({
     description: 'The weight of the product in kilograms',
-    example: 5.0,
+    example: 5.0,  // Example weight (in kg)
   })
   @IsOptional()
   @IsNumber()
@@ -21,7 +22,7 @@ export class CreateProductDto {
 
   @ApiProperty({
     description: 'The length of the product in centimeters',
-    example: 30,
+    example: 30,  // Example length (in cm)
   })
   @IsOptional()
   @IsNumber()
@@ -29,7 +30,7 @@ export class CreateProductDto {
 
   @ApiProperty({
     description: 'The width of the product in centimeters',
-    example: 20,
+    example: 20,  // Example width (in cm)
   })
   @IsOptional()
   @IsNumber()
@@ -37,7 +38,7 @@ export class CreateProductDto {
 
   @ApiProperty({
     description: 'The height of the product in centimeters',
-    example: 15,
+    example: 15,  // Example height (in cm)
   })
   @IsOptional()
   @IsNumber()
@@ -46,8 +47,17 @@ export class CreateProductDto {
   @ApiProperty({
     description: 'The measure unit of the product',
     enum: Measure,
+    example: Measure.BOTTLE,  // Example measure unit (e.g., bottle)
   })
   @IsOptional()
   @IsEnum(Measure)
   measure: Measure;
+
+  @ApiProperty({
+    description: 'The type of product (`box` | `product`)',
+    enum: ProductType,
+    example: ProductType.BOX,  // Example type (e.g., BOX)
+  })
+  @IsEnum(ProductType)
+  type: ProductType;
 }

@@ -1,26 +1,47 @@
 import {
   Entity,
+  Column,
   PrimaryGeneratedColumn,
-  JoinColumn, ManyToOne, OneToMany,
+  OneToMany, ManyToOne, JoinColumn,
 } from 'typeorm';
-import { Product } from './product.entity';
-import { Address } from './address.entity';
+import { Status } from '../../common/enums/route.enum';
 import { Order } from './order.entity';
+import { Customer } from './customer.entity';
+import { Driver } from './driver.entity';
+
 
 @Entity()
 export class Route {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Address, (address) => address.routes, { cascade: true })
-  @JoinColumn({ name: 'addressId' })
-  address: Address;
+  @Column({ type: 'varchar' })
+  onloading_time: string;
 
-  @ManyToOne(() => Product, (product) => product.routes, { cascade: true })
-  @JoinColumn({ name: 'productId' })
-  product: Product;
+  @Column({ type: 'varchar' })
+  start_time: string;
 
-  @ManyToOne(() => Order, (order) => order.routes, { cascade: true })
-  @JoinColumn({ name: 'orderId' })
-  order: Order;
+  @Column({ type: 'varchar' })
+  car_type: string;
+
+  @Column({ type: 'varchar' })
+  porter?: string;
+
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status.INCOMING
+  })
+  status: Status;
+
+  @OneToMany(() => Order, (order) => order.route)
+  orders: Order[];
+
+  @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'customerId' })
+  customer: Customer | null;
+
+  @ManyToOne(() => Driver, (driver) => driver.addresses, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'driverId' })
+  driver: Driver | null;
 }

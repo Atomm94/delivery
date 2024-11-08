@@ -1,38 +1,45 @@
-import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Post, Body, Get, Param, Put, Req } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from '../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../database/entities/route.entity';
 
 @ApiTags('routes') // Used for Swagger UI
 @Controller('routes')
+@ApiBearerAuth('Authorization')
 export class RouteController {
   constructor(private readonly routeService: RouteService) {}
 
   /**
    * Create a new route
+   * @param req
    * @param createRouteDto - The DTO containing the route data
    * @returns The newly created route
    */
   @Post()
   @ApiOperation({ summary: 'Create a new route' })
-  @ApiResponse({ status: 201, description: 'The route has been successfully created' })
-  @ApiResponse({ status: 400, description: 'Bad Request' })
-  async create(@Body() createRouteDto: CreateRouteDto): Promise<Route> {
-    return this.routeService.create(createRouteDto);
+  async create(@Req() req, @Body() createRouteDto: CreateRouteDto): Promise<Route> {
+    try {
+      const { user: customer } = req;
+      return this.routeService.create(customer.id, createRouteDto);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   /**
    * Get all routes for a specific order
-   * @param orderId - The ID of the order
    * @returns An array of routes associated with the order
+   * @param req
    */
-  @Get('order/:orderId')
+  @Get()
   @ApiOperation({ summary: 'Get all routes by order ID' })
   @ApiResponse({ status: 200, description: 'The list of routes', })
   @ApiResponse({ status: 404, description: 'No routes found' })
-  async getAll(@Param('orderId') orderId: number): Promise<Route[]> {
-    return this.routeService.getAll(orderId);
+  async getAll(@Req() req): Promise<Route[]> {
+    const { user } = req;
+
+    return this.routeService.getAll(user.id, user.role);
   }
 
   /**

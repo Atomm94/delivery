@@ -1,7 +1,8 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToOne, OneToMany } from 'typeorm';
 import { Customer } from './customer.entity';
 import { AddressType } from '../../common/enums/address-type.enum';
-import { Route } from './route.entity';
+import { Order } from './order.entity';
+import { Driver } from './driver.entity';
 
 @Entity('Address')
 export class Address {
@@ -33,11 +34,22 @@ export class Address {
   })
   type: AddressType;
 
-  @OneToMany(() => Route, (route) => route.address)
-  routes: Route[];
+  @Column('geometry', {
+    nullable: true,
+    spatialFeatureType: 'Point',
+    srid: 4326, // WGS84 (Latitude, Longitude)
+  })
+  location: any; // Store as a generic spatial type
+
+  @OneToOne(() => Order, (order) => order.address)
+  order: Order;
 
   @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'customerId' })
   customer: Customer | null;
+
+  @ManyToOne(() => Driver, (driver) => driver.addresses, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'driverId' })
+  driver: Driver | null;
 }
 
