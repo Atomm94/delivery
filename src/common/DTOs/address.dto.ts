@@ -59,7 +59,6 @@ export class CreateAddressDto {
   })
   @IsOptional()
   @IsNumber()
-  @IsPositive()
   latitude?: number;
 
   @ApiProperty({
@@ -69,7 +68,6 @@ export class CreateAddressDto {
   })
   @IsOptional()
   @IsNumber()
-  @IsPositive()
   longitude?: number;
 
   @ApiProperty({

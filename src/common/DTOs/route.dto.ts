@@ -8,7 +8,7 @@ export class CreateOrderDto {
     description: 'The ID of the route related to the order',
     type: Number,
   })
-  routeId: number;
+  route: number;
 
   @ApiProperty({
     description: 'The ID of the address related to the order',
@@ -16,7 +16,7 @@ export class CreateOrderDto {
   })
   @IsInt()
   @IsNotEmpty()
-  addressId: number;
+  address: number;
 
   @ApiProperty({
     description: 'The list of products related to the order',
@@ -101,13 +101,13 @@ export class CreateRouteDto {
     type: [CreateOrderDto],
     example: [  // Example array of orders
       {
-        addressId: 1,
+        address: 1,
         products: [
           { name: 'Sample Product', weight: 5.0, length: 30, width: 20, height: 15, measure: 'bottle', type: 'product' },
         ],
       },
       {
-        addressId: 2,
+        address: 2,
         products: [
           { name: 'Another Product', weight: 2.5, length: 15, width: 10, height: 5, measure: 'bottle', type: 'box' },
         ],

@@ -41,8 +41,8 @@ export class Address {
   })
   location: any; // Store as a generic spatial type
 
-  @OneToOne(() => Order, (order) => order.address)
-  order: Order;
+  @OneToMany(() => Order, (order) => order.address)
+  orders: Order[];
 
   @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'customerId' })

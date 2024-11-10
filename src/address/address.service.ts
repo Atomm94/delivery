@@ -20,7 +20,13 @@ export class AddressService {
 
     if (createAddress.latitude && createAddress.longitude) {
       const {latitude, longitude, ...Dto} = createAddress;
-      createAddress = {location: `SRID=4326;POINT(${latitude} ${longitude})`, ...Dto}
+      createAddress = {
+        location: {
+          type: 'Point',
+          coordinates: [latitude, longitude]
+        },
+        ...Dto
+      }
     }
 
     const newAddress = this.addressRepository.create(createAddress);
@@ -28,9 +34,9 @@ export class AddressService {
   }
 
   async getAll(userId: number, role): Promise<Address[]> {
-    let query = 'address.customerId = :customerId'
+    let query = 'address.customerId = :userId'
     if (role === UserRole.COURIER) {
-      query = 'address.driverId = :driverId'
+      query = 'address.driverId = :userId'
     }
 
     return await this.addressRepository

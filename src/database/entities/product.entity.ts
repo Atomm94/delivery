@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
 import { Measure } from '../../common/enums/product.enum';
 import { ProductType } from '../../common/enums/product-type.enum';
 import { Order } from './order.entity';
@@ -38,6 +38,6 @@ export class Product {
   })
   type: ProductType;
 
-  @ManyToMany(() => Order, (order) => order.products)
+  @ManyToMany(() => Order)
   orders: Order[];
 }

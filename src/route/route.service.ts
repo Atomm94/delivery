@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateRouteDto } from '../common/DTOs/route.dto';
@@ -25,33 +25,36 @@ export class RouteService {
     let createRouteData: any = { customer, ...routeData };
     const createRoute: any = this.routeRepository.create(createRouteData);
     const saveRoute: any = await this.routeRepository.save(createRoute);
-    const savedOrdersData = []
-    let productIds
-    let addressId
+
     for (const order of orders) {
-      order.routeId = saveRoute.id
-      productIds = (await Promise.all(order.products.map(product => {
-        return this.productRepository.save(product);
-      }))).map(p => p.id)
-      savedOrdersData.push(order);
+      order.route = saveRoute.id
+      order.products = this.productRepository.create(order.products)
+      await this.productRepository.save(order.products as any)
     }
 
-    console.log(orders);
-    await this.orderRepository.save(orders);
+    await this.orderRepository.save(orders as any)
 
-    return await this.routeRepository.findOne({ where: {id: saveRoute.id}, relations: ['orders'] });
+    return await this.routeRepository.findOne({ where: {id: saveRoute.id},
+      relations: [
+        'orders',
+        'orders.address',
+        'orders.products',
+      ]
+    });
   }
 
   async getAll(userId: number, role): Promise<Route[]> {
-    let query = 'route.customerId = :customerId'
+    let query = 'route.customerId = :userId'
     if (role === UserRole.COURIER) {
-      query = 'route.driverId = :driverId'
+      query = 'route.driverId = :userId'
     }
 
     return await this.routeRepository
       .createQueryBuilder('route')
       .andWhere(query, { userId })
       .leftJoinAndSelect('route.orders', 'order')
+      .leftJoinAndSelect('order.products', 'products')
+      .leftJoinAndSelect('order.address', 'address')
       .getMany();
   }
 
@@ -60,7 +63,11 @@ export class RouteService {
       where: {
         id: routeId,
       },
-      relations: ['orders'],
+      relations: [
+        'orders',
+        'orders.address',
+        'orders.products',
+      ],
     });
   }
 
