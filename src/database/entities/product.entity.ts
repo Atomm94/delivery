@@ -1,7 +1,17 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToMany,
+  ManyToMany,
+  JoinTable,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Measure } from '../../common/enums/product.enum';
 import { ProductType } from '../../common/enums/product-type.enum';
 import { Order } from './order.entity';
+import { Customer } from './customer.entity';
 
 @Entity()
 export class Product {
@@ -40,4 +50,8 @@ export class Product {
 
   @ManyToMany(() => Order)
   orders: Order[];
+
+  @ManyToOne(() => Customer, (customer) => customer.products, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'customerId' })
+  customer: Customer | null;
 }

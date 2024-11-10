@@ -3,6 +3,7 @@ import { UserRole } from '../../common/enums/user-role.enum';
 import { Address } from './address.entity';
 import { Card } from './card.entity';
 import { Route } from './route.entity';
+import { Product } from './product.entity';
 
 @Entity('Customer')
 export class Customer {
@@ -48,6 +49,9 @@ export class Customer {
 
     @OneToMany(() => Address, (address) => address.customer, { onDelete: 'CASCADE', nullable: true })
     addresses: Address[];
+
+    @OneToMany(() => Product, (product) => product.customer, { onDelete: 'CASCADE', nullable: true })
+    products: Product[];
 
     @OneToMany(() => Card, (card) => card.customer, { onDelete: 'CASCADE', nullable: true })
     cards: Card[];

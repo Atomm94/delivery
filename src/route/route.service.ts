@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateRouteDto } from '../common/DTOs/route.dto';
@@ -6,6 +6,8 @@ import { Route } from '../database/entities/route.entity';
 import { Order } from '../database/entities/order.entity';
 import { UserRole } from '../common/enums/user-role.enum';
 import { Product } from '../database/entities/product.entity';
+import { Customer } from '../database/entities/customer.entity';
+import { Address } from '../database/entities/address.entity';
 
 @Injectable()
 export class RouteService {
@@ -18,10 +20,35 @@ export class RouteService {
 
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
+
+    @InjectRepository(Address)
+    private readonly addressRepository: Repository<Address>,
+
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
   ) {}
 
   async create(customer: number, createRouteDto: CreateRouteDto): Promise<any> {
+    const Customer = await this.customerRepository.findOne({
+      where: { id: customer },
+    })
+
+    if (!Customer) {
+      throw new NotFoundException(`customer with ID ${customer} not found`);
+    }
+
     const { orders, loadAddresses, ...routeData } = createRouteDto;
+
+    for (const order of orders) {
+      const address = await this.addressRepository.findOne({
+        where: { id: order.address },
+      })
+
+      if (!address) {
+        throw new NotFoundException(`address with ID ${address} not found`);
+      }
+    }
+
     let createRouteData: any = { customer, ...routeData };
     const createRoute: any = this.routeRepository.create(createRouteData);
     const saveRoute: any = await this.routeRepository.save(createRoute);
