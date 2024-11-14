@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Status } from '../enums/route.enum';
+import { Porter, Status } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
 
 export class CreateOrderDto {
@@ -9,6 +9,15 @@ export class CreateOrderDto {
     type: Number,
   })
   route: number;
+
+  @ApiProperty({
+    description: 'The time when the loading begins for the order',
+    type: String,
+    example: '2024-11-10T08:00:00Z',  // Example time in ISO format
+  })
+  @IsOptional()
+  @IsString()
+  onloading_time: string;
 
   @ApiProperty({
     description: 'The ID of the address related to the order',
@@ -50,15 +59,6 @@ export class CreateOrderDto {
 
 export class CreateRouteDto {
   @ApiProperty({
-    description: 'The time when the loading begins for the order',
-    type: String,
-    example: '2024-11-10T08:00:00Z',  // Example time in ISO format
-  })
-  @IsOptional()
-  @IsString()
-  onloading_time: string;
-
-  @ApiProperty({
     description: 'The start time of the order',
     type: String,
     example: '2024-11-10T09:00:00Z',  // Example start time in ISO format
@@ -78,23 +78,13 @@ export class CreateRouteDto {
 
   @ApiProperty({
     description: 'The name of the porter, if applicable',
-    type: String,
-    required: false,
-    example: 'John Doe',  // Example porter name
+    enum: Porter,
+    default: Porter['Without porter'],
+    example: Porter['Without porter'],
   })
   @IsOptional()
-  @IsString()
-  porter?: string;
-
-  @ApiProperty({
-    description: 'The status of the order',
-    enum: Status,
-    default: Status.INCOMING,
-    example: Status.INCOMING,  // Example status (e.g., INCOMING)
-  })
-  @IsOptional()
-  @IsEnum(Status)
-  status: Status;
+  @IsEnum(Porter)
+  porter: Porter;
 
   @ApiProperty({
     description: 'The list of orders related to the route',
@@ -102,12 +92,14 @@ export class CreateRouteDto {
     example: [  // Example array of orders
       {
         address: 1,
+        onloading_time: '2024-11-10T09:00:00Z',
         products: [
           { name: 'Sample Product', weight: 5.0, length: 30, width: 20, height: 15, measure: 'bottle', type: 'product' },
         ],
       },
       {
         address: 2,
+        onloading_time: '2024-12-10T09:00:00Z',
         products: [
           { name: 'Another Product', weight: 2.5, length: 15, width: 10, height: 5, measure: 'bottle', type: 'box' },
         ],

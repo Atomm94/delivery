@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Param, Body, Put, Req } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Put, Req, HttpException, Delete, HttpStatus } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { CreateAddressDto } from '../common/DTOs/address.dto';
 import { Address } from '../database/entities/address.entity';
@@ -39,29 +39,50 @@ export class AddressController {
   }
 
   // Get one address by its ID
-  @Get(':addressId')
+  @Get(':id')
   @ApiResponse({
     status: 200,
     description: 'Details of the requested address',
   })
   async getOne(
-    @Param('addressId') addressId: number,  // Capture addressId from route
+    @Param('id') addressId: number,  // Capture addressId from route
     @Req() req,  // Accessing the request object to get the customer
   ): Promise<Address> {
     return await this.addressService.getOne(addressId);  // Fetch the address by ID and ensure it's associated with the customer
   }
 
   // Update an existing address
-  @Put(':addressId')
+  @Put(':id')
   @ApiResponse({
     status: 200,
     description: 'The address has been successfully updated',
   })
   async update(
-    @Param('addressId') addressId: number,  // Capture addressId from route
-    @Body() updateAddressDto: Partial<Address>,  // Address data in the request body
+    @Param('id') addressId: number,  // Capture addressId from route
+    @Body() updateAddressDto: CreateAddressDto,  // Address data in the request body
     @Req() req,  // Accessing the request object to get the customer
   ): Promise<Address> {
     return await this.addressService.update(addressId, updateAddressDto);  // Update the address, ensuring it belongs to the customer
+  }
+
+  @Delete(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The address has been successfully deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Address not found',
+  })
+  async delete(
+    @Param('id') addressId: number,
+    @Req() req,
+  ): Promise<void> {
+    const result = await this.addressService.delete(addressId);
+    if (!result) {
+      throw new HttpException(`Address not found`, HttpStatus.NOT_FOUND);
+    }
+
+    return result;
   }
 }

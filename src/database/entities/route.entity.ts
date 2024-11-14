@@ -4,7 +4,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany, ManyToOne, JoinColumn,
 } from 'typeorm';
-import { Status } from '../../common/enums/route.enum';
+import { Porter, Status } from '../../common/enums/route.enum';
 import { Order } from './order.entity';
 import { Customer } from './customer.entity';
 import { Driver } from './driver.entity';
@@ -15,17 +15,17 @@ export class Route {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar' })
-  onloading_time: string;
-
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   start_time: string;
 
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', nullable: true })
   car_type: string;
 
-  @Column({ type: 'varchar' })
-  porter?: string;
+  @Column({
+    type: 'varchar',
+    default: 'Without porter'
+  })
+  porter: string;
 
   @Column({
     type: 'enum',

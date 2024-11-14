@@ -1,8 +1,8 @@
-import { Body, Controller, Get, Param, Post, Put, Req, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, Put, Req, Res } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Product } from '../database/entities/product.entity';
 import { CreateProductDto } from '../common/DTOs/product.dto';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'products' )
 @Controller('products')
@@ -36,5 +36,26 @@ export class ProductsController {
     @Res() res
   ): Promise<Product> {
     return res.send(await this.productsService.update(productId, updateProductDto));
+  }
+
+  @Delete(':id')
+  @ApiResponse({
+    status: 200,
+    description: 'The product has been successfully deleted',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Product not found or not belonging to the customer',
+  })
+  async delete(
+    @Param('id') productId: number,  // Capture productId from the route
+    @Req() req: Request,  // Accessing the request object to get the customer (if applicable)
+  ): Promise<void> {
+    const result = await this.productsService.delete(productId);
+    if (!result) {
+      throw new HttpException('Product not found', HttpStatus.NOT_FOUND);
+    }
+
+    return result;  // If successful, return no content (status 204)
   }
 }

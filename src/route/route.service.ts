@@ -8,6 +8,8 @@ import { UserRole } from '../common/enums/user-role.enum';
 import { Product } from '../database/entities/product.entity';
 import { Customer } from '../database/entities/customer.entity';
 import { Address } from '../database/entities/address.entity';
+import { Porter } from '../common/enums/route.enum';
+import any = jasmine.any;
 
 @Injectable()
 export class RouteService {
@@ -39,17 +41,33 @@ export class RouteService {
 
     const { orders, loadAddresses, ...routeData } = createRouteDto;
 
+    for (const loadAddress of loadAddresses) {
+      const address = await this.addressRepository.findOne({
+        where: { id: loadAddress },
+      })
+
+      if (!address) {
+        throw new NotFoundException(`load address with ID ${loadAddress} not found`);
+      }
+    }
+
     for (const order of orders) {
       const address = await this.addressRepository.findOne({
         where: { id: order.address },
       })
 
       if (!address) {
-        throw new NotFoundException(`address with ID ${address} not found`);
+        throw new NotFoundException(`shipping address with ID ${address} not found`);
       }
     }
 
-    let createRouteData: any = { customer, ...routeData };
+    const modifiedRouteData = {
+      start_time: routeData.start_time || null,
+      car_type: routeData.car_type || null,
+      porter: Porter[routeData.porter] || null,
+    }
+
+    let createRouteData: any = { customer, ...modifiedRouteData };
     const createRoute: any = this.routeRepository.create(createRouteData);
     const saveRoute: any = await this.routeRepository.save(createRoute);
 

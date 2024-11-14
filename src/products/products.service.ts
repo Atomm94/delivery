@@ -60,4 +60,8 @@ export class ProductsService {
     Object.assign(product, updateProductDto);
     return await this.productsRepository.save(product);
   }
+
+  async delete(productId: number): Promise<any> {
+    return await this.productsRepository.delete({ id: productId });
+  }
 }

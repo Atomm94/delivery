@@ -62,4 +62,9 @@ export class AddressService {
     Object.assign(address, updateAddressDto);
     return await this.addressRepository.save(address);
   }
+
+  async delete(addressId: number): Promise<any> {
+    // Proceed to delete the address
+    return await this.addressRepository.delete({ id: addressId });
+  }
 }
