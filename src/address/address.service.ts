@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Address } from '../database/entities/address.entity';
 import { CreateAddressDto } from '../common/DTOs/address.dto';
 import { UserRole } from '../common/enums/user-role.enum';
+import { AddressType } from '../common/enums/address-type.enum';
 
 @Injectable()
 export class AddressService {
@@ -33,7 +34,7 @@ export class AddressService {
     return await this.addressRepository.save(newAddress);
   }
 
-  async getAll(userId: number, role): Promise<Address[]> {
+  async getAll(userId: number, role, type: AddressType): Promise<Address[]> {
     let query = 'address.customerId = :userId'
     if (role === UserRole.COURIER) {
       query = 'address.driverId = :userId'
@@ -41,6 +42,7 @@ export class AddressService {
 
     return await this.addressRepository
       .createQueryBuilder('address')
+      .where(`type = '${type}'`)
       .andWhere(query, { userId })
       .getMany();
   }

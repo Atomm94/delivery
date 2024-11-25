@@ -145,15 +145,15 @@ class AddressDto {
 }
 
 export class CompleteCustomerDataDto {
-  @ApiProperty({ type: CompanyInfoDto })
+  @ApiProperty({ type: CompanyInfoDto, required: false })
   @IsOptional()
   company_info?: CompanyInfoDto;
 
-  @ApiProperty({ type: CompanyAddressDto })
+  @ApiProperty({ type: CompanyAddressDto, required: false })
   @IsOptional()
   company_address?: CompanyAddressDto;
 
-  @ApiProperty({ type: ContactInfoDto })
+  @ApiProperty({ type: ContactInfoDto, required: false })
   @IsOptional()
   contact_info?: ContactInfoDto;
 
@@ -161,17 +161,16 @@ export class CompleteCustomerDataDto {
     type: 'array', items: { type: 'string', format: 'binary' },
     description: 'Organization documents',
     example: ['pdf1', 'pdf2'],
+    required: false,
   })
   @IsOptional()
   @IsArray({ message: 'organization docs must be an array' })
   @IsString({ each: true, message: 'Each doc in organization docs must be a string' })
   orgz_docs?: string[];
 
-  @ApiProperty({ type: [AddressDto], description: 'List of addresses' })
+  @ApiProperty({ type: [AddressDto], description: 'List of addresses', required: false })
   @IsOptional()
   @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AddressDto)
   addresses?: AddressDto[];
 }
 

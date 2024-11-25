@@ -3,6 +3,8 @@ import { AddressService } from './address.service';
 import { CreateAddressDto } from '../common/DTOs/address.dto';
 import { Address } from '../database/entities/address.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AddressType } from '../common/enums/address-type.enum';
+import { ParseEnumPipe } from '@nestjs/common/pipes/parse-enum.pipe';
 
 @ApiTags('Addresses')  // Grouping in Swagger UI
 @Controller('address')
@@ -26,16 +28,17 @@ export class AddressController {
   }
 
   // Get all addresses for a specific customer
-  @Get()
+  @Get(':type')
   @ApiResponse({
     status: 200,
     description: 'List of addresses for the user',
   })
   async getAll(
+    @Param('type', new ParseEnumPipe(AddressType)) type: AddressType,
     @Req() req,  // Accessing the request object to get the customer
   ): Promise<Address[]> {
     const { user } = req;  // Assuming customer is added to the request object
-    return await this.addressService.getAll(user.id, user.role);
+    return await this.addressService.getAll(user.id, user.role, type);
   }
 
   // Get one address by its ID

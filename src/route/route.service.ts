@@ -9,7 +9,6 @@ import { Product } from '../database/entities/product.entity';
 import { Customer } from '../database/entities/customer.entity';
 import { Address } from '../database/entities/address.entity';
 import { Porter } from '../common/enums/route.enum';
-import any = jasmine.any;
 
 @Injectable()
 export class RouteService {

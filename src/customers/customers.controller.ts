@@ -45,6 +45,8 @@ export class CustomersController {
                 })
             }
 
+            console.log(completeDataDto);
+
             const { user: customer } = req;
 
             const data = await this.customerService.complete(customer.id, completeDataDto);
