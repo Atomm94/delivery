@@ -4,11 +4,10 @@ import {
   PrimaryGeneratedColumn,
   OneToMany, ManyToOne, JoinColumn,
 } from 'typeorm';
-import { Porter, Status } from '../../common/enums/route.enum';
+import { Status, PaymentStatus, Porter } from '../../common/enums/route.enum';
 import { Order } from './order.entity';
 import { Customer } from './customer.entity';
 import { Driver } from './driver.entity';
-
 
 @Entity()
 export class Route {
@@ -22,17 +21,27 @@ export class Route {
   car_type: string;
 
   @Column({
-    type: 'varchar',
-    default: 'Without porter'
+    type: 'enum',
+    enum: Porter,
+    default: Porter['Without porter']
   })
-  porter: string;
+  porter: Porter;
+
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_PAYED,
+  })
+  payment: PaymentStatus;
 
   @Column({
     type: 'enum',
     enum: Status,
-    default: Status.INCOMING
+    default: Status.INCOMING,
   })
   status: Status;
+
+  price: number;
 
   @OneToMany(() => Order, (order) => order.route)
   orders: Order[];

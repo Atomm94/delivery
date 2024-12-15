@@ -54,6 +54,14 @@ export class CreateOrderDto {
   @IsArray()
   @IsNotEmpty()
   products: CreateProductDto[];
+
+  @ApiProperty({
+    description: 'order price',
+    type: Number,
+  })
+  @IsInt()
+  @IsNotEmpty()
+  price: number;
 }
 
 
@@ -93,6 +101,7 @@ export class CreateRouteDto {
       {
         address: 1,
         onloading_time: '2024-11-10T09:00:00Z',
+        price: 1200,
         products: [
           { name: 'Sample Product', weight: 5.0, length: 30, width: 20, height: 15, measure: 'bottle', type: 'product' },
         ],
@@ -100,6 +109,7 @@ export class CreateRouteDto {
       {
         address: 2,
         onloading_time: '2024-12-10T09:00:00Z',
+        price: 1200,
         products: [
           { name: 'Another Product', weight: 2.5, length: 15, width: 10, height: 5, measure: 'bottle', type: 'box' },
         ],

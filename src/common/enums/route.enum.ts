@@ -1,3 +1,8 @@
+export enum PaymentStatus {
+  PAYED = 'payed',
+  NOT_PAYED = 'not_payed',
+}
+
 export enum Status {
   INCOMING = 'incoming',
   ACTIVE = 'active',

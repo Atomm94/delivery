@@ -1,5 +1,5 @@
 import { ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments } from 'class-validator';
-import { DriversService } from '../drivers/drivers.service';
+import { DriversService } from '../models/drivers/drivers.service';
 import { Injectable } from '@nestjs/common';
 
 @ValidatorConstraint({ async: true })

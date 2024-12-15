@@ -1,7 +1,7 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
-  JoinColumn, ManyToOne, OneToOne, ManyToMany, JoinTable, Column,
+  JoinColumn, ManyToOne, ManyToMany, JoinTable, Column,
 } from 'typeorm';
 import { Route } from './route.entity';
 import { Address } from './address.entity';
@@ -14,6 +14,8 @@ export class Order {
 
   @Column({ type: 'varchar' })
   onloading_time: string;
+
+  price: number;
 
   @ManyToOne(() => Address, (address) => address.orders, { cascade: true })
   @JoinColumn({ name: 'addressId' })
