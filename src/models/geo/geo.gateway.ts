@@ -19,11 +19,11 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       try {
         const redisClient = await this.redisService.getClient();
         await redisClient.set(data.driverId, JSON.stringify(data.location));
+        client.emit('message', data);
       } catch (error) {
         console.error('Error setting location in Redis:', error);
       }
     });
-    client.emit('message', 'ok');
   }
 
   handleDisconnect(client: Socket): void {
