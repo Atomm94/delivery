@@ -5,10 +5,12 @@ import { Address } from '../../database/entities/address.entity';
 import { CreateAddressDto } from '../../common/DTOs/address.dto';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { AddressType } from '../../common/enums/address-type.enum';
+import { RedisService } from '../../redis/redis.service';
 
 @Injectable()
 export class AddressService {
   constructor(
+    private readonly redisService: RedisService,
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
   ) {}
@@ -68,5 +70,44 @@ export class AddressService {
   async delete(addressId: number): Promise<any> {
     // Proceed to delete the address
     return await this.addressRepository.delete({ id: addressId });
+  }
+  
+  async findNearAddress(driverId: number): Promise<any> {
+    const redisClient = this.redisService.getClient();
+    const driverData = await redisClient.get(driverId.toString());
+
+    if (!driverData) {
+      throw new Error(`No data found for driverId: ${driverId}`);
+    }
+
+    const { latitude, longitude } = JSON.parse(driverData);
+
+    console.log(latitude, longitude);
+
+    if (!latitude || !longitude) {
+      throw new Error('Invalid location data for the driver');
+    }
+
+    const radius = 10; // Radius in kilometers (can be parameterized if needed)
+
+    const searchRadius = radius * 1000; // Convert to meters
+    const addresses = await this.addressRepository
+      .createQueryBuilder('address')
+      .where(
+        `
+     ST_DistanceSphere(
+       ST_SetSRID(ST_Point(:longitude, :latitude), 4326),
+       address.location
+     ) <= :searchRadius
+     `,
+        { latitude, longitude, searchRadius },
+      )
+      .getMany();
+
+    if (addresses.length === 0) {
+      return 'No addresses found within the search radius';
+    }
+
+    return addresses;
   }
 }

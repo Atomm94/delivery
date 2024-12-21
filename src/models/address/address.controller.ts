@@ -13,6 +13,20 @@ export class AddressController {
   constructor(private readonly addressService: AddressService) {}
 
   // Create a new address for a customer
+  @Get('/near:driverId')
+  @ApiOperation({ summary: 'find nearby address' })
+  @ApiResponse({
+    status: 201,
+    description: 'The address has been successfully created',
+  })
+  async findNearby(
+    @Req() req,  // Accessing the request object to get the customer
+    @Param('driverId') driverId: number,
+  ): Promise<Address> {
+    return await this.addressService.findNearAddress(driverId)  // Use customer ID from req.user
+  }
+
+  // Create a new address for a customer
   @Post()
   @ApiOperation({ summary: 'Create a new address for a user' })
   @ApiResponse({

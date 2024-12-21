@@ -24,13 +24,14 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { PaymentsModule } from './models/payments/payments.module';
 import { Address } from './database/entities/address.entity';
-// import { RedisModule } from './redis/redis.module';
-// import { GeoModule } from './geo/geo.module';
 import { Card } from './database/entities/card.entity';
 import { ProductsModule } from './models/products/products.module';
 import { AddressModule } from './models/address/address.module';
 import { RouteModule } from './models/routes/route.module';
 import { Route } from './database/entities/route.entity';
+import { GeoGateway } from './models/geo/geo.gateway';
+import { GeoModule } from './models/geo/geo.module';
+import { RedisModule } from './redis/redis.module';
 
 
 initializeTransactionalContext();
@@ -67,14 +68,14 @@ initializeTransactionalContext();
       AuthModule,
       TrucksModule,
       PaymentsModule,
-      // RedisModule,
-      // GeoModule,
+      RedisModule,
+      GeoModule,
       ProductsModule,
       AddressModule,
       RouteModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DriversService, CustomersService, FilesInterceptor],
+  providers: [AppService, DriversService, CustomersService, FilesInterceptor, GeoGateway],
 })
 
 export class AppModule {

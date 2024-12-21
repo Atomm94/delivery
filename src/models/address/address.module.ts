@@ -4,10 +4,11 @@ import { AddressController } from './address.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from '../../database/entities/customer.entity';
 import { Address } from '../../database/entities/address.entity';
+import { RedisService } from '../../redis/redis.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Address, Customer])],
-  providers: [AddressService],
+  providers: [AddressService, RedisService],
   controllers: [AddressController]
 })
 export class AddressModule {}

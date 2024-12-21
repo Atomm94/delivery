@@ -37,9 +37,9 @@ export class Address {
   @Column('geometry', {
     nullable: true,
     spatialFeatureType: 'Point',
-    srid: 4326, // WGS84 (Latitude, Longitude)
+    srid: 4326,
   })
-  location: any; // Store as a generic spatial type
+  location: any;
 
   @OneToMany(() => Order, (order) => order.address)
   orders: Order[];
