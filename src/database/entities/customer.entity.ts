@@ -57,7 +57,7 @@ export class Customer {
     contact_info: { [key: string]: any } = {};
 
     @Column({ type: 'simple-array', nullable: true })
-    orgz_docs: string[] | null;
+    orgz_docs: string[];
 
     @Column({
         type: 'enum',

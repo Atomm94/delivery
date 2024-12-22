@@ -9,6 +9,7 @@ import { Product } from '../../database/entities/product.entity';
 import { Customer } from '../../database/entities/customer.entity';
 import { Address } from '../../database/entities/address.entity';
 import { Porter } from '../../common/enums/route.enum';
+import { OrderProduct } from '../../database/entities/orderProduct.entity';
 
 @Injectable()
 export class RouteService {
@@ -20,7 +21,10 @@ export class RouteService {
     private readonly orderRepository: Repository<Order>,
 
     @InjectRepository(Product)
-    private readonly productRepository: Repository<Product>,
+    private readonly productRepository: Repository<any>,
+
+    @InjectRepository(OrderProduct)
+    private readonly orderProductRepository: Repository<OrderProduct>,
 
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
@@ -74,18 +78,32 @@ export class RouteService {
     for (const order of orders) {
       totalPrice += Number(order.price)
       order.route = saveRoute.id
-      order.products = this.productRepository.create(order.products)
-      await this.productRepository.save(order.products as any)
+      const savedProducts: any = []
+
+      for (const data of order.products) {
+        console.log(data.product);
+        savedProducts.push({
+          price: data.price,
+          count: data.count,
+          product: await this.productRepository.save(data.product),
+        })
+      }
+
+      const {products, ...saveOrderData} = order
+      const savedOrder: any = await this.orderRepository.save(saveOrderData as any)
+      const savedOrderProducts = savedProducts.map(data => {
+        this.orderProductRepository.save({ order: savedOrder.id, product: data.product.id, price: data.price, count: data.count })
+      })
+      await Promise.all(savedOrderProducts)
     }
 
-    await this.orderRepository.save(orders as any)
-
-    const route = await this.routeRepository.findOne({ where: {id: saveRoute.id},
+    const route = await this.routeRepository.findOne({
+      where: { id: saveRoute.id },
       relations: [
         'orders',
         'orders.address',
-        'orders.products',
-      ]
+        'orders.orderProducts.product',
+      ],
     });
 
     return {

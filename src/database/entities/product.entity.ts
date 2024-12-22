@@ -12,6 +12,7 @@ import { Measure } from '../../common/enums/product.enum';
 import { ProductType } from '../../common/enums/product-type.enum';
 import { Order } from './order.entity';
 import { Customer } from './customer.entity';
+import { OrderProduct } from './orderProduct.entity';
 
 @Entity()
 export class Product {
@@ -48,8 +49,8 @@ export class Product {
   })
   type: ProductType;
 
-  @ManyToMany(() => Order)
-  orders: Order[];
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
+  orderProducts: OrderProduct[];
 
   @ManyToOne(() => Customer, (customer) => customer.products, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'customerId' })

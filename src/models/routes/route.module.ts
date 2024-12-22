@@ -7,9 +7,10 @@ import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
 import { Product } from '../../database/entities/product.entity';
 import { Address } from '../../database/entities/address.entity';
+import { OrderProduct } from '../../database/entities/orderProduct.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product, Address])],
+  imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product, Address, OrderProduct])],
   providers: [RouteService],
   controllers: [RouteController]
 })

@@ -182,9 +182,7 @@ export class UpdateCustomerDataDto {
   @IsOptional()
   contact_info?: ContactInfoDto;
 
-  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' }, description: 'Organization documents' })
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' }, required: false, description: 'Organization documents' })
   @IsOptional()
-  @IsArray({ message: 'organization docs must be an array' })
-  @IsString({ each: true, message: 'Each doc in organization docs must be a string' })
   orgz_docs?: string[];
 }

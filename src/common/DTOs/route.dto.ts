@@ -3,6 +3,13 @@ import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-
 import { Porter, Status } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
 
+
+export class OrderProductDto {
+  count: number;
+  price: number;
+  product: CreateProductDto;
+}
+
 export class CreateOrderDto {
   @ApiProperty({
     description: 'The ID of the route related to the order',
@@ -29,31 +36,39 @@ export class CreateOrderDto {
 
   @ApiProperty({
     description: 'The list of products related to the order',
-    type: [CreateProductDto],
+    type: [OrderProductDto],
     example: [  // Example array of products
       {
-        name: 'Sample Product',
-        weight: 5.0,
-        length: 30,
-        width: 20,
-        height: 15,
-        measure: 'bottle',  // Measure unit (e.g., bottle)
-        type: 'product',  // Product type (e.g., product)
+        price: 50,
+        count: 3,
+        product: {
+          name: 'Sample Product',
+          weight: 5.0,
+          length: 30,
+          width: 20,
+          height: 15,
+          measure: 'bottle',  // Measure unit (e.g., bottle)
+          type: 'product',  // Product type (e.g., product)
+        }
       },
       {
-        name: 'Another Product',
-        weight: 2.5,
-        length: 15,
-        width: 10,
-        height: 5,
-        measure: 'bottle',
-        type: 'box',
+        price: 65,
+        count: 4,
+        product: {
+          name: 'Another Product',
+          weight: 2.5,
+          length: 15,
+          width: 10,
+          height: 5,
+          measure: 'bottle',
+          type: 'box',
+        }
       },
     ],
   })
   @IsArray()
   @IsNotEmpty()
-  products: CreateProductDto[];
+  products: OrderProductDto[];
 
   @ApiProperty({
     description: 'order price',
@@ -102,7 +117,11 @@ export class CreateRouteDto {
         onloading_time: '2024-11-10T09:00:00Z',
         price: 1200,
         products: [
-          { name: 'Sample Product', weight: 5.0, length: 30, width: 20, height: 15, measure: 'bottle', type: 'product' },
+          {
+            price: 50,
+            count: 3,
+            product: { name: 'Sample Product', weight: 5.0, length: 30, width: 20, height: 15, measure: 'bottle', type: 'product' },
+          }
         ],
       },
       {
@@ -110,7 +129,11 @@ export class CreateRouteDto {
         onloading_time: '2024-12-10T09:00:00Z',
         price: 1200,
         products: [
-          { name: 'Another Product', weight: 2.5, length: 15, width: 10, height: 5, measure: 'bottle', type: 'box' },
+          {
+            price: 50,
+            count: 3,
+            product: { name: 'Another Product', weight: 2.5, length: 15, width: 10, height: 5, type: 'box' },
+          }
         ],
       },
     ],
