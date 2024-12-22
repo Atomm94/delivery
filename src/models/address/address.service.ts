@@ -82,8 +82,6 @@ export class AddressService {
 
     const { latitude, longitude } = JSON.parse(driverData);
 
-    console.log(latitude, longitude);
-
     if (!latitude || !longitude) {
       throw new Error('Invalid location data for the driver');
     }

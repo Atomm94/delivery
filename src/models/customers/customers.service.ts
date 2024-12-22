@@ -1,17 +1,12 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { Driver } from '../../database/entities/driver.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
 import { Customer } from '../../database/entities/customer.entity';
-import { CompleteDriverDataDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
-import {
-  completeDtoToPartialDriverEntity,
-  DtoToPartialCustomerEntity, UpdateDtoToPartialCustomerEntity,
-  updateDtoToPartialDriverEntity,
-} from '../../common/helpers/dtoToPartialEntity';
+import { DtoToPartialCustomerEntity, UpdateDtoToPartialCustomerEntity } from '../../common/helpers/dtoToPartialEntity';
 import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../../common/DTOs/customer.dto';
 import { Address } from '../../database/entities/address.entity';
+import { CreateAddressDto } from '../../common/DTOs/address.dto';
 
 @Injectable()
 export class CustomersService {
@@ -55,9 +50,27 @@ export class CustomersService {
       throw new NotFoundException('Customer not found');
     }
 
-    await this.addressRepository.insert(addresses);
 
-    return await this.customerRepository.findOne({ where: { id }, relations: ['addresses'] });
+    await this.addressRepository
+      .createQueryBuilder()
+      .insert()
+      .into(Address)
+      .values(addresses.map(address => {
+        if (address.latitude && address.longitude) {
+          const { latitude, longitude, ...dto } = address;
+          address = {
+            ...dto,
+            location: {
+              type: 'Point',
+              coordinates: [Number(longitude), Number(latitude)],
+            },
+          } as CreateAddressDto;
+        }
+        return { ...address, customer: { id } }
+      }))
+      .execute();
+
+    return await this.customerRepository.findOne({ where: { id }, relations: { addresses: true } });
   }
 
   async update(id: number, updateDataDto: UpdateCustomerDataDto): Promise<Customer> {

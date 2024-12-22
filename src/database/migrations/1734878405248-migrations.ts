@@ -1,13 +1,13 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migrations1731546394602 implements MigrationInterface {
-    name = 'Migrations1731546394602'
+export class Migrations1734878405248 implements MigrationInterface {
+    name = 'Migrations1734878405248'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "card" ("id" SERIAL NOT NULL, "card_number" character varying NOT NULL, "card_date" character varying NOT NULL, "card_cvv" character varying NOT NULL, "customerId" integer, CONSTRAINT "PK_9451069b6f1199730791a7f4ae4" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "product" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "weight" double precision NOT NULL, "length" double precision NOT NULL, "width" double precision NOT NULL, "height" double precision NOT NULL, "measure" "public"."product_measure_enum", "type" "public"."product_type_enum" NOT NULL DEFAULT 'box', "customerId" integer, CONSTRAINT "PK_bebc9158e480b949565b4dc7a82" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "order" ("id" SERIAL NOT NULL, "onloading_time" character varying NOT NULL, "addressId" integer, "routeId" integer, CONSTRAINT "PK_1031171c13130102495201e3e20" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "route" ("id" SERIAL NOT NULL, "start_time" character varying, "car_type" character varying, "porter" character varying NOT NULL DEFAULT 'Without porter', "status" "public"."route_status_enum" NOT NULL DEFAULT 'incoming', "customerId" integer, "driverId" integer, CONSTRAINT "PK_08affcd076e46415e5821acf52d" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "route" ("id" SERIAL NOT NULL, "start_time" character varying, "car_type" character varying, "porter" character varying NOT NULL DEFAULT 'Without porter', "payment" "public"."route_payment_enum" NOT NULL DEFAULT 'not_payed', "status" "public"."route_status_enum" NOT NULL DEFAULT 'incoming', "customerId" integer, "driverId" integer, CONSTRAINT "PK_08affcd076e46415e5821acf52d" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Customer" ("id" SERIAL NOT NULL, "phone_number" character varying, "company_name" character varying, "email" character varying, "password" character varying NOT NULL, "company_info" jsonb, "company_address" jsonb, "contact_info" jsonb, "orgz_docs" text, "role" "public"."Customer_role_enum" NOT NULL DEFAULT 'customer', "isVerified" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_60596e16740e1fa20dbf0154ec7" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Address" ("id" SERIAL NOT NULL, "institution_name" character varying NOT NULL, "address" character varying NOT NULL, "city" character varying NOT NULL, "state" character varying NOT NULL, "zip_code" character varying NOT NULL, "main" boolean NOT NULL DEFAULT false, "type" "public"."Address_type_enum" NOT NULL DEFAULT 'load', "location" geometry(Point,4326), "customerId" integer, "driverId" integer, CONSTRAINT "PK_9034683839599c80ebe9ebb0891" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Driver" ("id" SERIAL NOT NULL, "phone_number" character varying NOT NULL, "password" character varying NOT NULL, "firstName" character varying NOT NULL, "lastName" character varying NOT NULL, "email" character varying, "social_number" character varying, "license" character varying, "identity" character varying, "op_state" character varying, "op_cities" text, "rate" integer, "isVerified" boolean NOT NULL DEFAULT false, "role" "public"."Driver_role_enum" NOT NULL DEFAULT 'courier', "porter" boolean NOT NULL DEFAULT false, "second_porter" boolean NOT NULL DEFAULT false, "third_porter" boolean NOT NULL DEFAULT false, "emergency_driver" boolean NOT NULL DEFAULT false, CONSTRAINT "UQ_6b49f11bf0cac3874e8959dc01f" UNIQUE ("phone_number"), CONSTRAINT "PK_9b78eddc1b0c643ec4e956eaac5" PRIMARY KEY ("id"))`);
@@ -29,9 +29,11 @@ export class Migrations1731546394602 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "Truck" ADD CONSTRAINT "FK_3af8a52a9d7b035e7cfd14ca1ba" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "order_products_product" ADD CONSTRAINT "FK_1f9ea0b0e59e0d98ade4f2d5e99" FOREIGN KEY ("orderId") REFERENCES "order"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
         await queryRunner.query(`ALTER TABLE "order_products_product" ADD CONSTRAINT "FK_d6c66c08b9c7e84a1b657797dff" FOREIGN KEY ("productId") REFERENCES "product"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`CREATE TABLE "query-result-cache" ("id" SERIAL NOT NULL, "identifier" character varying, "time" bigint NOT NULL, "duration" integer NOT NULL, "query" text NOT NULL, "result" text NOT NULL, CONSTRAINT "PK_6a98f758d8bfd010e7e10ffd3d3" PRIMARY KEY ("id"))`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP TABLE "query-result-cache"`);
         await queryRunner.query(`ALTER TABLE "order_products_product" DROP CONSTRAINT "FK_d6c66c08b9c7e84a1b657797dff"`);
         await queryRunner.query(`ALTER TABLE "order_products_product" DROP CONSTRAINT "FK_1f9ea0b0e59e0d98ade4f2d5e99"`);
         await queryRunner.query(`ALTER TABLE "Truck" DROP CONSTRAINT "FK_3af8a52a9d7b035e7cfd14ca1ba"`);

@@ -1,10 +1,6 @@
 import { Body, Controller, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import {ConfigService} from "@nestjs/config";
-import {
-    CompleteCustomerDataDto,
-    CustomersSignUpDto,
-    UpdateCustomerDataDto,
-} from '../../common/DTOs/customer.dto';
+import { ConfigService } from '@nestjs/config';
+import { CompleteCustomerDataDto, CustomersSignUpDto, UpdateCustomerDataDto } from '../../common/DTOs/customer.dto';
 import { CustomersService } from './customers.service';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
 import { getFileUrl } from '../../configs/multer.config';
@@ -42,7 +38,7 @@ export class CustomersController {
             if (files) {
                 Object.entries(files).forEach(([key, value]) => {
                     completeDataDto[value['fieldname']] = getFileUrl(value['filename'] as string);
-                })
+                });
             }
 
             const { user: customer } = req;
@@ -51,13 +47,14 @@ export class CustomersController {
 
             return res.json({ message: 'Successfully completed', data });
         } catch (error) {
-            await removeFiles(files)
+            console.log(error);
+            await removeFiles(files);
 
             return res.status(404).json({
                 statusCode: 404,
                 timestamp: new Date().toISOString(),
                 message: error.message,
-            })
+            });
         }
     }
 

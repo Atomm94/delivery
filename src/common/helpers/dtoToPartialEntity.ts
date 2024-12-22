@@ -77,7 +77,6 @@ export function UpdateDtoToPartialCustomerEntity(dto: UpdateCustomerDataDto) {
     company_info: dto.company_info,
     contact_info: dto.contact_info,
     orgz_docs: dto.orgz_docs ? dto.orgz_docs : null,
-    addresses: dto.addresses,
   };
 }
 

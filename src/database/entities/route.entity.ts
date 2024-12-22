@@ -21,11 +21,9 @@ export class Route {
   car_type: string;
 
   @Column({
-    type: 'enum',
-    enum: Porter,
-    default: Porter['Without porter']
+    default: Porter['1']
   })
-  porter: Porter;
+  porter: string;
 
   @Column({
     type: 'enum',

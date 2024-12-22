@@ -9,9 +9,9 @@ export enum Status {
   DONE = 'done',
 }
 
-export enum Porter {
-  'Without porter' = 1,
-  'Take 1 porter with you' = 2,
-  'Take 2 porter with you' = 3,
-  'Take 3 porter with you' = 4,
+export const Porter = {
+  1: 'Without porter',
+  2: 'Take 1 porter with you',
+  3: 'Take 2 porter with you',
+  4: 'Take 3 porter with you',
 }

@@ -1,8 +1,9 @@
 import {
   IsArray,
   IsBoolean,
-  IsEmail, IsEnum,
-  IsNotEmpty,
+  IsEmail,
+  IsEnum,
+  IsNotEmpty, IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -13,9 +14,8 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { TruckCondition } from '../enums/truck-condition.enum';
 import { AddressType } from '../enums/address-type.enum';
-import { Binary } from 'typeorm';
+import { CreateAddressDto } from './address.dto';
 
 export class CustomersSignUpDto {
   @ApiProperty({ description: 'Company name', example: 'My Company' })
@@ -103,46 +103,64 @@ class CompanyAddressDto {
   zip_code: string;
 }
 
-class AddressDto {
-  @ApiProperty({ description: 'Institution name', example: 'Example Institution' })
-  @IsString()
-  @IsNotEmpty()
-  institution_name: string;
-
-  @ApiProperty({ description: 'Address', example: '456 Elm St' })
-  @IsString()
-  @IsNotEmpty()
-  address: string;
-
-  @ApiProperty({ description: 'City', example: 'Gotham' })
-  @IsString()
-  @IsNotEmpty()
-  city: string;
-
-  @ApiProperty({ description: 'State', example: 'CA' })
-  @IsString()
-  @IsNotEmpty()
-  state: string;
-
-  @ApiProperty({ description: 'Zip code', example: '98765' })
-  @IsOptional()
-  @IsString()
-  zip_code: string;
-
-  @ApiProperty({ description: 'Is main address?', example: true })
-  @IsOptional()
-  @IsBoolean()
-  main_address: boolean;
-
-  @ApiProperty({
-    enum: AddressType,
-    description: 'The type of address ` shipping || load',
-    example: AddressType.SHIPPING,
-  })
-  @IsOptional()
-  @IsEnum(AddressType)
-  type?: AddressType;
-}
+// class AddressDto {
+//   @ApiProperty({ description: 'Institution name', example: 'Example Institution' })
+//   @IsString()
+//   @IsNotEmpty()
+//   institution_name: string;
+//
+//   @ApiProperty({ description: 'Address', example: '456 Elm St' })
+//   @IsString()
+//   @IsNotEmpty()
+//   address: string;
+//
+//   @ApiProperty({ description: 'City', example: 'Gotham' })
+//   @IsString()
+//   @IsNotEmpty()
+//   city: string;
+//
+//   @ApiProperty({ description: 'State', example: 'CA' })
+//   @IsString()
+//   @IsNotEmpty()
+//   state: string;
+//
+//   @ApiProperty({ description: 'Zip code', example: '98765' })
+//   @IsOptional()
+//   @IsString()
+//   zip_code: string;
+//
+//   @ApiProperty({ description: 'Is main address?', example: true })
+//   @IsOptional()
+//   @IsBoolean()
+//   main_address: boolean;
+//
+//   @ApiProperty({
+//     enum: AddressType,
+//     description: 'The type of address ` shipping || load',
+//     example: AddressType.SHIPPING,
+//   })
+//   @IsOptional()
+//   @IsEnum(AddressType)
+//   type?: AddressType;
+//
+//   @ApiProperty({
+//     description: 'The latitude of the location (in decimal degrees)',
+//     type: Number,
+//     example: 40.712776,  // Example latitude (e.g., New York)
+//   })
+//   @IsOptional()
+//   @IsNumber()
+//   latitude?: number;
+//
+//   @ApiProperty({
+//     description: 'The longitude of the location (in decimal degrees)',
+//     type: Number,
+//     example: -74.005974,  // Example longitude (e.g., New York)
+//   })
+//   @IsOptional()
+//   @IsNumber()
+//   longitude?: number;
+// }
 
 export class CompleteCustomerDataDto {
   @ApiProperty({ type: CompanyInfoDto, required: false })
@@ -168,10 +186,36 @@ export class CompleteCustomerDataDto {
   @IsString({ each: true, message: 'Each doc in organization docs must be a string' })
   orgz_docs?: string[];
 
-  @ApiProperty({ type: [AddressDto], description: 'List of addresses', required: false })
+  @ApiProperty({
+    type: CreateAddressDto,
+    isArray: true,
+    description: 'List of addresses',
+    required: false,
+    example: [
+      {
+        'institution_name': 'Example Institution',
+        'address': '456 Elm St',
+        'city': 'Gotham',
+        'state': 'CA',
+        'zip_code': '98765',
+        'main_address': true,
+        'type': 'shipping',
+        'latitude': 40.712776,
+      },
+      {
+        'institution_name': 'Example Institution1',
+        'address': '436 Elm St',
+        'city': 'Phonix',
+        'state': 'CA',
+        'zip_code': '98465',
+        'main_address': false,
+        'type': 'load',
+        'longitude': -74.005979,
+      },
+    ],
+  })
   @IsOptional()
-  @IsArray()
-  addresses?: AddressDto[];
+  addresses?: CreateAddressDto[];
 }
 
 export class UpdateCustomerDataDto {
@@ -202,10 +246,4 @@ export class UpdateCustomerDataDto {
   @IsArray({ message: 'organization docs must be an array' })
   @IsString({ each: true, message: 'Each doc in organization docs must be a string' })
   orgz_docs?: string[];
-
-  @ApiProperty({ type: [AddressDto], description: 'List of addresses' })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => AddressDto)
-  addresses: AddressDto[];
 }

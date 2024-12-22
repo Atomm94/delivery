@@ -87,12 +87,11 @@ export class CreateRouteDto {
   @ApiProperty({
     description: 'The name of the porter, if applicable',
     enum: Porter,
-    default: Porter['Without porter'],
-    example: Porter['Without porter'],
+    default: 1,
+    example: 1,
   })
   @IsOptional()
-  @IsEnum(Porter)
-  porter: Porter;
+  porter: number;
 
   @ApiProperty({
     description: 'The list of orders related to the route',

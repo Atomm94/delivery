@@ -30,7 +30,7 @@ export class RouteService {
   ) {}
 
   async create(customer: number, createRouteDto: CreateRouteDto): Promise<any> {
-    let totalPrice: number;
+    let totalPrice: number = 0;
     const Customer = await this.customerRepository.findOne({
       where: { id: customer },
     })
@@ -64,7 +64,7 @@ export class RouteService {
     const modifiedRouteData = {
       start_time: routeData.start_time || null,
       car_type: routeData.car_type || null,
-      porter: Porter[routeData.porter] || null,
+      porter: Porter[routeData.porter] || Porter['1'],
     }
 
     let createRouteData: any = { customer, ...modifiedRouteData };
@@ -72,7 +72,7 @@ export class RouteService {
     const saveRoute: any = await this.routeRepository.save(createRoute);
 
     for (const order of orders) {
-      totalPrice += order.price
+      totalPrice += Number(order.price)
       order.route = saveRoute.id
       order.products = this.productRepository.create(order.products)
       await this.productRepository.save(order.products as any)
