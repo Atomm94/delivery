@@ -103,65 +103,6 @@ class CompanyAddressDto {
   zip_code: string;
 }
 
-// class AddressDto {
-//   @ApiProperty({ description: 'Institution name', example: 'Example Institution' })
-//   @IsString()
-//   @IsNotEmpty()
-//   institution_name: string;
-//
-//   @ApiProperty({ description: 'Address', example: '456 Elm St' })
-//   @IsString()
-//   @IsNotEmpty()
-//   address: string;
-//
-//   @ApiProperty({ description: 'City', example: 'Gotham' })
-//   @IsString()
-//   @IsNotEmpty()
-//   city: string;
-//
-//   @ApiProperty({ description: 'State', example: 'CA' })
-//   @IsString()
-//   @IsNotEmpty()
-//   state: string;
-//
-//   @ApiProperty({ description: 'Zip code', example: '98765' })
-//   @IsOptional()
-//   @IsString()
-//   zip_code: string;
-//
-//   @ApiProperty({ description: 'Is main address?', example: true })
-//   @IsOptional()
-//   @IsBoolean()
-//   main_address: boolean;
-//
-//   @ApiProperty({
-//     enum: AddressType,
-//     description: 'The type of address ` shipping || load',
-//     example: AddressType.SHIPPING,
-//   })
-//   @IsOptional()
-//   @IsEnum(AddressType)
-//   type?: AddressType;
-//
-//   @ApiProperty({
-//     description: 'The latitude of the location (in decimal degrees)',
-//     type: Number,
-//     example: 40.712776,  // Example latitude (e.g., New York)
-//   })
-//   @IsOptional()
-//   @IsNumber()
-//   latitude?: number;
-//
-//   @ApiProperty({
-//     description: 'The longitude of the location (in decimal degrees)',
-//     type: Number,
-//     example: -74.005974,  // Example longitude (e.g., New York)
-//   })
-//   @IsOptional()
-//   @IsNumber()
-//   longitude?: number;
-// }
-
 export class CompleteCustomerDataDto {
   @ApiProperty({ type: CompanyInfoDto, required: false })
   @IsOptional()

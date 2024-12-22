@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Address } from './address.entity';
 import { Card } from './card.entity';
@@ -22,14 +22,39 @@ export class Customer {
     @Column({ type: 'varchar' })
     password: string;
 
-    @Column({ type: 'jsonb', nullable: true })
-    company_info: { [key: string]: any };
+    @Column({
+        type: 'jsonb',
+        nullable: true,
+        default: () => "'{}'",
+        transformer: {
+            from: (value: any) => (value ? (typeof value === 'string' ? JSON.parse(value) : value) : null),
+            to: (value: any) => value,
+        },
+    })
+    company_info: { [key: string]: any } = {};
 
-    @Column({ type: 'jsonb', nullable: true })
-    company_address: { [key: string]: any };
 
-    @Column({ type: 'jsonb', nullable: true })
-    contact_info: { [key: string]: any };
+    @Column({
+        type: 'jsonb',
+        nullable: true,
+        default: () => "'{}'",
+        transformer: {
+            from: (value: any) => (value ? (typeof value === 'string' ? JSON.parse(value) : value) : null),
+            to: (value: any) => value,
+        },
+    })
+    company_address: { [key: string]: any } = {};
+
+    @Column({
+        type: 'jsonb',
+        nullable: true,
+        default: () => "'{}'",
+        transformer: {
+            from: (value: any) => (value ? (typeof value === 'string' ? JSON.parse(value) : value) : null),
+            to: (value: any) => value,
+        },
+    })
+    contact_info: { [key: string]: any } = {};
 
     @Column({ type: 'simple-array', nullable: true })
     orgz_docs: string[] | null;
