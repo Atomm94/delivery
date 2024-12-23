@@ -26,7 +26,7 @@ export class AppController {
   @Get('/tt')
   async ok(@Req() req, @Res() res) {
 
-    const socket = io('http://143.198.145.57:3000/');
+    const socket = io('http://143.198.145.57:3000/socket');
 
     socket.on('connect', () => {
       console.log('Connected to socket server:', socket.id);
