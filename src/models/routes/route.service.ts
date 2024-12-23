@@ -122,7 +122,8 @@ export class RouteService {
       .createQueryBuilder('route')
       .andWhere(query, { userId })
       .leftJoinAndSelect('route.orders', 'order')
-      .leftJoinAndSelect('order.products', 'products')
+      .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+      .leftJoinAndSelect('orderProduct.product', 'product')
       .leftJoinAndSelect('order.address', 'address')
       .getMany();
   }
@@ -135,7 +136,7 @@ export class RouteService {
       relations: [
         'orders',
         'orders.address',
-        'orders.products',
+        'orders.orderProducts.product',
       ],
     });
   }
