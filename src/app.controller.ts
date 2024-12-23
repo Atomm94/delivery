@@ -26,7 +26,7 @@ export class AppController {
   @Get('/tt')
   async ok(@Req() req, @Res() res) {
 
-    const socket = io('http://localhost:3000');
+    const socket = io('http://143.198.145.57:3000/');
 
     socket.on('connect', () => {
       console.log('Connected to socket server:', socket.id);
@@ -43,5 +43,6 @@ export class AppController {
       console.log('Disconnected from socket server');
     });
 
+    return res.send(socket.id);
   }
 }
