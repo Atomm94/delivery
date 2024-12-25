@@ -76,8 +76,6 @@ export class CustomersController {
                 })
             }
 
-            console.log(updateDataDto);
-
             const { user: customer } = req;
 
             const data = await this.customerService.update(customer.id, updateDataDto);

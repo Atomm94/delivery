@@ -1,8 +1,20 @@
-import { Controller, Post, Body, Get, Param, Put, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  Param,
+  Put,
+  Req,
+  BadRequestException,
+  Delete,
+  NotFoundException,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../../database/entities/route.entity';
+import { Status } from '../../common/enums/route.enum';
 
 @ApiTags('routes') // Used for Swagger UI
 @Controller('routes')
@@ -27,19 +39,29 @@ export class RouteController {
     }
   }
 
+
   /**
-   * Get all routes for a specific order
-   * @returns An array of routes associated with the order
-   * @param req
+   * Retrieves all routes based on the order ID and user details.
+   *
+   * @param {Request} req The request object containing user information.
+   * @param {enum} status The type parameter used to filter routes.
+   * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
-  @Get()
+  @Get(':status')
   @ApiOperation({ summary: 'Get all routes by order ID' })
   @ApiResponse({ status: 200, description: 'The list of routes', })
   @ApiResponse({ status: 404, description: 'No routes found' })
-  async getAll(@Req() req): Promise<Route[]> {
+  async getAll(
+    @Req() req,
+    @Param('status') status: Status
+  ): Promise<Route[]> {
     const { user } = req;
 
-    return this.routeService.getAll(user.id, user.role);
+    if (!Object.values(Status).includes(status)) {
+      throw new BadRequestException(`Invalid status: ${status}`);
+    }
+
+    return this.routeService.getAll(user.id, user.role, status);
   }
 
   /**
@@ -70,5 +92,20 @@ export class RouteController {
     @Body() updateRouteDto: Partial<Route>,
   ): Promise<Route> {
     return this.routeService.update(routeId, updateRouteDto);
+  }
+
+
+  /**
+   * Delete a specific route by its ID
+   * @param routeId - The ID of the route to delete
+   * @returns A confirmation message
+   */
+  @Delete(':routeId')
+  @ApiOperation({ summary: 'Delete a route by ID' })
+  @ApiResponse({ status: 200, description: 'The route has been deleted' })
+  @ApiResponse({ status: 404, description: 'Route not found' })
+  async delete(@Param('routeId') routeId: number): Promise<{ message: string }> {
+    await this.routeService.delete(routeId);
+    return { message: 'Route successfully deleted' };
   }
 }

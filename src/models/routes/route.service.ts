@@ -8,7 +8,7 @@ import { UserRole } from '../../common/enums/user-role.enum';
 import { Product } from '../../database/entities/product.entity';
 import { Customer } from '../../database/entities/customer.entity';
 import { Address } from '../../database/entities/address.entity';
-import { Porter } from '../../common/enums/route.enum';
+import { Porter, Status } from '../../common/enums/route.enum';
 import { OrderProduct } from '../../database/entities/orderProduct.entity';
 
 @Injectable()
@@ -81,7 +81,6 @@ export class RouteService {
       const savedProducts: any = []
 
       for (const data of order.products) {
-        console.log(data.product);
         savedProducts.push({
           price: data.price,
           count: data.count,
@@ -112,15 +111,15 @@ export class RouteService {
     }
   }
 
-  async getAll(userId: number, role): Promise<Route[]> {
-    let query = 'route.customerId = :userId'
+  async getAll(userId: number, role, status: Status): Promise<Route[]> {
+    let query = 'route.customerId = :userId AND route.status = :status';
     if (role === UserRole.COURIER) {
-      query = 'route.driverId = :userId'
+      query = 'route.driverId = :userId AND route.status = :status';
     }
 
     return await this.routeRepository
       .createQueryBuilder('route')
-      .andWhere(query, { userId })
+      .andWhere(query, { userId, status })
       .leftJoinAndSelect('route.orders', 'order')
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
@@ -149,5 +148,15 @@ export class RouteService {
 
     Object.assign(route, updateRouteDto);
     return await this.routeRepository.save(route);
+  }
+
+
+  async delete(routeId: number): Promise<void> {
+    const route = await this.getOne(routeId);
+    if (!route) {
+      throw new NotFoundException(`Route with ID ${routeId} not found`);
+    }
+
+    await this.routeRepository.delete(routeId);
   }
 }

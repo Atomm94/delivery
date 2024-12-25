@@ -24,14 +24,14 @@ export class Order {
   @Column({ type: 'float' })
   price: number;
 
-  @ManyToOne(() => Address, (address) => address.orders, { cascade: true })
+  @ManyToOne(() => Address, (address) => address.orders, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'addressId' })
   address: Address;
 
-  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order)
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.order, { onDelete: 'CASCADE', nullable: true })
   orderProducts: OrderProduct[];
 
-  @ManyToOne(() => Route, (route) => route.orders, { cascade: true })
+  @ManyToOne(() => Route, (route) => route.orders, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'routeId' })
   route: Route;
 }

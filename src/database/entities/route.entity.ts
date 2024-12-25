@@ -41,7 +41,7 @@ export class Route {
 
   price: number;
 
-  @OneToMany(() => Order, (order) => order.route)
+  @OneToMany(() => Order, (order) => order.route, { onDelete: 'CASCADE', nullable: true })
   orders: Order[];
 
   @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE', nullable: true })

@@ -48,10 +48,11 @@ export class CreateProductDto {
     description: 'The measure unit of the product',
     enum: Measure,
     example: Measure.BOTTLE,  // Example measure unit (e.g., bottle)
+    nullable: true,  // Allow nullable value
   })
   @IsOptional()
   @IsEnum(Measure)
-  measure: Measure;
+  measure: Measure | null = null;
 
   @ApiProperty({
     description: 'The type of product (`box` | `product`)',
