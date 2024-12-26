@@ -4,6 +4,7 @@ import { Address } from './address.entity';
 import { Card } from './card.entity';
 import { Route } from './route.entity';
 import { Product } from './product.entity';
+import { Contact } from './contact.entity';
 
 @Entity('Customer')
 export class Customer {
@@ -80,4 +81,7 @@ export class Customer {
 
     @OneToMany(() => Card, (card) => card.customer, { onDelete: 'CASCADE', nullable: true })
     cards: Card[];
+
+    @OneToMany(() => Contact, (contact) => contact.customer, { onDelete: 'CASCADE' })
+    contacts: Contact[];
 }

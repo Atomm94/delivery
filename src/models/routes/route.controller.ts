@@ -47,7 +47,7 @@ export class RouteController {
    * @param {enum} status The type parameter used to filter routes.
    * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
-  @Get(':status')
+  @Get('all/:status')
   @ApiOperation({ summary: 'Get all routes by order ID' })
   @ApiResponse({ status: 200, description: 'The list of routes', })
   @ApiResponse({ status: 404, description: 'No routes found' })

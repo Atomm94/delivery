@@ -42,7 +42,7 @@ export class AddressController {
   }
 
   // Get all addresses for a specific customer
-  @Get(':type')
+  @Get('all/:type')
   @ApiResponse({
     status: 200,
     description: 'List of addresses for the user',

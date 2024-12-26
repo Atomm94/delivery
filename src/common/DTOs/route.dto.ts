@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Porter, Status } from '../enums/route.enum';
+import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { Porter } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
 
 
@@ -79,16 +79,14 @@ export class CreateOrderDto {
   price: number;
 }
 
-
 export class CreateRouteDto {
   @ApiProperty({
     description: 'The start time of the order',
-    type: String,
+    type: Date,
     example: '2024-11-10T09:00:00Z',  // Example start time in ISO format
   })
   @IsOptional()
-  @IsString()
-  start_time: string;
+  start_time: Date;
 
   @ApiProperty({
     description: 'The type of car used for the order',

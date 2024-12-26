@@ -1,20 +1,15 @@
 import {
   IsArray,
-  IsBoolean,
   IsEmail,
-  IsEnum,
-  IsNotEmpty, IsNumber,
+  IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
   Length,
   Matches,
   MinLength,
-  ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { AddressType } from '../enums/address-type.enum';
 import { CreateAddressDto } from './address.dto';
 
 export class CustomersSignUpDto {
@@ -182,7 +177,53 @@ export class UpdateCustomerDataDto {
   @IsOptional()
   contact_info?: ContactInfoDto;
 
-  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' }, required: false, description: 'Organization documents' })
+  @ApiProperty({
+    type: 'array',
+    items: { type: 'string', format: 'binary' },
+    required: false,
+    description: 'Organization documents'
+  })
   @IsOptional()
   orgz_docs?: string[];
+}
+
+
+  export class ContactDto {
+    @ApiProperty({ description: 'First name', example: 'John' })
+    @IsNotEmpty({ message: 'name is required' })
+    @IsString({ message: 'name must be a string' })
+    name: string;
+
+    @ApiProperty({ description: 'Last name', example: 'Doe' })
+    @IsNotEmpty({ message: 'surname is required' })
+    @IsString({ message: 'surname must be a string' })
+    surname: string;
+
+    @ApiProperty({ description: 'Phone number', example: '+1234567890' })
+    @IsNotEmpty({ message: 'phone number is required' })
+    @IsString({ message: 'phone number must be a string' })
+    @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phone number must be a valid international phone number' })
+    phone: string;
+
+    @ApiProperty({ description: 'Email address', example: 'user@example.com' })
+    @IsNotEmpty({ message: 'email is required' })
+    @IsEmail({}, { message: 'Invalid email format' })
+    email: string;
+
+    @ApiProperty({ description: 'Message content', example: 'I am interested in your services.' })
+    @IsNotEmpty({ message: 'message is required' })
+    @IsString({ message: 'message must be a string' })
+    message: string;
+
+    @ApiProperty({
+      type: 'array',
+      items: { type: 'string', format: 'binary' },
+      description: 'Attached files',
+      required: false,
+      example: ['document1.pdf', 'image1.png'],
+    })
+    @IsOptional()
+    @IsArray({ message: 'files must be an array' })
+    @IsString({ each: true, message: 'Each file in files must be a string' })
+    files?: string[];
 }

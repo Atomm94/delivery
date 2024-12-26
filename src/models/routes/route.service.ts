@@ -124,6 +124,7 @@ export class RouteService {
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
       .leftJoinAndSelect('order.address', 'address')
+      .orderBy('route.start_time', 'ASC')
       .getMany();
   }
 

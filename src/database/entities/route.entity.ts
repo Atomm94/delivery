@@ -1,10 +1,5 @@
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  OneToMany, ManyToOne, JoinColumn,
-} from 'typeorm';
-import { Status, PaymentStatus, Porter } from '../../common/enums/route.enum';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { PaymentStatus, Porter, Status } from '../../common/enums/route.enum';
 import { Order } from './order.entity';
 import { Customer } from './customer.entity';
 import { Driver } from './driver.entity';
@@ -14,8 +9,8 @@ export class Route {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: true })
-  start_time: string;
+  @Column({ type: 'timestamptz', nullable: true })
+  start_time: Date;
 
   @Column({ type: 'varchar', nullable: true })
   car_type: string;
@@ -39,6 +34,7 @@ export class Route {
   })
   status: Status;
 
+  @Column({ type: 'float', nullable: true })
   price: number;
 
   @OneToMany(() => Order, (order) => order.route, { onDelete: 'CASCADE', nullable: true })

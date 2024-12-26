@@ -7,6 +7,7 @@ import { DtoToPartialCustomerEntity, UpdateDtoToPartialCustomerEntity } from '..
 import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../../common/DTOs/customer.dto';
 import { Address } from '../../database/entities/address.entity';
 import { CreateAddressDto } from '../../common/DTOs/address.dto';
+import { Contact } from '../../database/entities/contact.entity';
 
 @Injectable()
 export class CustomersService {
@@ -15,6 +16,8 @@ export class CustomersService {
     private readonly customerRepository: Repository<Customer>,
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
+    @InjectRepository(Contact)
+    private readonly contactRepository: Repository<Contact>,
     private readonly authService: AuthService,
   ) {}
 
@@ -88,5 +91,21 @@ export class CustomersService {
     }
 
     return await this.customerRepository.findOneBy({ id });
+  }
+
+
+  async saveContact(customerId: number, contactData: Partial<Contact>): Promise<Contact> {
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    const contactEntity = this.contactRepository.create({
+      ...contactData,
+      customer: { id: customerId },
+    });
+
+    return await this.contactRepository.save(contactEntity);
   }
 }
