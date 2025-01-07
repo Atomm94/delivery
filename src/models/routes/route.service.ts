@@ -105,6 +105,11 @@ export class RouteService {
       ],
     });
 
+
+    createRouteData = { customer, ...modifiedRouteData, price: totalPrice };
+
+    await this.routeRepository.update({id: saveRoute.id}, createRouteData)
+
     return {
       route,
       totalPrice,
@@ -117,7 +122,7 @@ export class RouteService {
       query = 'route.driverId = :userId AND route.status = :status';
     }
 
-    return await this.routeRepository
+    const routes = await this.routeRepository
       .createQueryBuilder('route')
       .andWhere(query, { userId, status })
       .leftJoinAndSelect('route.orders', 'order')
@@ -126,19 +131,76 @@ export class RouteService {
       .leftJoinAndSelect('order.address', 'address')
       .orderBy('route.start_time', 'ASC')
       .getMany();
+
+    routes.forEach(route => {
+      if (route.orders) {
+        route.orders = route.orders.map(order => {
+          const products = order.orderProducts.map(orderProduct => {
+            return {
+              id: orderProduct.product.id,
+              count: orderProduct.count,
+              price: orderProduct.price,
+              name: orderProduct.product.name,
+              weight: orderProduct.product.weight,
+              length: orderProduct.product.length,
+              width: orderProduct.product.width,
+              height: orderProduct.product.height,
+              measure: orderProduct.product.measure,
+              type: orderProduct.product.type,
+            };
+          });
+
+          return {
+            ...order,
+            products,
+            orderProducts: undefined,
+          };
+        });
+      }
+    });
+
+    return routes;
   }
 
   async getOne(routeId: number): Promise<Route> {
-    return await this.routeRepository.findOne({
-      where: {
-        id: routeId,
-      },
-      relations: [
-        'orders',
-        'orders.address',
-        'orders.orderProducts.product',
-      ],
-    });
+      const route = await this.routeRepository.findOne({
+        where: {
+          id: routeId,
+        },
+        relations: [
+          'orders',
+          'orders.address',
+          'orders.orderProducts.product',
+        ],
+      });
+
+      if(route && route.orders)
+    {
+      route.orders = route.orders.map(order => {
+        const products = order.orderProducts.map(orderProduct => {
+          return {
+            id: orderProduct.product.id,
+            count: orderProduct.count,
+            price: orderProduct.price,
+            name: orderProduct.product.name,
+            weight: orderProduct.product.weight,
+            length: orderProduct.product.length,
+            width: orderProduct.product.width,
+            height: orderProduct.product.height,
+            measure: orderProduct.product.measure,
+            type: orderProduct.product.type,
+          };
+        });
+
+        return {
+          ...order,
+          products,
+          orderProducts: undefined, // Remove `orderProducts` if it's no longer needed
+        };
+      });
+    }
+
+    return route;
   }
 
   async update(routeId: number, updateRouteDto: Partial<Route>): Promise<Route> {
