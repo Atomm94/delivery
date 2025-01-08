@@ -69,6 +69,7 @@ export class RouteService {
       start_time: routeData.start_time || null,
       car_type: routeData.car_type || null,
       porter: Porter[routeData.porter] || Porter['1'],
+      loadAddresses: loadAddresses.map(loadAddress => Number(loadAddress)) || [],
     }
 
     let createRouteData: any = { customer, ...modifiedRouteData };
@@ -96,7 +97,11 @@ export class RouteService {
       await Promise.all(savedOrderProducts)
     }
 
-    const route = await this.routeRepository.findOne({
+    createRouteData = { customer, ...modifiedRouteData, price: totalPrice };
+
+    await this.routeRepository.update({id: saveRoute.id}, createRouteData)
+
+    return await this.routeRepository.findOne({
       where: { id: saveRoute.id },
       relations: [
         'orders',
@@ -104,16 +109,6 @@ export class RouteService {
         'orders.orderProducts.product',
       ],
     });
-
-
-    createRouteData = { customer, ...modifiedRouteData, price: totalPrice };
-
-    await this.routeRepository.update({id: saveRoute.id}, createRouteData)
-
-    return {
-      route,
-      totalPrice,
-    }
   }
 
   async getAll(userId: number, role, status: Status): Promise<Route[]> {
@@ -137,16 +132,18 @@ export class RouteService {
         route.orders = route.orders.map(order => {
           const products = order.orderProducts.map(orderProduct => {
             return {
-              id: orderProduct.product.id,
               count: orderProduct.count,
               price: orderProduct.price,
-              name: orderProduct.product.name,
-              weight: orderProduct.product.weight,
-              length: orderProduct.product.length,
-              width: orderProduct.product.width,
-              height: orderProduct.product.height,
-              measure: orderProduct.product.measure,
-              type: orderProduct.product.type,
+              product: {
+                id: orderProduct.product.id,
+                name: orderProduct.product.name,
+                weight: orderProduct.product.weight,
+                length: orderProduct.product.length,
+                width: orderProduct.product.width,
+                height: orderProduct.product.height,
+                measure: orderProduct.product.measure,
+                type: orderProduct.product.type,
+              }
             };
           });
 
@@ -179,16 +176,18 @@ export class RouteService {
       route.orders = route.orders.map(order => {
         const products = order.orderProducts.map(orderProduct => {
           return {
-            id: orderProduct.product.id,
             count: orderProduct.count,
             price: orderProduct.price,
-            name: orderProduct.product.name,
-            weight: orderProduct.product.weight,
-            length: orderProduct.product.length,
-            width: orderProduct.product.width,
-            height: orderProduct.product.height,
-            measure: orderProduct.product.measure,
-            type: orderProduct.product.type,
+            product: {
+              id: orderProduct.product.id,
+              name: orderProduct.product.name,
+              weight: orderProduct.product.weight,
+              length: orderProduct.product.length,
+              width: orderProduct.product.width,
+              height: orderProduct.product.height,
+              measure: orderProduct.product.measure,
+              type: orderProduct.product.type,
+            }
           };
         });
 

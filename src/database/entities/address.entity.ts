@@ -3,6 +3,7 @@ import { Customer } from './customer.entity';
 import { AddressType } from '../../common/enums/address-type.enum';
 import { Order } from './order.entity';
 import { Driver } from './driver.entity';
+import { Route } from './route.entity';
 
 @Entity('Address')
 export class Address {
