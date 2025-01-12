@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Porter } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
+import { Column } from 'typeorm';
 
 
 export class OrderProductDto {
@@ -77,6 +78,14 @@ export class CreateOrderDto {
   @IsInt()
   @IsNotEmpty()
   price: number;
+
+  @ApiProperty({
+    description: 'The ID of the invoice related to the order',
+    type: Number,
+    example: 1, // Example invoice ID
+  })
+  @IsInt()
+  invoiceId: number;
 }
 
 export class CreateRouteDto {
@@ -114,6 +123,7 @@ export class CreateRouteDto {
         address: 1,
         onloading_time: '2024-11-10T09:00:00Z',
         price: 1200,
+        invoiceId: 1,
         products: [
           {
             price: 50,
@@ -126,6 +136,7 @@ export class CreateRouteDto {
         address: 2,
         onloading_time: '2024-12-10T09:00:00Z',
         price: 1200,
+        invoiceId: 2,
         products: [
           {
             price: 50,
@@ -146,4 +157,12 @@ export class CreateRouteDto {
   })
   @IsArray()
   loadAddresses: number[];
+
+  @ApiProperty({
+    description: 'The ID of the invoice related to the route',
+    type: Number,
+    example: 1, // Example invoice ID
+  })
+  @IsInt()
+  invoiceId: number;
 }

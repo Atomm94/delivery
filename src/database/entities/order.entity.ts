@@ -24,6 +24,9 @@ export class Order {
   @Column({ type: 'float' })
   price: number;
 
+  @Column({ type: 'int', nullable: true })
+  invoiceId: number;
+
   @ManyToOne(() => Address, (address) => address.orders, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'addressId' })
   address: Address;

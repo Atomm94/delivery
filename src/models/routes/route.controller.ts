@@ -1,16 +1,5 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Param,
-  Put,
-  Req,
-  BadRequestException,
-  Delete,
-  NotFoundException,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RouteService } from './route.service';
 import { CreateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../../database/entities/route.entity';
@@ -85,8 +74,9 @@ export class RouteController {
    */
   @Put(':routeId')
   @ApiOperation({ summary: 'Update a route' })
-  @ApiResponse({ status: 200, description: 'The updated route',})
+  @ApiResponse({ status: 200, description: 'The updated route' })
   @ApiResponse({ status: 404, description: 'Route not found' })
+  @ApiBody({ type: Route, description: 'Fields to update in the route' })
   async update(
     @Param('routeId') routeId: number,
     @Body() updateRouteDto: Partial<Route>,

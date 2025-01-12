@@ -38,6 +38,9 @@ export class Route {
   @Column({ type: 'float', nullable: true })
   price: number;
 
+  @Column({ type: 'int', nullable: true })
+  invoiceId: number;
+
   @Column("int", { array: true, nullable: true })
   loadAddresses: number[];
 
