@@ -25,22 +25,28 @@ export class AppController {
 
   @Get('/tt')
   async ok(@Req() req, @Res() res) {
+    const socket = io('http://localhost:3000/socket');
 
-    const socket = io('http://143.198.145.57:3000/socket');
+// Prepare location data
+    const locationData = {
+      driverId: '12345',
+      location: {
+        lat: 40.7128,
+        lng: -74.0060
+      }
+    };
 
-    socket.on('connect', () => {
-      console.log('Connected to socket server:', socket.id);
-    });
+// Emit a message to the server with the location data
+    socket.emit('message', locationData);
 
+// Listen for the server's response (optional)
     socket.on('message', (data) => {
-      console.log('Message from server:', data);
-
-      socket.emit('message', { driverId: 1, location: { latitude: 40.712776, longitude: -74.005974 } });
-
+      console.log('Received message from server:', data);
     });
 
-    socket.on('disconnect', () => {
-      console.log('Disconnected from socket server');
+// Listen for error responses
+    socket.on('error', (error) => {
+      console.error('Error from server:', error.message);
     });
 
     return res.send(socket.id);

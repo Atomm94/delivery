@@ -104,14 +104,7 @@ export class RouteService {
 
     await this.routeRepository.update({id: saveRoute.id}, createRouteData)
 
-    return await this.routeRepository.findOne({
-      where: { id: saveRoute.id },
-      relations: [
-        'orders',
-        'orders.address',
-        'orders.orderProducts.product',
-      ],
-    });
+    return await this.getOne(saveRoute.id);
   }
 
   async getAll(userId: number, role, status: Status): Promise<Route[]> {
@@ -205,28 +198,6 @@ export class RouteService {
     return route;
   }
 
-  // async update(routeId: number, updateRouteDto: Partial<Route>): Promise<any> {
-  //   const route = await this.routeRepository.findOne({
-  //     where: {
-  //       id: routeId,
-  //     },
-  //     relations: [
-  //       'orders',
-  //       'orders.address',
-  //       'orders.orderProducts.product',
-  //     ],
-  //   });
-  //   if (!route) {
-  //     throw new Error('Route not found');
-  //   }
-  //
-  //   if (updateRouteDto.orders) {
-  //
-  //   }
-  //
-  // }
-
-
   async update(routeId: number, updateRouteDto: Partial<Route>): Promise<any> {
     const route = await this.routeRepository.findOne({
       where: { id: routeId },
@@ -257,41 +228,22 @@ export class RouteService {
 
     if (orders) {
       for (const order of orders) {
-        let currentOrder: any = route.orders.find(o => o.id === order.id);
-
-        if (!currentOrder) {
-          currentOrder = await this.orderRepository.findOne({
-            where: { id: order.id },
-            relations: ['orderProducts.product', 'address'],
-          });
-
-          if (!currentOrder) {
-            throw new NotFoundException(
-              `Order with ID ${order.id} not found in the route`,
-            );
-          }
-
-          route.orders.push(currentOrder);
-        }
-
-        if (currentOrder.address) {
+        if (order.address) {
           const address = await this.addressRepository.findOne({
             where: { id: order.address.id },
           });
 
           if (!address) {
             throw new NotFoundException(
-              `Shipping address with ID ${order.address.id} not found`,
+              `Address with ID ${order.address.id} not found`,
             );
           }
 
-          currentOrder.address = address;
+          await this.addressRepository.update({id: address.id}, order.address);
         }
 
-        if (currentOrder.products) {
-          currentOrder.orderProducts = [];
-
-          for (const productData of currentOrder.products) {
+        if (order['products']) {
+          for (const productData of order['products']) {
             const product = await this.productRepository.findOne({
               where: { id: productData.product.id },
             });
@@ -302,34 +254,30 @@ export class RouteService {
               );
             }
 
-            const { count, price, ...orderProductData } = productData;
+            await this.productRepository.update({ id: product.id }, productData.product);
 
-            await this.productRepository.update({ id: product.id }, { ...orderProductData });
-            const updatedProduct = await this.productRepository.findOne({where: {id: product.id}, relations: ['orderProducts']});
+            const orderProducts = {
+              count: Number(productData.count) || null,
+              price: Number(productData.price) || null,
+            };
 
-            await this.orderProductRepository.update({ id: updatedProduct.orderProducts[0].id }, { count, price });
+            // await this.orderProductRepository.update({product: productData.id}, orderProducts);
           }
         }
 
-        currentOrder.onloading_time = order.onloading_time || currentOrder.onloading_time;
-        currentOrder.price = order.price || currentOrder.price;
+        const onloading_time = order.onloading_time || null
+        const price = Number(order.price) || null;
+        const invoiceId = Number(order.invoiceId) || null;
 
-        await this.orderRepository.save(currentOrder);
+        await this.orderRepository.update({id: order.id}, { onloading_time, price, invoiceId });
       }
     }
 
-    Object.assign(route, updateData);
+    //Object.assign(route, updateData);
 
-    await this.routeRepository.save(route);
+    await this.routeRepository.update({id: route.id}, updateData);
 
-    return this.routeRepository.findOne({
-      where: { id: routeId },
-      relations: [
-        'orders',
-        'orders.address',
-        'orders.orderProducts.product',
-      ],
-    });
+    return await this.getOne(routeId);
   }
 
 
