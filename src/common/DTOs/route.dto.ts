@@ -1,8 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { Porter } from '../enums/route.enum';
+import { PaymentStatus, Porter } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
-import { Column } from 'typeorm';
 
 
 export class OrderProductDto {
@@ -165,4 +164,14 @@ export class CreateRouteDto {
   })
   @IsInt()
   invoiceId: number;
+
+  @ApiProperty({
+    description: 'The payment status of the route',
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_PAYED,
+    example: PaymentStatus.PAYED,
+  })
+  @IsOptional()
+  payment: string;
+
 }

@@ -25,7 +25,7 @@ export class AppController {
 
   @Get('/tt')
   async ok(@Req() req, @Res() res) {
-    const socket = io('http://localhost:3000/socket');
+    const socket = io('http://localhost:3000');
 
 // Prepare location data
     const locationData = {

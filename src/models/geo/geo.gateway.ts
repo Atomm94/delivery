@@ -10,7 +10,7 @@ import { RedisService } from '../../redis/redis.service';
 
 interface LocationData {
   driverId: string;
-  location: { lat: number; lng: number }; // Adjust according to your location data structure
+  location: { lat: number; lng: number };
 }
 
 @WebSocketGateway({
@@ -20,7 +20,6 @@ interface LocationData {
     credentials: true, // Allow credentials if necessary
     allowedHeaders: ['Content-Type'],
   },
-  namespace: '/socket',
 })
 export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

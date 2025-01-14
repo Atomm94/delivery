@@ -8,7 +8,7 @@ import { UserRole } from '../../common/enums/user-role.enum';
 import { Product } from '../../database/entities/product.entity';
 import { Customer } from '../../database/entities/customer.entity';
 import { Address } from '../../database/entities/address.entity';
-import { Porter, Status } from '../../common/enums/route.enum';
+import { PaymentStatus, Porter, Status } from '../../common/enums/route.enum';
 import { OrderProduct } from '../../database/entities/orderProduct.entity';
 
 @Injectable()
@@ -71,6 +71,7 @@ export class RouteService {
       car_type: routeData.car_type || null,
       porter: Porter[routeData.porter] || Porter['1'],
       invoiceId: Number(routeData.invoiceId) || null,
+      payment: routeData.payment || PaymentStatus.NOT_PAYED,
       loadAddresses: loadAddresses.map(loadAddress => Number(loadAddress)) || [],
     }
 
@@ -261,7 +262,7 @@ export class RouteService {
               price: Number(productData.price) || null,
             };
 
-            // await this.orderProductRepository.update({product: productData.id}, orderProducts);
+             await this.orderProductRepository.update({product: productData.id}, orderProducts);
           }
         }
 
@@ -273,9 +274,9 @@ export class RouteService {
       }
     }
 
-    //Object.assign(route, updateData);
-
-    await this.routeRepository.update({id: route.id}, updateData);
+    if (Object.keys(updateData).length > 0) {
+      await this.routeRepository.update({ id: route.id }, updateData);
+    }
 
     return await this.getOne(routeId);
   }
