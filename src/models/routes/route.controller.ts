@@ -68,6 +68,7 @@ export class RouteController {
 
   /**
    * Update a route's details
+   * @param req
    * @param routeId - The ID of the route to update
    * @param updateRouteDto - DTO containing the fields to update
    * @returns The updated route
@@ -78,10 +79,13 @@ export class RouteController {
   @ApiResponse({ status: 404, description: 'Route not found' })
   @ApiBody({ type: Route, description: 'Fields to update in the route' })
   async update(
+    @Req() req,
     @Param('routeId') routeId: number,
-    @Body() updateRouteDto: Partial<Route>,
+    @Body() updateRouteDto: CreateRouteDto,
   ): Promise<Route> {
-    return this.routeService.update(routeId, updateRouteDto);
+    const { user: customer } = req;
+
+    return this.routeService.update(customer.id, routeId, updateRouteDto);
   }
 
 

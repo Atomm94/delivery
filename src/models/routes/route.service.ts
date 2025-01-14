@@ -108,6 +108,12 @@ export class RouteService {
     return await this.getOne(saveRoute.id);
   }
 
+  async update(customer: number, routeId: number, updateRouteData: CreateRouteDto): Promise<any> {
+      await this.delete(routeId)
+
+      return await this.create(customer, updateRouteData)
+  }
+  
   async getAll(userId: number, role, status: Status): Promise<Route[]> {
     let query = 'route.customerId = :userId AND route.status = :status';
     if (role === UserRole.COURIER) {
@@ -199,87 +205,87 @@ export class RouteService {
     return route;
   }
 
-  async update(routeId: number, updateRouteDto: Partial<Route>): Promise<any> {
-    const route = await this.routeRepository.findOne({
-      where: { id: routeId },
-      relations: ['orders', 'orders.orderProducts.product'],
-    });
-
-    if (!route) {
-      throw new NotFoundException(`Route with ID ${routeId} not found`);
-    }
-
-    const { orders, loadAddresses, ...updateData } = updateRouteDto;
-
-    if (loadAddresses) {
-      for (const loadAddressId of loadAddresses) {
-        const address = await this.addressRepository.findOne({
-          where: { id: loadAddressId },
-        });
-
-        if (!address) {
-          throw new NotFoundException(
-            `Load address with ID ${loadAddressId} not found`,
-          );
-        }
-      }
-
-      route.loadAddresses = loadAddresses.map(id => Number(id));
-    }
-
-    if (orders) {
-      for (const order of orders) {
-        if (order.address) {
-          const address = await this.addressRepository.findOne({
-            where: { id: order.address.id },
-          });
-
-          if (!address) {
-            throw new NotFoundException(
-              `Address with ID ${order.address.id} not found`,
-            );
-          }
-
-          await this.addressRepository.update({id: address.id}, order.address);
-        }
-
-        if (order['products']) {
-          for (const productData of order['products']) {
-            const product = await this.productRepository.findOne({
-              where: { id: productData.product.id },
-            });
-
-            if (!product) {
-              throw new NotFoundException(
-                `Product with ID ${productData.product.id} not found`,
-              );
-            }
-
-            await this.productRepository.update({ id: product.id }, productData.product);
-
-            const orderProducts = {
-              count: Number(productData.count) || null,
-              price: Number(productData.price) || null,
-            };
-
-             await this.orderProductRepository.update({product: productData.id}, orderProducts);
-          }
-        }
-
-        const onloading_time = order.onloading_time || null
-        const price = Number(order.price) || null;
-        const invoiceId = Number(order.invoiceId) || null;
-
-        await this.orderRepository.update({id: order.id}, { onloading_time, price, invoiceId });
-      }
-    }
-
-    if (Object.keys(updateData).length > 0) {
-      await this.routeRepository.update({ id: route.id }, updateData);
-    }
-
-    return await this.getOne(routeId);
-  }
+  // async update(routeId: number, updateRouteDto: Partial<Route>): Promise<any> {
+  //   const route = await this.routeRepository.findOne({
+  //     where: { id: routeId },
+  //     relations: ['orders', 'orders.orderProducts.product'],
+  //   });
+  //
+  //   if (!route) {
+  //     throw new NotFoundException(`Route with ID ${routeId} not found`);
+  //   }
+  //
+  //   const { orders, loadAddresses, ...updateData } = updateRouteDto;
+  //
+  //   if (loadAddresses) {
+  //     for (const loadAddressId of loadAddresses) {
+  //       const address = await this.addressRepository.findOne({
+  //         where: { id: loadAddressId },
+  //       });
+  //
+  //       if (!address) {
+  //         throw new NotFoundException(
+  //           `Load address with ID ${loadAddressId} not found`,
+  //         );
+  //       }
+  //     }
+  //
+  //     route.loadAddresses = loadAddresses.map(id => Number(id));
+  //   }
+  //
+  //   if (orders) {
+  //     for (const order of orders) {
+  //       if (order.address) {
+  //         const address = await this.addressRepository.findOne({
+  //           where: { id: order.address.id },
+  //         });
+  //
+  //         if (!address) {
+  //           throw new NotFoundException(
+  //             `Address with ID ${order.address.id} not found`,
+  //           );
+  //         }
+  //
+  //         await this.addressRepository.update({id: address.id}, order.address);
+  //       }
+  //
+  //       if (order['products']) {
+  //         for (const productData of order['products']) {
+  //           const product = await this.productRepository.findOne({
+  //             where: { id: productData.product.id },
+  //           });
+  //
+  //           if (!product) {
+  //             throw new NotFoundException(
+  //               `Product with ID ${productData.product.id} not found`,
+  //             );
+  //           }
+  //
+  //           await this.productRepository.update({ id: product.id }, productData.product);
+  //
+  //           const orderProducts = {
+  //             count: Number(productData.count) || null,
+  //             price: Number(productData.price) || null,
+  //           };
+  //
+  //            await this.orderProductRepository.update({product: productData.id}, orderProducts);
+  //         }
+  //       }
+  //
+  //       const onloading_time = order.onloading_time || null
+  //       const price = Number(order.price) || null;
+  //       const invoiceId = Number(order.invoiceId) || null;
+  //
+  //       await this.orderRepository.update({id: order.id}, { onloading_time, price, invoiceId });
+  //     }
+  //   }
+  //
+  //   if (Object.keys(updateData).length > 0) {
+  //     await this.routeRepository.update({ id: route.id }, updateData);
+  //   }
+  //
+  //   return await this.getOne(routeId);
+  // }
 
 
   async delete(routeId: number): Promise<void> {
