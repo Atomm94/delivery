@@ -43,16 +43,24 @@ export class ProductsService {
       .getMany();
   }
 
-  async getOne(productId: number): Promise<Product> {
-    return await this.productsRepository.findOne({
-      where: {
-        id: productId,
-      },
-    });
+  async getOne(customerId: number, productId: number): Promise<Product> {
+    const customer = await this.customerRepository.findOne({
+      where: { id: customerId },
+    })
+
+    if (!customer) {
+      throw new NotFoundException(`customer with ID ${customerId} not found`);
+    }
+
+    return await this.productsRepository
+      .createQueryBuilder('product')
+      .andWhere('product.customerId = :customerId', { customerId })
+      .andWhere('product.id = :productId', { productId })
+      .getOne();
   }
 
-  async update(productId: number, updateProductDto: Partial<Product>): Promise<Product> {
-    const product = await this.getOne(productId);
+  async update(customerId: number, productId: number, updateProductDto: Partial<Product>): Promise<Product> {
+    const product = await this.getOne(customerId, productId);
     if (!product) {
       throw new Error('Product not found');
     }

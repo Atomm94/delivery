@@ -25,17 +25,20 @@ export class ProductsController {
   }
 
   @Get(':id')
-  async getOne(@Param('id') productId: number, @Res() res): Promise<Product> {
-    return res.send(await this.productsService.getOne(productId));
+  async getOne(@Param('id') productId: number, @Req() req, @Res() res): Promise<Product> {
+    const { user: customer } = req;
+    return res.send(await this.productsService.getOne(customer.id, productId));
   }
 
   @Put(':id')
   async update(
     @Param('id') productId: number,
     @Body() updateProductDto: CreateProductDto,
+    @Req() req,
     @Res() res
   ): Promise<Product> {
-    return res.send(await this.productsService.update(productId, updateProductDto));
+    const { user: customer } = req;
+    return res.send(await this.productsService.update(customer.id, productId, updateProductDto));
   }
 
   @Delete(':id')
