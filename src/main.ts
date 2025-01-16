@@ -4,9 +4,13 @@ import { ValidationPipe } from '@nestjs/common';
 import * as fs from 'fs';
 import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as path from 'node:path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('app');
 
   const options = new DocumentBuilder()
     .setTitle('delivery')

@@ -135,7 +135,14 @@ export class RouteService {
     for (const order of orders) {
       const { address } = order;
       totalPrice += Number(order['price'])
-      await this.addressRepository.update({ id: address['id'] }, address)
+      const modifiedAddressData: any = address
+
+      modifiedAddressData.location = {
+        type: 'Point',
+        coordinates: [modifiedAddressData['location']['latitude'], modifiedAddressData['location']['longitude']],
+      }
+
+      await this.addressRepository.update({ id: address['id'] }, modifiedAddressData)
       for (const products of order['products'] as any[]) {
         const { count, price, product: { id, ...productData } } = products;
         await this.productRepository.update({ id }, productData)

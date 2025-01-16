@@ -1,7 +1,7 @@
-import {MiddlewareConsumer, Module, NestModule, RequestMethod} from '@nestjs/common';
-import {FirebaseMiddleware} from "./firebase/firebase.middleware";
-import {JwtModule} from "@nestjs/jwt";
-import {JwtMiddleware} from "./jwt/jwt.middleware";
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { FirebaseMiddleware } from './firebase/firebase.middleware';
+import { JwtModule } from '@nestjs/jwt';
+import { JwtMiddleware } from './jwt/jwt.middleware';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,14 +27,14 @@ export class AuthModule implements NestModule {
     configure(consumer: MiddlewareConsumer) {
         consumer.apply(FirebaseMiddleware)
             .forRoutes(
-                {path: '/bg/signUp', method: RequestMethod.POST},
+                {path: 'app/bg/signUp', method: RequestMethod.POST},
             );
 
         consumer.apply(JwtMiddleware)
           .exclude(
-            {path: 'drivers/signUp', method: RequestMethod.POST},
-            {path: 'customers/signUp', method: RequestMethod.POST},
-            {path: 'auth/signIn', method: RequestMethod.POST},
+            {path: 'app/drivers/signUp', method: RequestMethod.POST},
+            {path: 'app/customers/signUp', method: RequestMethod.POST},
+            {path: 'app/auth/signIn', method: RequestMethod.POST},
           )
           .forRoutes(
             {path: '*', method: RequestMethod.ALL},
