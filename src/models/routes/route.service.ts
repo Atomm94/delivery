@@ -148,7 +148,8 @@ export class RouteService {
         await this.productRepository.update({ id }, productData)
         const { affected } = await this.orderProductRepository.update({ product: id }, { count, price })
         if (!affected) {
-          await this.orderProductRepository.save({ product: id, order: order['id'], count, price })
+          const newOrderProduct = await this.orderProductRepository.create({ product: id, order: order['id'], count, price })
+          await this.orderProductRepository.save(newOrderProduct)
         }
       }
 
