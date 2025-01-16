@@ -116,7 +116,7 @@ export class DriversController{
    }
 
   @Post('start/:routeId')
-  @ApiOperation({ summary: 'Create a new address for a user' })
+  @ApiOperation({ summary: 'connect driver to route' })
   @ApiBearerAuth('Authorization')
   async startRoute(
     @Req() req,
