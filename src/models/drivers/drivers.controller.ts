@@ -1,12 +1,12 @@
 import {
-    Body,
-    Controller,
-    Post,
-    Put,
-    Req,
-    Res,
-    UploadedFiles,
-    UseInterceptors,
+  Body,
+  Controller, Param,
+  Post,
+  Put,
+  Req,
+  Res,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
@@ -14,7 +14,7 @@ import { CompleteDriverDataDto, DriversSignUpDto, UpdateDataDto } from '../../co
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'drivers' )
 @Controller('drivers')
@@ -114,4 +114,19 @@ export class DriversController{
 
         return res.json({ rate })
    }
+
+  @Post('start/:routeId')
+  @ApiOperation({ summary: 'Create a new address for a user' })
+  @ApiBearerAuth('Authorization')
+  async startRoute(
+    @Req() req,
+    @Res() res,
+    @Param('routeId') routeId: number
+  ) {
+    const { user: driver } = req;
+
+    const route = await this.driversService.startRoute(driver.id, routeId);
+
+    return res.send({ route })
+  }
 }

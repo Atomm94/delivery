@@ -1,7 +1,7 @@
 import { diskStorage } from 'multer';
 import { parse } from 'path';
 
-const FILE_HOSTING_URL = process.env.HOSTING || 'http://ec2-13-60-241-214.eu-north-1.compute.amazonaws.com';
+const FILE_HOSTING_URL = process.env.HOSTING || 'http://143.198.145.57';
 
 export const multerConfig = {
   storage: diskStorage({

@@ -1,16 +1,23 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import {InjectRepository} from "@nestjs/typeorm";
-import {Driver} from "../../database/entities/driver.entity";
-import {Repository} from "typeorm";
-import {AuthService} from "../auth/auth.service";
+import { InjectRepository } from '@nestjs/typeorm';
+import { Driver } from '../../database/entities/driver.entity';
+import { Repository } from 'typeorm';
+import { AuthService } from '../auth/auth.service';
 import { CompleteDriverDataDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
-import { completeDtoToPartialDriverEntity, updateDtoToPartialDriverEntity } from '../../common/helpers/dtoToPartialEntity';
+import {
+    completeDtoToPartialDriverEntity,
+    updateDtoToPartialDriverEntity,
+} from '../../common/helpers/dtoToPartialEntity';
+import { Route } from '../../database/entities/route.entity';
+import { Status } from '../../common/enums/route.enum';
 
 @Injectable()
 export class DriversService {
     constructor(
         @InjectRepository(Driver)
         private readonly driverRepository: Repository<Driver>,
+        @InjectRepository(Route)
+        private readonly routeRepository: Repository<Route>,
         private readonly authService: AuthService,
     ) {}
 
@@ -88,5 +95,66 @@ export class DriversService {
         await this.driverRepository.save(driver);
 
         return driver.rate;
+    }
+
+    async startRoute(driverId: number, routeId: number): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+        if (!driver) {
+            throw new NotFoundException('Driver is not found');
+        }
+
+        let route = await this.routeRepository.findOne({ where: { id: routeId, status: Status.ACTIVE } });
+
+        if (!route) {
+            throw new NotFoundException('Route is not found or not active');
+        }
+
+        await this.routeRepository.update({ id: routeId }, { driver: { id: driverId } })
+
+        route = await this.routeRepository.findOne({
+            where: {
+                id: routeId,
+            },
+            relations: [
+                'orders',
+                'orders.address',
+                'orders.orderProducts.product',
+            ],
+        });
+
+        if (route && route.orders)
+        {
+            route.orders = route.orders.map(order => {
+                order.address.location = {
+                    latitude: order.address.location.coordinates[0],
+                    longitude: order.address.location.coordinates[1],
+                };
+                const products = order.orderProducts.map(orderProduct => {
+                    return {
+                        count: orderProduct.count,
+                        price: orderProduct.price,
+                        product: {
+                            id: orderProduct.product.id,
+                            name: orderProduct.product.name,
+                            weight: orderProduct.product.weight,
+                            length: orderProduct.product.length,
+                            width: orderProduct.product.width,
+                            height: orderProduct.product.height,
+                            measure: orderProduct.product.measure,
+                            type: orderProduct.product.type,
+                        }
+                    };
+                });
+
+                return {
+                    ...order,
+                    products,
+                    orderProducts: undefined,
+                };
+            });
+        }
+
+        return route;
     }
 }

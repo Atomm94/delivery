@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RouteService } from './route.service';
-import { CreateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
+import { CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../../database/entities/route.entity';
 import { Status } from '../../common/enums/route.enum';
 
@@ -81,11 +81,9 @@ export class RouteController {
   async update(
     @Req() req,
     @Param('routeId') routeId: number,
-    @Body() updateRouteDto: CreateRouteDto,
+    @Body() updateRouteDto: UpdateRouteDto,
   ): Promise<Route> {
-    const { user: customer } = req;
-
-    return this.routeService.update(customer.id, routeId, updateRouteDto);
+    return this.routeService.update(routeId, updateRouteDto);
   }
 
 

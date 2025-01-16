@@ -33,7 +33,14 @@ export class AddressService {
     }
 
     const newAddress = this.addressRepository.create(createAddress);
-    return await this.addressRepository.save(newAddress);
+    const savedAddress: any = await this.addressRepository.save(newAddress);
+    return {
+      ...savedAddress,
+      location: {
+        latitude: savedAddress.location.coordinates[0],
+        longitude: savedAddress.location.coordinates[1],
+      }
+    };
   }
 
   async getAll(userId: number, role, type: AddressType): Promise<Address[]> {
@@ -42,29 +49,55 @@ export class AddressService {
       query = 'address.driverId = :userId'
     }
 
-    return await this.addressRepository
+   const addresses = await this.addressRepository
       .createQueryBuilder('address')
       .where(`type = '${type}'`)
       .andWhere(query, { userId })
-      .getMany();
+      .getMany()
+
+    if (addresses.length === 0) {
+      throw new Error('not found any addresses');
+    }
+
+    return addresses.map(address => ({
+      ...address,
+      location: {
+        latitude: address.location.coordinates[0],
+        longitude: address.location.coordinates[1],
+      },
+    }));
   }
 
   async getOne(addressId: number): Promise<Address> {
-    return await this.addressRepository.findOne({
+    const address = await this.addressRepository.findOne({
       where: {
         id: addressId,
       },
     });
+
+    if (!address) {
+      throw new Error('Address not found');
+    }
+
+    return {
+      ...address,
+      location: {
+        latitude: address.location.coordinates[0],
+        longitude: address.location.coordinates[1],
+      },
+    };
   }
 
-  async update(addressId: number, updateAddressDto: Partial<Address>): Promise<Address> {
+  async update(addressId: number, updateAddressDto: Partial<Address>): Promise<any> {
     const address = await this.getOne(addressId);
     if (!address) {
       throw new Error('Address not found');
     }
 
-    Object.assign(address, updateAddressDto);
-    return await this.addressRepository.save(address);
+    const { id, ...updateAddressData } = updateAddressDto;
+    await this.addressRepository.update({id}, updateAddressData)
+    
+    return await this.getOne(addressId);
   }
 
   async delete(addressId: number): Promise<any> {
@@ -100,12 +133,18 @@ export class AddressService {
      `,
         { latitude, longitude, searchRadius },
       )
-      .getMany();
+      .getMany()
 
     if (addresses.length === 0) {
-      return 'No addresses found within the search radius';
+      throw new Error('not found any addresses');
     }
 
-    return addresses;
+    return addresses.map(address => ({
+      ...address,
+      location: {
+        latitude: address.location.coordinates[0],
+        longitude: address.location.coordinates[1],
+      },
+    }));
   }
 }

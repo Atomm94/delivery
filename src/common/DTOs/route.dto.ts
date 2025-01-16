@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { PaymentStatus, Porter } from '../enums/route.enum';
+import { PaymentStatus, Porter, Status } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
 
 
@@ -174,4 +174,150 @@ export class CreateRouteDto {
   @IsOptional()
   payment: string;
 
+}
+
+
+export class UpdateRouteDto {
+  @ApiProperty({
+    description: 'The start time of the order',
+    type: Date,
+    example: '2024-11-10T09:00:00Z', // Example start time in ISO format
+  })
+  @IsOptional()
+  start_time?: Date;
+
+  @ApiProperty({
+    description: 'The type of car used for the order',
+    type: String,
+    example: 'Truck', // Example car type
+  })
+  @IsOptional()
+  @IsString()
+  car_type?: string;
+
+  @ApiProperty({
+    description: 'The name of the porter, if applicable',
+    enum: Porter,
+    default: 1,
+    example: 1,
+  })
+  @IsOptional()
+  porter?: string;
+
+  @ApiProperty({
+    enum: Status,
+    description: 'The current status of the route',
+    default: Status.INCOMING,
+    example: Status.ACTIVE,
+  })
+  @IsOptional()
+  status?: string;
+
+  @ApiProperty({
+    description: 'The list of orders related to the route',
+    example: [
+      {
+        id: 15,
+        address: {
+          id: 1,
+          institution_name: 'University of Example',
+          address: '123 Main St, Example City, EX 12345',
+          city: 'Example City',
+          state: 'EX',
+          zip_code: '12345',
+          main: false,
+          type: 'shipping',
+          location: {
+            type: 'Point',
+            coordinates: [40.712776, -74.005974],
+          },
+        },
+        onloading_time: '2024-11-10T09:00:00Z',
+        price: 1200,
+        invoiceId: 1,
+        products: [
+          {
+            price: 50,
+            count: 3,
+            product: {
+              id: 17,
+              name: 'Sample Product',
+              weight: 5,
+              length: 30,
+              width: 20,
+              height: 15,
+              measure: 'bottle',
+              type: 'product',
+            },
+          },
+        ],
+      },
+      {
+        id: 16,
+        address: {
+          id: 2,
+          institution_name: 'University of Example',
+          address: '123 Main St, Example City, EX 12345',
+          city: 'Example City',
+          state: 'EX',
+          zip_code: '12345',
+          main: false,
+          type: 'load',
+          location: {
+            type: 'Point',
+            coordinates: [40.712776, -74.005974],
+          },
+        },
+        onloading_time: '2024-12-10T09:00:00Z',
+        price: 1200,
+        invoiceId: 2,
+        products: [
+          {
+            price: 50,
+            count: 3,
+            product: {
+              id: 18,
+              name: 'Another Product',
+              weight: 2.5,
+              length: 15,
+              width: 10,
+              height: 5,
+              measure: null,
+              type: 'box',
+            },
+          },
+        ],
+      },
+    ],
+  })
+  @IsOptional()
+  @IsArray()
+  orders?: [];
+
+  @ApiProperty({
+    description: 'The list of load address IDs for the route',
+    type: [Number],
+    example: [3, 4],
+  })
+  @IsOptional()
+  @IsArray()
+  loadAddresses?: number[];
+
+  @ApiProperty({
+    description: 'The ID of the invoice related to the route',
+    type: Number,
+    example: 1,
+  })
+  @IsOptional()
+  @IsInt()
+  invoiceId?: number;
+
+  @ApiProperty({
+    description: 'The payment status of the route',
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_PAYED,
+    example: PaymentStatus.PAYED,
+  })
+  @IsOptional()
+  payment?: string;
 }
