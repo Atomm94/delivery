@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { io } from 'socket.io-client';
 
 @ApiTags( 'app' )
-@Controller('app')
+@Controller()
 @ApiBearerAuth('Authorization')
 export class AppController {
   constructor(private readonly appService: AppService) {}
