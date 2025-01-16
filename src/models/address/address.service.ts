@@ -34,6 +34,7 @@ export class AddressService {
 
     const newAddress = this.addressRepository.create(createAddress);
     const savedAddress: any = await this.addressRepository.save(newAddress);
+
     return {
       ...savedAddress,
       location: {
