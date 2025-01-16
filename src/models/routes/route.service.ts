@@ -10,6 +10,7 @@ import { Customer } from '../../database/entities/customer.entity';
 import { Address } from '../../database/entities/address.entity';
 import { PaymentStatus, Porter, Status } from '../../common/enums/route.enum';
 import { OrderProduct } from '../../database/entities/orderProduct.entity';
+import { ProductType } from '../../common/enums/product-type.enum';
 
 @Injectable()
 export class RouteService {
@@ -86,10 +87,25 @@ export class RouteService {
       const savedProducts: any = []
 
       for (const data of order.products) {
+        let modifiedProduct: any
+        const createProduct: any = data
+        const { product } = createProduct
+        const saveProduct: any = { customer, ...product };
+        if (product.type === ProductType.PRODUCT as ProductType) {
+          const { affected } = await this.productRepository.update({ id: product['id'] }, product)
+          modifiedProduct = product
+          if (!affected) {
+            const newSaveProduct = await this.productRepository.create(saveProduct)
+            modifiedProduct = await this.productRepository.save(newSaveProduct)
+          }
+        } else {
+          const newSaveProduct = await this.productRepository.create(saveProduct)
+          modifiedProduct = await this.productRepository.save(newSaveProduct)
+        }
         savedProducts.push({
           price: data.price,
           count: data.count,
-          product: await this.productRepository.save(data.product),
+          product: modifiedProduct,
         })
       }
 

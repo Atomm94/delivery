@@ -4,6 +4,7 @@ import { Product } from '../../database/entities/product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from '../../common/DTOs/product.dto';
 import { Customer } from '../../database/entities/customer.entity';
+import { ProductType } from '../../common/enums/product-type.enum';
 
 @Injectable()
 export class ProductsService {
@@ -23,7 +24,8 @@ export class ProductsService {
       throw new NotFoundException(`customer with ID ${customer} not found`);
     }
 
-    const createProduct: any = { customer, ...createProductDto };
+    const createProduct: any = { customer, type: ProductType.PRODUCT, ...createProductDto };
+
     const newProduct = this.productsRepository.create(createProduct);
     return await this.productsRepository.save(newProduct);
   }
@@ -40,6 +42,7 @@ export class ProductsService {
     return await this.productsRepository
       .createQueryBuilder('product')
       .andWhere('product.customerId = :customerId', { customerId })
+      .andWhere('product.type = :type', { type: 'product' })
       .getMany();
   }
 
@@ -56,6 +59,7 @@ export class ProductsService {
       .createQueryBuilder('product')
       .andWhere('product.customerId = :customerId', { customerId })
       .andWhere('product.id = :productId', { productId })
+      .andWhere('product.type = :type', { type: 'product' })
       .getOne();
   }
 

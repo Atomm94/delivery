@@ -53,12 +53,4 @@ export class CreateProductDto {
   @IsOptional()
   @IsEnum(Measure)
   measure: Measure | null = null;
-
-  @ApiProperty({
-    description: 'The type of product (`box` | `product`)',
-    enum: ProductType,
-    example: ProductType.BOX,  // Example type (e.g., BOX)
-  })
-  @IsEnum(ProductType)
-  type: ProductType;
 }
