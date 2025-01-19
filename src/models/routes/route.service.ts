@@ -238,6 +238,55 @@ export class RouteService {
     return routes;
   }
 
+  async getAllRoutes(customerId: number, status: Status): Promise<Route[]> {
+    let query = 'route.customerId = :customerId AND route.status = :status';
+
+    const routes = await this.routeRepository
+      .createQueryBuilder('route')
+      .andWhere(query, { customerId, status })
+      .leftJoinAndSelect('route.orders', 'order')
+      .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+      .leftJoinAndSelect('orderProduct.product', 'product')
+      .leftJoinAndSelect('order.address', 'address')
+      .orderBy('route.start_time', 'ASC')
+      .getMany();
+
+    routes.forEach(route => {
+      if (route.orders) {
+        route.orders = route.orders.map(order => {
+          order.address.location = {
+            latitude: order.address.location.coordinates[0],
+            longitude: order.address.location.coordinates[1],
+          };
+          const products = order.orderProducts.map(orderProduct => {
+            return {
+              count: orderProduct.count,
+              price: orderProduct.price,
+              product: {
+                id: orderProduct.product.id,
+                name: orderProduct.product.name,
+                weight: orderProduct.product.weight,
+                length: orderProduct.product.length,
+                width: orderProduct.product.width,
+                height: orderProduct.product.height,
+                measure: orderProduct.product.measure,
+                type: orderProduct.product.type,
+              }
+            };
+          });
+
+          return {
+            ...order,
+            products,
+            orderProducts: undefined,
+          };
+        });
+      }
+    });
+
+    return routes;
+  }
+
   async getOne(routeId: number): Promise<Route> {
       const route = await this.routeRepository.findOne({
         where: {

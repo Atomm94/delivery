@@ -35,12 +35,19 @@ export class Address {
   })
   type: AddressType;
 
+  @Column({ type: 'varchar', nullable: true })
+  contact_person: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  phone: string | null;
+
   @Column('geometry', {
     nullable: true,
     spatialFeatureType: 'Point',
     srid: 4326,
   })
   location: any;
+
 
   @OneToMany(() => Order, (order) => order.address)
   orders: Order[];

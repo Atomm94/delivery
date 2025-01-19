@@ -33,6 +33,7 @@ import { GeoGateway } from './models/geo/geo.gateway';
 import { GeoModule } from './models/geo/geo.module';
 import { RedisModule } from './redis/redis.module';
 import { Contact } from './database/entities/contact.entity';
+import { Rate } from './database/entities/rate.entity';
 
 
 initializeTransactionalContext();
@@ -59,6 +60,7 @@ initializeTransactionalContext();
           Card,
           Address,
           Contact,
+          Rate,
       ]),
       MulterModule.register(multerConfig),
       ServeStaticModule.forRoot({

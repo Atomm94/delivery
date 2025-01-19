@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { CompleteDriverDataDto, DriversSignUpDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, DriversSignUpDto, RateDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
@@ -100,13 +100,13 @@ export class DriversController{
       }
    }
 
-   @Put('rate')
+   @Post('rate')
    @ApiConsumes('multipart/form-data')
    @ApiBearerAuth('Authorization')
    async doRate(
      @Req() req,
      @Res() res,
-     @Body() rateDto: number,
+     @Body() rateDto: RateDto,
    ) {
         const { user: driver } = req;
 

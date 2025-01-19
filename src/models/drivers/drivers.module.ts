@@ -6,9 +6,10 @@ import {TypeOrmModule} from "@nestjs/typeorm";
 import {AuthModule} from "../auth/auth.module";
 import { IsDriverPhoneNumberUnique } from '../../validators/unique.validation';
 import { Route } from '../../database/entities/route.entity';
+import { Rate } from '../../database/entities/rate.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Driver, Route]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Driver, Route, Rate]), AuthModule],
   providers: [DriversService, IsDriverPhoneNumberUnique],
   controllers: [DriversController],
   exports: [DriversService],

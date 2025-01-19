@@ -3,13 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Driver } from '../../database/entities/driver.entity';
 import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
-import { CompleteDriverDataDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, RateDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
 import {
     completeDtoToPartialDriverEntity,
     updateDtoToPartialDriverEntity,
 } from '../../common/helpers/dtoToPartialEntity';
 import { Route } from '../../database/entities/route.entity';
 import { Status } from '../../common/enums/route.enum';
+import { Rate } from '../../database/entities/rate.entity';
 
 @Injectable()
 export class DriversService {
@@ -18,6 +19,8 @@ export class DriversService {
         private readonly driverRepository: Repository<Driver>,
         @InjectRepository(Route)
         private readonly routeRepository: Repository<Route>,
+        @InjectRepository(Rate)
+        private readonly rateRepository: Repository<Rate>,
         private readonly authService: AuthService,
     ) {}
 
@@ -78,23 +81,16 @@ export class DriversService {
         return await this.driverRepository.findOneBy({ id });
     }
 
-    async doRate(id: number, rateData: any) {
-        const { rate } = rateData;
+    async doRate(id: number, rateDto: RateDto): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id } });
 
         if (!driver) {
             throw new NotFoundException('Driver is not found');
         }
 
-        if (!driver.rate) {
-            driver.rate = rate;
-        } else {
-            driver.rate = Math.ceil((driver.rate + rate) / 2);
-        }
+        Object.assign(rateDto, { driver: id });
 
-        await this.driverRepository.save(driver);
-
-        return driver.rate;
+        return await this.rateRepository.save(rateDto);
     }
 
     async startRoute(driverId: number, routeId: number): Promise<any> {

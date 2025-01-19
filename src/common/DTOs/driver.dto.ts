@@ -1,8 +1,7 @@
 import {
   IsArray,
   IsEmail,
-  IsInt,
-  IsNotEmpty,
+  IsNotEmpty, IsNumber,
   IsOptional,
   IsString,
   Matches,
@@ -237,7 +236,18 @@ export class UpdateDataDto {
 }
 
 export class RateDto {
+  @ApiProperty({ example: 4.5, description: 'Rating star, must be a float value' })
   @IsNotEmpty()
-  @IsInt()
-  rate: number;
+  @IsNumber()
+  star: number;
+
+  @ApiProperty({ example: 'Service', description: 'Type of the rate criteria as a string' })
+  @IsOptional()
+  @IsString()
+  type: string;
+
+  @ApiProperty({ example: 'Driver punctuality and professionalism', description: 'Detailed criteria for the rating' })
+  @IsOptional()
+  @IsString()
+  criteria: string;
 }

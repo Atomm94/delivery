@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsEnum, IsPostalCode, IsPositive, IsNumber } from 'class-validator';
-import { AddressType } from '../../common/enums/address-type.enum';
+import { IsString, IsOptional, IsBoolean, IsEnum, IsPostalCode, IsNumber } from 'class-validator';
+import { AddressType } from '../enums/address-type.enum';
 
 export class CreateAddressDto {
   @ApiProperty({
@@ -78,4 +78,22 @@ export class CreateAddressDto {
   @IsEnum(AddressType)
   @IsOptional()
   type: AddressType = AddressType.LOAD;  // Default value
+
+  @ApiProperty({
+    description: 'Contact person associated with the address',
+    example: 'John Doe',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  contact_person: string | null;
+
+  @ApiProperty({
+    description: 'Contact phone number associated with the address',
+    example: '123-456-7890',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  phone: string | null;
 }

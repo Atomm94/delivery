@@ -89,14 +89,20 @@ export class AddressService {
     };
   }
 
-  async update(addressId: number, updateAddressDto: Partial<Address>): Promise<any> {
+  async update(addressId: number, updateAddressDto: CreateAddressDto): Promise<any> {
     const address = await this.getOne(addressId);
     if (!address) {
       throw new Error('Address not found');
     }
 
-    const { id, ...updateAddressData } = updateAddressDto;
-    await this.addressRepository.update({id}, updateAddressData)
+    const { latitude, longitude, ...updateAddressData } = updateAddressDto;
+
+    updateAddressData['location'] = {
+      type: 'Point',
+      coordinates: [latitude, longitude],
+    }
+
+    await this.addressRepository.update({ id: addressId }, updateAddressData)
     
     return await this.getOne(addressId);
   }

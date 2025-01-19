@@ -54,6 +54,31 @@ export class RouteController {
   }
 
   /**
+   * Retrieves all routes based on the order ID and user details.
+   *
+   * @param {Request} req The request object containing user information.
+   * @param {enum} status The type parameter used to filter routes.
+   * @param customerId
+   * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
+   */
+  @Get('all-routes/:customerId/:status')
+  @ApiOperation({ summary: 'Get all routes by order ID' })
+  @ApiResponse({ status: 200, description: 'The list of routes', })
+  @ApiResponse({ status: 404, description: 'No routes found' })
+  async getAllRoutes(
+    @Req() req,
+    @Param('status') status: Status,
+    @Param('customerId') customerId: number
+  ): Promise<Route[]> {
+
+    if (!Object.values(Status).includes(status)) {
+      throw new BadRequestException(`Invalid status: ${status}`);
+    }
+
+    return this.routeService.getAllRoutes(customerId, status);
+  }
+
+  /**
    * Get a specific route by its ID
    * @param routeId - The ID of the route
    * @returns The route details

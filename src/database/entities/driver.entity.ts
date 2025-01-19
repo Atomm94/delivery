@@ -4,6 +4,8 @@ import { UserRole } from '../../common/enums/user-role.enum';
 import { Company } from './company.entity';
 import { Address } from './address.entity';
 import { Route } from './route.entity';
+import { Rate } from './rate.entity';
+
 //import { Card } from './payment.entity';
 
 @Entity('Driver')
@@ -41,9 +43,6 @@ export class Driver {
     @Column('simple-array', { nullable: true })
     op_cities: string[];
 
-    @Column({ type: 'int', nullable: true })
-    rate: number;
-
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
@@ -74,6 +73,9 @@ export class Driver {
 
     @OneToMany(() => Route, route => route.driver, { onDelete: 'CASCADE', nullable: true })
     routes: Route[];
+
+    @OneToMany(() => Rate, rate => rate.driver, { onDelete: 'CASCADE', nullable: true })
+    ratings: Rate[];
 
     @ManyToMany(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'companyId' })
