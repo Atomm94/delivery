@@ -71,9 +71,6 @@ export class Driver {
     @OneToMany(() => Address, (address) => address.driver, { onDelete: 'CASCADE', nullable: true })
     addresses: Address[];
 
-    @OneToMany(() => Route, route => route.driver, { onDelete: 'CASCADE', nullable: true })
-    routes: Route[];
-
     @OneToMany(() => Rate, rate => rate.driver, { onDelete: 'CASCADE', nullable: true })
     ratings: Rate[];
 

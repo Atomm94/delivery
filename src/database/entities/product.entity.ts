@@ -49,7 +49,7 @@ export class Product {
   })
   type: ProductType;
 
-  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product)
+  @OneToMany(() => OrderProduct, (orderProduct) => orderProduct.product, { onDelete: 'CASCADE', nullable: true })
   orderProducts: OrderProduct[];
 
   @ManyToOne(() => Customer, (customer) => customer.products, { onDelete: 'CASCADE', nullable: true })

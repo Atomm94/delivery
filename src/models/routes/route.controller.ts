@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RouteService } from './route.service';
-import { CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
+import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../../database/entities/route.entity';
 import { Status } from '../../common/enums/route.enum';
 
@@ -109,6 +109,26 @@ export class RouteController {
     @Body() updateRouteDto: UpdateRouteDto,
   ): Promise<Route> {
     return this.routeService.update(routeId, updateRouteDto);
+  }
+
+  /**
+   * Update a route's details
+   * @param req
+   * @param routeId - The ID of the route to update
+   * @param status
+   * @returns The updated route
+   */
+  @Put('status/:routeId')
+  @ApiOperation({ summary: 'Update status of the route' })
+  @ApiResponse({ status: 200, description: 'The updated status of the route' })
+  @ApiResponse({ status: 404, description: 'Route not found' })
+  @ApiBody({ type: ChangeStatusDto, description: 'Change status in the route' })
+  async changeStatus(
+    @Req() req,
+    @Param('routeId') routeId: number,
+    @Body() status: ChangeStatusDto,
+  ): Promise<Route> {
+    return this.routeService.changeStatus(routeId, status);
   }
 
 

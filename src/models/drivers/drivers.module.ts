@@ -7,9 +7,10 @@ import {AuthModule} from "../auth/auth.module";
 import { IsDriverPhoneNumberUnique } from '../../validators/unique.validation';
 import { Route } from '../../database/entities/route.entity';
 import { Rate } from '../../database/entities/rate.entity';
+import { Truck } from '../../database/entities/truck.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Driver, Route, Rate]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck]), AuthModule],
   providers: [DriversService, IsDriverPhoneNumberUnique],
   controllers: [DriversController],
   exports: [DriversService],

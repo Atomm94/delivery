@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Company } from './company.entity';
 import { Driver } from './driver.entity';
 import { TruckCondition } from '../../common/enums/truck-condition.enum';
+import { Route } from './route.entity';
 
 @Entity('Truck')
 export class Truck {
@@ -64,4 +65,7 @@ export class Truck {
     @ManyToOne(() => Company, company => company.trucks, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'companyId' })
     company: Company | null;
+
+    @OneToMany(() => Route, route => route.truck, { onDelete: 'CASCADE', nullable: true })
+    routes: Route[];
 }

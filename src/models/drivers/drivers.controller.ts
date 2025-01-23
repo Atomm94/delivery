@@ -128,17 +128,18 @@ export class DriversController{
     return res.json({ rate })
   }
 
-  @Post('start/:routeId')
+  @Post('start/:routeId/:truckId')
   @ApiOperation({ summary: 'connect driver to route' })
   @ApiBearerAuth('Authorization')
   async startRoute(
     @Req() req,
     @Res() res,
-    @Param('routeId') routeId: number
+    @Param('routeId') routeId: number,
+    @Param('truckId') truckId: number
   ) {
     const { user: driver } = req;
 
-    const route = await this.driversService.startRoute(driver.id, routeId);
+    const route = await this.driversService.startRoute(driver.id, routeId, truckId);
 
     return res.send({ route })
   }

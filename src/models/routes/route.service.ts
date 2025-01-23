@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
+import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
 import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -182,6 +182,26 @@ export class RouteService {
       loadAddresses: loadAddresses.map(loadAddress => Number(loadAddress)) || [],
       price: totalPrice,
     })
+
+    return await this.getOne(routeId);
+  }
+
+  async changeStatus(routeId: number, changeStatusDto: ChangeStatusDto): Promise<any> {
+    const route = await this.routeRepository.findOne({
+      where: {
+        id: routeId,
+      },
+    });
+
+    if (!route) {
+      throw new NotFoundException(`Route with ID ${routeId} not found`);
+    }
+
+    await this.routeRepository.createQueryBuilder()
+      .update(Route)
+      .set({ status: changeStatusDto.status })
+      .where('id = :routeId', { routeId })
+      .execute();
 
     return await this.getOne(routeId);
   }

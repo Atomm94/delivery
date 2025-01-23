@@ -321,3 +321,15 @@ export class UpdateRouteDto {
   @IsOptional()
   payment?: string;
 }
+
+
+export class ChangeStatusDto {
+  @ApiProperty({
+    description: 'The current status of the route',
+    enum: Status,
+    default: Status.INCOMING,
+    example: Status.ACTIVE,
+  })
+  @IsNotEmpty()
+  status: Status;
+}

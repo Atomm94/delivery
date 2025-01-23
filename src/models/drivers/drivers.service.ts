@@ -11,6 +11,7 @@ import {
 import { Route } from '../../database/entities/route.entity';
 import { Status } from '../../common/enums/route.enum';
 import { Rate } from '../../database/entities/rate.entity';
+import { Truck } from '../../database/entities/truck.entity';
 
 @Injectable()
 export class DriversService {
@@ -21,6 +22,8 @@ export class DriversService {
         private readonly routeRepository: Repository<Route>,
         @InjectRepository(Rate)
         private readonly rateRepository: Repository<Rate>,
+        @InjectRepository(Truck)
+        private readonly truckRepository: Repository<Truck>,
         private readonly authService: AuthService,
     ) {}
 
@@ -111,11 +114,20 @@ export class DriversService {
         return { averageRate };
     }
 
-    async startRoute(driverId: number, routeId: number): Promise<any> {
+    async startRoute(driverId: number, routeId: number, truckId: number): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 
         if (!driver) {
             throw new NotFoundException('Driver is not found');
+        }
+
+        const truck: any = await this.truckRepository.createQueryBuilder('truck')
+          .where('truck.id = :truckId', { truckId })
+          .andWhere('truck.driverId = :driverId', { driverId })
+          .getOne();
+
+        if (!truck) {
+            throw new NotFoundException('Truck is not found or is not attached to this Driver');
         }
 
         let route = await this.routeRepository.findOne({ where: { id: routeId, status: Status.ACTIVE } });
@@ -124,7 +136,7 @@ export class DriversService {
             throw new NotFoundException('Route is not found or not active');
         }
 
-        await this.routeRepository.update({ id: routeId }, { driver: { id: driverId } })
+        await this.routeRepository.update({ id: routeId }, { truck: { id: truckId } })
 
         route = await this.routeRepository.findOne({
             where: {
@@ -169,6 +181,6 @@ export class DriversService {
             });
         }
 
-        return route;
+        return { route, truck, driver };
     }
 }

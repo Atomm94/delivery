@@ -4,6 +4,7 @@ import { Order } from './order.entity';
 import { Customer } from './customer.entity';
 import { Driver } from './driver.entity';
 import { Address } from './address.entity';
+import { Truck } from './truck.entity';
 
 @Entity()
 export class Route {
@@ -47,11 +48,11 @@ export class Route {
   @OneToMany(() => Order, (order) => order.route, { onDelete: 'CASCADE', nullable: true })
   orders: Order[];
 
-  @ManyToOne(() => Customer, (customer) => customer.addresses, { onDelete: 'CASCADE', nullable: true })
+  @ManyToOne(() => Customer, (customer) => customer.routes, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'customerId' })
   customer: Customer | null;
 
-  @ManyToOne(() => Driver, (driver) => driver.addresses, { onDelete: 'CASCADE', nullable: true })
-  @JoinColumn({ name: 'driverId' })
-  driver: Driver | null;
+  @ManyToOne(() => Truck, (truck) => truck.routes, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'truckId' })
+  truck: Truck | null;
 }
