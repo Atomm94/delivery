@@ -93,6 +93,24 @@ export class DriversService {
         return await this.rateRepository.save(rateDto);
     }
 
+    async getRate(driverId: number): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId }, relations: ['ratings'] });
+
+        if (!driver) {
+            throw new NotFoundException('Driver is not found');
+        }
+
+        const rates: any[] = driver.ratings
+
+        if (rates.length === 0) {
+            return { averageRate: 0, rates };
+        }
+
+        const averageRate = rates.reduce((sum, rate) => sum + rate.star, 0) / rates.length;
+
+        return { averageRate };
+    }
+
     async startRoute(driverId: number, routeId: number): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 

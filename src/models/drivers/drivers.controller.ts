@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller, Param,
+  Controller, Get, Param,
   Post,
   Put,
   Req,
@@ -114,6 +114,19 @@ export class DriversController{
 
         return res.json({ rate })
    }
+
+  @Get('rate')
+  @ApiBearerAuth('Authorization')
+  async getRate(
+    @Req() req,
+    @Res() res
+  ) {
+    const { user: driver } = req;
+
+    const rate = await this.driversService.getRate(driver.id);
+
+    return res.json({ rate })
+  }
 
   @Post('start/:routeId')
   @ApiOperation({ summary: 'connect driver to route' })
