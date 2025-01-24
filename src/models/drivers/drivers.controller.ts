@@ -100,21 +100,6 @@ export class DriversController{
       }
    }
 
-   @Post('rate')
-   @ApiConsumes('multipart/form-data')
-   @ApiBearerAuth('Authorization')
-   async doRate(
-     @Req() req,
-     @Res() res,
-     @Body() rateDto: RateDto,
-   ) {
-        const { user: driver } = req;
-
-        const rate = await this.driversService.doRate(driver.id, rateDto);
-
-        return res.json({ rate })
-   }
-
   @Get('rate')
   @ApiBearerAuth('Authorization')
   async getRate(

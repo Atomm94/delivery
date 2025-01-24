@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Param, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     CompleteCustomerDataDto,
@@ -11,6 +11,7 @@ import { FilesInterceptor } from '../../interceptors/files.interceptor';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { RateDto } from '../../common/DTOs/driver.dto';
 
 @ApiTags( 'customers' )
 @Controller('customers')
@@ -19,6 +20,22 @@ export class CustomersController {
       private readonly configService: ConfigService,
       private readonly customerService: CustomersService,
     ) {}
+
+    @Post('rate/:driverId')
+    @ApiConsumes('multipart/form-data')
+    @ApiBearerAuth('Authorization')
+    async doRate(
+      @Req() req,
+      @Res() res,
+      @Param('driverId') driverId: number,
+      @Body() rateDto: RateDto,
+    ) {
+        const { user: customer } = req;
+
+        const rate = await this.customerService.doRate(customer.id, driverId, rateDto);
+
+        return res.json({ rate })
+    }
 
     @Post('contact')
     @UseInterceptors(FilesInterceptor)

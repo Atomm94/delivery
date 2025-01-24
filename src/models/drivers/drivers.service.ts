@@ -84,18 +84,6 @@ export class DriversService {
         return await this.driverRepository.findOneBy({ id });
     }
 
-    async doRate(id: number, rateDto: RateDto): Promise<any> {
-        const driver = await this.driverRepository.findOne({ where: { id } });
-
-        if (!driver) {
-            throw new NotFoundException('Driver is not found');
-        }
-
-        Object.assign(rateDto, { driver: id });
-
-        return await this.rateRepository.save(rateDto);
-    }
-
     async getRate(driverId: number): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId }, relations: ['ratings'] });
 

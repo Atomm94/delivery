@@ -8,6 +8,9 @@ import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../../common/DTO
 import { Address } from '../../database/entities/address.entity';
 import { CreateAddressDto } from '../../common/DTOs/address.dto';
 import { Contact } from '../../database/entities/contact.entity';
+import { RateDto } from '../../common/DTOs/driver.dto';
+import { Rate } from '../../database/entities/rate.entity';
+import { Driver } from '../../database/entities/driver.entity';
 
 @Injectable()
 export class CustomersService {
@@ -18,6 +21,10 @@ export class CustomersService {
     private readonly addressRepository: Repository<Address>,
     @InjectRepository(Contact)
     private readonly contactRepository: Repository<Contact>,
+    @InjectRepository(Rate)
+    private readonly rateRepository: Repository<Rate>,
+    @InjectRepository(Driver)
+    private readonly driverRepository: Repository<Rate>,
     private readonly authService: AuthService,
   ) {}
 
@@ -107,5 +114,23 @@ export class CustomersService {
     });
 
     return await this.contactRepository.save(contactEntity);
+  }
+
+  async doRate(customerId: number, driverId: number, rateDto: RateDto): Promise<any> {
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+    if (!driver) {
+      throw new NotFoundException('Driver is not found');
+    }
+
+    Object.assign(rateDto, { driver: driverId });
+
+    return await this.rateRepository.save(rateDto);
   }
 }
