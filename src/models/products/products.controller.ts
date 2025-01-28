@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post, 
 import { ProductsService } from './products.service';
 import { Product } from '../../database/entities/product.entity';
 import { CreateProductDto } from '../../common/DTOs/product.dto';
-import { ApiBearerAuth, ApiConsumes, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'products' )
 @Controller('products')
@@ -17,6 +17,14 @@ export class ProductsController {
     return res.send(await this.productsService.create(customer.id, createProductDto));
   }
 
+
+  @Get('search/:name')
+  async searchByName(@Param('name') name: string, @Req() req, @Res() res): Promise<Product[]> {
+    const { user: customer } = req;
+
+    return res.send(await this.productsService.searchByName(customer.id, name));
+  }
+  
   @Get()
   async getAll(@Req() req, @Res() res): Promise<Product[]> {
     const { user: customer } = req;

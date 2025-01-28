@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
 import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
@@ -11,6 +11,8 @@ import { Address } from '../../database/entities/address.entity';
 import { PaymentStatus, Porter, Status } from '../../common/enums/route.enum';
 import { OrderProduct } from '../../database/entities/orderProduct.entity';
 import { ProductType } from '../../common/enums/product-type.enum';
+import { RedisService } from '../../redis/redis.service';
+import { Driver } from '../../database/entities/driver.entity';
 
 @Injectable()
 export class RouteService {
@@ -32,6 +34,9 @@ export class RouteService {
 
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+    @InjectRepository(Driver)
+    private readonly driverRepository: Repository<Driver>,
+    private readonly redisService: RedisService
   ) {}
 
 
@@ -73,11 +78,14 @@ export class RouteService {
       porter: Porter[routeData.porter] || Porter['1'],
       invoiceId: Number(routeData.invoiceId) || null,
       payment: routeData.payment || PaymentStatus.NOT_PAYED,
-      loadAddresses: loadAddresses.map(loadAddress => Number(loadAddress)) || [],
     }
 
     let createRouteData: any = { customer, ...modifiedRouteData };
     const createRoute: any = this.routeRepository.create(createRouteData);
+    if (loadAddresses && loadAddresses.length > 0) {
+      const addresses: any = await this.addressRepository.findByIds(loadAddresses);
+      createRoute.loadAddresses = addresses;
+    }
     const saveRoute: any = await this.routeRepository.save(createRoute);
 
     for (const order of orders) {
@@ -172,17 +180,6 @@ export class RouteService {
       await this.orderRepository.update({ id: order['id'] }, {  onloading_time: order['onloading_time'], price: order['price'], invoiceId: Number(order['invoiceId']) })
     }
 
-    await this.routeRepository.update({ id: routeId }, {
-      start_time: updateRouteData.start_time || null,
-      car_type: updateRouteData.car_type || null,
-      status: updateRoute.status as Status || Status.INCOMING,
-      porter: Porter[updateRouteData.porter] || Porter['1'],
-      invoiceId: Number(updateRouteData.invoiceId) || null,
-      payment: updateRoute.payment as PaymentStatus || PaymentStatus.NOT_PAYED,
-      loadAddresses: loadAddresses.map(loadAddress => Number(loadAddress)) || [],
-      price: totalPrice,
-    })
-
     return await this.getOne(routeId);
   }
 
@@ -206,23 +203,51 @@ export class RouteService {
     return await this.getOne(routeId);
   }
   
-  async getAll(userId: number, role, status: Status): Promise<Route[]> {
-    let query = 'route.customerId = :userId AND route.status = :status';
-    if (role === UserRole.COURIER) {
-      query = 'route.driverId = :userId AND route.status = :status';
+  async getDriverRoutes(driverId: number, radius: number): Promise<Route[]> {
+    const redisClient = this.redisService.getClient();
+    const driverLocation: any = await redisClient.get(driverId.toString());
+    const parsedLocation: any = JSON.parse(driverLocation);
+
+    const trucks = await this.driverRepository.findOne({where: {id: driverId}, relations: ['trucks']});
+    if (!trucks) {
+      throw new NotFoundException(`Driver with ID ${driverId} not found or can't find trucks`);
     }
+    const truckTypes = trucks.trucks.map(truck => truck.type);
 
     const routes = await this.routeRepository
       .createQueryBuilder('route')
-      .andWhere(query, { userId, status })
+      .where({ car_type: In(truckTypes), status: Status.ACTIVE })
       .leftJoinAndSelect('route.orders', 'order')
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
-      .leftJoinAndSelect('order.address', 'address')
+      .leftJoinAndSelect('order.address', 'orderAddress')
+      .leftJoinAndSelect('route.loadAddresses', 'address')
+      .andWhere(qb => {
+        const subQuery = qb.subQuery()
+          .select('1')
+          .from('route_load_addresses', 'rla')
+          .innerJoin('Address', 'addr', 'addr.id = rla.addressId')
+          .where('rla.routeId = route.id')
+          .andWhere('ST_DWithin(addr.location::geography, ST_SetSRID(ST_MakePoint(:lat, :lng)::geography, 4326), :radius)')
+          .setParameters({
+            lat: parsedLocation.lat,
+            lng: parsedLocation.lng,
+            radius: radius * 1000,
+          })
+          .getQuery();
+        return `EXISTS(${subQuery})`;
+      })
       .orderBy('route.start_time', 'ASC')
       .getMany();
 
     routes.forEach(route => {
+      route.loadAddresses.map(address => {
+        address.location = {
+          latitude: address.location.coordinates[0],
+          longitude: address.location.coordinates[1],
+        };
+      })
+
       if (route.orders) {
         route.orders = route.orders.map(order => {
           order.address.location = {
@@ -258,20 +283,36 @@ export class RouteService {
     return routes;
   }
 
-  async getAllRoutes(customerId: number, status: Status): Promise<Route[]> {
-    let query = 'route.customerId = :customerId AND route.status = :status';
+  async getCustomerRoutes(customerId: number, role, status: Status): Promise<Route[]> {
+    if (role !== UserRole.CUSTOMER) {
+      throw new NotFoundException(`Only customers can get their routes.`);
+    }
+
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+
+    if (!customer) {
+      throw new NotFoundException(`Customer with ID ${customerId} not found`);
+    }
 
     const routes = await this.routeRepository
       .createQueryBuilder('route')
-      .andWhere(query, { customerId, status })
+      .andWhere('route.customerId = :customerId AND route.status = :status', { customerId, status })
       .leftJoinAndSelect('route.orders', 'order')
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
       .leftJoinAndSelect('order.address', 'address')
+      .leftJoinAndSelect('route.loadAddresses', 'Address')
       .orderBy('route.start_time', 'ASC')
       .getMany();
 
     routes.forEach(route => {
+      route.loadAddresses.map(address => {
+        address.location = {
+          latitude: address.location.coordinates[0],
+          longitude: address.location.coordinates[1],
+        };
+      })
+
       if (route.orders) {
         route.orders = route.orders.map(order => {
           order.address.location = {
@@ -316,8 +357,16 @@ export class RouteService {
           'orders',
           'orders.address',
           'orders.orderProducts.product',
+          'loadAddresses',
         ],
       });
+
+      route.loadAddresses.map(address => {
+        address.location = {
+          latitude: address.location.coordinates[0],
+          longitude: address.location.coordinates[1],
+        };
+      })
 
       if(route && route.orders)
     {

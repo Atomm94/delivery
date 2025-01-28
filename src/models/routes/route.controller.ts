@@ -1,5 +1,5 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RouteService } from './route.service';
 import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../../database/entities/route.entity';
@@ -33,24 +33,26 @@ export class RouteController {
    * Retrieves all routes based on the order ID and user details.
    *
    * @param {Request} req The request object containing user information.
-   * @param {enum} status The type parameter used to filter routes.
+   * @param radius
    * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
-  @Get('all/:status')
+  @Get('driver')
   @ApiOperation({ summary: 'Get all routes by order ID' })
   @ApiResponse({ status: 200, description: 'The list of routes', })
   @ApiResponse({ status: 404, description: 'No routes found' })
-  async getAll(
+  @ApiQuery({
+    name: 'radius',
+    required: false,
+    description: 'radius in km, default is 20',
+    type: Number,
+  })
+  async getDriverRoutes(
     @Req() req,
-    @Param('status') status: Status
+    @Query('radius') radius: number = 20
   ): Promise<Route[]> {
     const { user } = req;
 
-    if (!Object.values(Status).includes(status)) {
-      throw new BadRequestException(`Invalid status: ${status}`);
-    }
-
-    return this.routeService.getAll(user.id, user.role, status);
+    return this.routeService.getDriverRoutes(user.id, radius);
   }
 
   /**
@@ -58,24 +60,24 @@ export class RouteController {
    *
    * @param {Request} req The request object containing user information.
    * @param {enum} status The type parameter used to filter routes.
-   * @param customerId
    * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
-  @Get('all-routes/:customerId/:status')
+  @Get('customer/:status')
   @ApiOperation({ summary: 'Get all routes by order ID' })
   @ApiResponse({ status: 200, description: 'The list of routes', })
   @ApiResponse({ status: 404, description: 'No routes found' })
-  async getAllRoutes(
+  async getCustomerRoutes(
     @Req() req,
-    @Param('status') status: Status,
-    @Param('customerId') customerId: number
+    @Param('status') status: Status
   ): Promise<Route[]> {
+
+    const { user, role } = req;
 
     if (!Object.values(Status).includes(status)) {
       throw new BadRequestException(`Invalid status: ${status}`);
     }
 
-    return this.routeService.getAllRoutes(customerId, status);
+    return this.routeService.getCustomerRoutes(user.id, role, status);
   }
 
   /**

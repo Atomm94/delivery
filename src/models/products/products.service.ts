@@ -30,6 +30,24 @@ export class ProductsService {
     return await this.productsRepository.save(newProduct);
   }
 
+
+  async searchByName(customerId: number, name: string): Promise<Product[]> {
+    const customer = await this.customerRepository.findOne({
+      where: { id: customerId },
+    });
+
+    if (!customer) {
+      throw new NotFoundException(`customer with ID ${customerId} not found`);
+    }
+
+    return await this.productsRepository
+      .createQueryBuilder('product')
+      .where('product.customerId = :customerId', { customerId })
+      .andWhere('product.type = :type', { type: 'product' })
+      .andWhere('product.name ILIKE :name', { name: `%${name}%` })
+      .getMany();
+  }
+
   async getAll(customerId: number): Promise<Product[]> {
     const customer = await this.customerRepository.findOne({
       where: { id: customerId },

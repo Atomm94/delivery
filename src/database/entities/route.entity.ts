@@ -1,4 +1,13 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { PaymentStatus, Porter, Status } from '../../common/enums/route.enum';
 import { Order } from './order.entity';
 import { Customer } from './customer.entity';
@@ -42,8 +51,13 @@ export class Route {
   @Column({ type: 'int', nullable: true })
   invoiceId: number;
 
-  @Column("int", { array: true, nullable: true })
-  loadAddresses: number[];
+  @ManyToMany(() => Address, { cascade: true, nullable: true })
+  @JoinTable({
+    name: 'route_load_addresses',
+    joinColumn: { name: 'routeId', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'addressId', referencedColumnName: 'id' },
+  })
+  loadAddresses: Address[];
 
   @OneToMany(() => Order, (order) => order.route, { onDelete: 'CASCADE', nullable: true })
   orders: Order[];
