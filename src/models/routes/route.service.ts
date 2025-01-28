@@ -88,8 +88,8 @@ export class RouteService {
         return {
           ...address,
           location:  {
-            latitude: address.location.coordinates[0],
-            longitude: address.location.coordinates[1],
+            type: 'Point',
+            coordinates: [address['location']['latitude'], address['location']['longitude']],
           }
         }
       });
