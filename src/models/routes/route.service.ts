@@ -84,15 +84,7 @@ export class RouteService {
     const createRoute: any = this.routeRepository.create(createRouteData);
     if (loadAddresses && loadAddresses.length > 0) {
       const addresses: any = await this.addressRepository.findByIds(loadAddresses);
-      createRoute.loadAddresses = addresses.map(address => {
-        return {
-          ...address,
-          location:  {
-            type: 'Point',
-            coordinates: [address['location']['latitude'], address['location']['longitude']],
-          }
-        }
-      });
+      createRoute.loadAddresses = addresses
     }
     const saveRoute: any = await this.routeRepository.save(createRoute);
 
@@ -215,16 +207,18 @@ export class RouteService {
     const redisClient = this.redisService.getClient();
     const driverLocation: any = await redisClient.get(driverId.toString());
     const parsedLocation: any = JSON.parse(driverLocation);
+    const searchRadius: number = radius * 1000 || 20 * 1000;
 
     const trucks = await this.driverRepository.findOne({where: {id: driverId}, relations: ['trucks']});
     if (!trucks) {
       throw new NotFoundException(`Driver with ID ${driverId} not found or can't find trucks`);
     }
     const truckTypes = trucks.trucks.map(truck => truck.type);
-
+    
     const routes = await this.routeRepository
       .createQueryBuilder('route')
-      .where({ car_type: In(truckTypes), status: Status.ACTIVE })
+      .where('route.car_type IN (:...truckTypes) AND route.status = :status')
+      .setParameters({ truckTypes, status: Status.ACTIVE })
       .leftJoinAndSelect('route.orders', 'order')
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
@@ -236,11 +230,13 @@ export class RouteService {
           .from('route_load_addresses', 'rla')
           .innerJoin('Address', 'addr', 'addr.id = rla.addressId')
           .where('rla.routeId = route.id')
-          .andWhere('ST_DWithin(addr.location::geography, ST_SetSRID(ST_MakePoint(:lat, :lng)::geography, 4326), :radius)')
+          .andWhere(
+            `ST_DWithin(addr.location::geography, ST_SetSRID(ST_MakePoint(:lat, :lng)::geography, 4326), :radius)`,
+          )
           .setParameters({
             lat: parsedLocation.lat,
             lng: parsedLocation.lng,
-            radius: radius * 1000,
+            radius: searchRadius,
           })
           .getQuery();
         return `EXISTS(${subQuery})`;
