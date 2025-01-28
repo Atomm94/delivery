@@ -71,13 +71,13 @@ export class RouteController {
     @Param('status') status: Status
   ): Promise<Route[]> {
 
-    const { user, role } = req;
+    const { user } = req;
 
     if (!Object.values(Status).includes(status)) {
       throw new BadRequestException(`Invalid status: ${status}`);
     }
 
-    return this.routeService.getCustomerRoutes(user.id, role, status);
+    return this.routeService.getCustomerRoutes(user.id, user.role, status);
   }
 
   /**
