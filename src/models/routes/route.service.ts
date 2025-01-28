@@ -84,7 +84,15 @@ export class RouteService {
     const createRoute: any = this.routeRepository.create(createRouteData);
     if (loadAddresses && loadAddresses.length > 0) {
       const addresses: any = await this.addressRepository.findByIds(loadAddresses);
-      createRoute.loadAddresses = addresses;
+      createRoute.loadAddresses = addresses.map(address => {
+        return {
+          ...address,
+          location:  {
+            latitude: address.location.coordinates[0],
+            longitude: address.location.coordinates[1],
+          }
+        }
+      });
     }
     const saveRoute: any = await this.routeRepository.save(createRoute);
 
