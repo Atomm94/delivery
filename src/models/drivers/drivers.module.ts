@@ -8,10 +8,12 @@ import { IsDriverPhoneNumberUnique } from '../../validators/unique.validation';
 import { Route } from '../../database/entities/route.entity';
 import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
+import { GeoModule } from '../geo/geo.module';
+import { GeoGateway } from '../geo/geo.gateway';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck]), AuthModule],
-  providers: [DriversService, IsDriverPhoneNumberUnique],
+  imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck]), AuthModule, GeoModule],
+  providers: [DriversService, IsDriverPhoneNumberUnique, GeoGateway],
   controllers: [DriversController],
   exports: [DriversService],
 })

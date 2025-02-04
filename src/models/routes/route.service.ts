@@ -203,7 +203,7 @@ export class RouteService {
     return await this.getOne(routeId);
   }
   
-  async getDriverRoutes(driverId: number, radius: number): Promise<Route[]> {
+  async getDriverRoutes(driverId: number, radius: number, status: Status): Promise<Route[]> {
     const redisClient = this.redisService.getClient();
     const driverLocation: any = await redisClient.get(driverId.toString());
     const parsedLocation: any = JSON.parse(driverLocation);
@@ -218,7 +218,7 @@ export class RouteService {
     const routes = await this.routeRepository
       .createQueryBuilder('route')
       .where('route.car_type IN (:...truckTypes) AND route.status = :status')
-      .setParameters({ truckTypes, status: Status.ACTIVE })
+      .setParameters({ truckTypes, status: status || Status.ACTIVE })
       .leftJoinAndSelect('route.orders', 'order')
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
@@ -287,7 +287,7 @@ export class RouteService {
     return routes;
   }
 
-  async getCustomerRoutes(customerId: number, role, status: Status): Promise<Route[]> {
+  async getCustomerRoutes(customerId: number, role, status: Status): Promise<any> {
     if (role !== UserRole.CUSTOMER) {
       throw new NotFoundException(`Only customers can get their routes.`);
     }
@@ -298,7 +298,7 @@ export class RouteService {
       throw new NotFoundException(`Customer with ID ${customerId} not found`);
     }
 
-    const routes = await this.routeRepository
+    const routes: any[] = await this.routeRepository
       .createQueryBuilder('route')
       .andWhere('route.customerId = :customerId AND route.status = :status', { customerId, status })
       .leftJoinAndSelect('route.orders', 'order')
@@ -349,7 +349,12 @@ export class RouteService {
       }
     });
 
-    return routes;
+    const count: any = await this.routeRepository
+      .createQueryBuilder('route')
+      .where('route.customerId = :customerId', { customerId })
+      .getCount();
+
+    return { routes, count };
   }
 
   async getOne(routeId: number): Promise<Route> {

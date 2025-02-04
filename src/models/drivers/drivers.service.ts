@@ -12,6 +12,7 @@ import { Route } from '../../database/entities/route.entity';
 import { Status } from '../../common/enums/route.enum';
 import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
+import { GeoGateway } from '../geo/geo.gateway';
 
 @Injectable()
 export class DriversService {
@@ -25,6 +26,7 @@ export class DriversService {
         @InjectRepository(Truck)
         private readonly truckRepository: Repository<Truck>,
         private readonly authService: AuthService,
+        private readonly geoService: GeoGateway,
     ) {}
 
 
@@ -102,7 +104,7 @@ export class DriversService {
         return { averageRate };
     }
 
-    async startRoute(driverId: number, routeId: number, truckId: number): Promise<any> {
+    async startRoute(driverId: number, customerId: number, routeId: number, truckId: number): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 
         if (!driver) {
@@ -124,7 +126,9 @@ export class DriversService {
             throw new NotFoundException('Route is not found or not active');
         }
 
-        await this.routeRepository.update({ id: routeId }, { truck: { id: truckId } })
+        await this.routeRepository.update({ id: routeId }, { truck: { id: truckId, status: Status.IN_PROGRESS } });
+
+        await this.geoService.emitDriverLocation(driverId, customerId)
 
         route = await this.routeRepository.findOne({
             where: {

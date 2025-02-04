@@ -7,6 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RedisService } from '../../redis/redis.service';
+import { NotFoundException } from '@nestjs/common';
 
 interface LocationData {
   driverId: string;
@@ -28,6 +29,31 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly redisService: RedisService) {
   }
 
+
+  async emitDriverLocation(driverId: number, customerId: number): Promise<void> {
+    const redisClient = this.redisService.getClient();
+
+    // Define the channel name
+    const channelName = `customer:${customerId}`;
+    
+    const locationData = await redisClient.get(driverId.toString());
+
+    if (!locationData) {
+      // Parse location data
+      throw new NotFoundException('driver location not found');
+    }
+
+    const location: any = JSON.parse(locationData);
+
+    const emitData: any = { driverId: driverId.toString(), location };
+    
+    this.server.on(channelName, async (data) => {
+      console.log('received data', data);
+
+      this.server.emit(channelName, emitData);
+    });
+  }
+  
   handleConnection(client: Socket): void {
     console.log(`Client connected: ${client.id}`);
 

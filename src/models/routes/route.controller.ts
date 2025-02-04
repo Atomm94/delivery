@@ -33,6 +33,7 @@ export class RouteController {
    * Retrieves all routes based on the order ID and user details.
    *
    * @param {Request} req The request object containing user information.
+   * @param status
    * @param radius
    * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
@@ -48,11 +49,12 @@ export class RouteController {
   })
   async getDriverRoutes(
     @Req() req,
+    @Param('status') status: Status,
     @Query('radius') radius: number = 20
   ): Promise<Route[]> {
     const { user } = req;
 
-    return this.routeService.getDriverRoutes(user.id, radius);
+    return this.routeService.getDriverRoutes(user.id, radius, status);
   }
 
   /**
