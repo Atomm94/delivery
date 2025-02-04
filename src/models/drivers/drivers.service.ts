@@ -126,7 +126,10 @@ export class DriversService {
             throw new NotFoundException('Route is not found or not active');
         }
 
-        await this.routeRepository.update({ id: routeId }, { truck: { id: truckId, status: Status.IN_PROGRESS } });
+        await this.routeRepository.update(
+          { id: routeId },
+          { truck: { id: truckId }, status: Status.IN_PROGRESS },
+        );
 
         await this.geoService.emitDriverLocation(driverId, customerId)
 
