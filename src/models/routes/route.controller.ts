@@ -49,11 +49,10 @@ export class RouteController {
   })
   async getDriverRoutes(
     @Req() req,
-    @Param('status') status: Status,
+    @Query('status') status: Status,
     @Query('radius') radius: number = 20
   ): Promise<Route[]> {
     const { user } = req;
-
     return this.routeService.getDriverRoutes(user.id, radius, status);
   }
 

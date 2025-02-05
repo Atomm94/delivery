@@ -26,8 +26,7 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
-  constructor(private readonly redisService: RedisService) {
-  }
+  constructor(private readonly redisService: RedisService) {}
 
 
   async emitDriverLocation(driverId: number, customerId: number): Promise<void> {
@@ -46,7 +45,7 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const location: any = JSON.parse(locationData);
 
     const emitData: any = { driverId: driverId.toString(), location };
-    
+
     this.server.on(channelName, async (data) => {
       console.log('received data', data);
 
