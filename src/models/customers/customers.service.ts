@@ -11,6 +11,7 @@ import { Contact } from '../../database/entities/contact.entity';
 import { RateDto } from '../../common/DTOs/driver.dto';
 import { Rate } from '../../database/entities/rate.entity';
 import { Driver } from '../../database/entities/driver.entity';
+import { Route } from '../../database/entities/route.entity';
 
 @Injectable()
 export class CustomersService {
@@ -23,6 +24,8 @@ export class CustomersService {
     private readonly contactRepository: Repository<Contact>,
     @InjectRepository(Rate)
     private readonly rateRepository: Repository<Rate>,
+    @InjectRepository(Route)
+    private readonly routeRepository: Repository<Route>,
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Rate>,
     private readonly authService: AuthService,
@@ -132,5 +135,27 @@ export class CustomersService {
     Object.assign(rateDto, { driver: driverId });
 
     return await this.rateRepository.save(rateDto);
+  }
+
+
+  async getRoutesCountByMonth(customerId: number): Promise<number> {
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+
+    if (!customer) {
+      throw new NotFoundException('Customer not found');
+    }
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const endOfMonth = new Date(startOfMonth);
+    endOfMonth.setMonth(endOfMonth.getMonth() + 1);
+
+    return await this.routeRepository
+      .createQueryBuilder('route')
+      .where('route.start_time >= :startOfMonth', { startOfMonth })
+      .andWhere('route.start_time < :endOfMonth', { endOfMonth })
+      .getCount();
   }
 }

@@ -128,10 +128,10 @@ export class DriversService {
 
         await this.routeRepository.update(
           { id: routeId },
-          { truck: { id: truckId }, status: Status.IN_PROGRESS },
+          { truck: { id: truckId }, status: Status.IN_PROGRESS as Status },
         );
 
-        await this.geoService.emitDriverLocation(driverId, customerId)
+       // await this.geoService.emitDriverLocation(driverId, customerId)
 
         route = await this.routeRepository.findOne({
             where: {

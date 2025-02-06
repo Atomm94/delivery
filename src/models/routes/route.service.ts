@@ -349,12 +349,9 @@ export class RouteService {
       }
     });
 
-    const count: any = await this.routeRepository
-      .createQueryBuilder('route')
-      .where('route.customerId = :customerId', { customerId })
-      .getCount();
 
-    return { routes, count };
+
+    return routes;
   }
 
   async getOne(routeId: number): Promise<Route> {

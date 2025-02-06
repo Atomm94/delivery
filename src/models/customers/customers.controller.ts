@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
     CompleteCustomerDataDto,
@@ -139,6 +139,28 @@ export class CustomersController {
             return res.json({ message: 'Successfully updated', data });
         } catch (error) {
             await removeFiles(files)
+
+            return res.status(404).json({
+                statusCode: 404,
+                timestamp: new Date().toISOString(),
+                message: error.message,
+            })
+        }
+    }
+
+    @Get('count')
+    @ApiBearerAuth('Authorization')
+    async getCount(
+      @Req() req,
+      @Res() res,
+    ) {
+        try {
+            const { user: customer } = req;
+
+            const data = await this.customerService.getRoutesCountByMonth(customer.id);
+
+            return res.json({ message: 'count', data });
+        } catch (error) {
 
             return res.status(404).json({
                 statusCode: 404,
