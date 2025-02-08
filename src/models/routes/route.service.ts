@@ -224,38 +224,45 @@ export class RouteService {
           .createQueryBuilder('route')
           .where('route.status = :status')
           .setParameters({ status: Status.IN_PROGRESS })
+          .innerJoinAndSelect('route.customer', 'customer')
+          .leftJoinAndSelect('route.orders', 'order')
+          .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+          .leftJoinAndSelect('orderProduct.product', 'product')
+          .leftJoinAndSelect('order.address', 'orderAddress')
+          .leftJoinAndSelect('route.loadAddresses', 'address')
+          .orderBy('route.start_time', 'ASC')
           .getMany()
+    } else {
+      routes = await this.routeRepository
+        .createQueryBuilder('route')
+        .where('route.car_type IN (:...truckTypes) AND route.status = :status')
+        .setParameters({ truckTypes, status })
+        .innerJoinAndSelect('route.customer', 'customer')
+        .leftJoinAndSelect('route.orders', 'order')
+        .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+        .leftJoinAndSelect('orderProduct.product', 'product')
+        .leftJoinAndSelect('order.address', 'orderAddress')
+        .leftJoinAndSelect('route.loadAddresses', 'address')
+        .andWhere(qb => {
+          const subQuery = qb.subQuery()
+            .select('1')
+            .from('route_load_addresses', 'rla')
+            .innerJoin('Address', 'addr', 'addr.id = rla.addressId')
+            .where('rla.routeId = route.id')
+            .andWhere(
+              `ST_DWithin(addr.location::geography, ST_SetSRID(ST_MakePoint(:lat, :lng)::geography, 4326), :radius)`,
+            )
+            .setParameters({
+              lat: parsedLocation.lat,
+              lng: parsedLocation.lng,
+              radius: searchRadius,
+            })
+            .getQuery();
+          return `EXISTS(${subQuery})`;
+        })
+        .orderBy('route.start_time', 'ASC')
+        .getMany();
     }
-
-    routes = await this.routeRepository
-      .createQueryBuilder('route')
-      .where('route.car_type IN (:...truckTypes) AND route.status = :status')
-      .setParameters({ truckTypes, status: Status.ACTIVE })
-      .innerJoinAndSelect('route.customer', 'customer')
-      .leftJoinAndSelect('route.orders', 'order')
-      .leftJoinAndSelect('order.orderProducts', 'orderProduct')
-      .leftJoinAndSelect('orderProduct.product', 'product')
-      .leftJoinAndSelect('order.address', 'orderAddress')
-      .leftJoinAndSelect('route.loadAddresses', 'address')
-      .andWhere(qb => {
-        const subQuery = qb.subQuery()
-          .select('1')
-          .from('route_load_addresses', 'rla')
-          .innerJoin('Address', 'addr', 'addr.id = rla.addressId')
-          .where('rla.routeId = route.id')
-          .andWhere(
-            `ST_DWithin(addr.location::geography, ST_SetSRID(ST_MakePoint(:lat, :lng)::geography, 4326), :radius)`,
-          )
-          .setParameters({
-            lat: parsedLocation.lat,
-            lng: parsedLocation.lng,
-            radius: searchRadius,
-          })
-          .getQuery();
-        return `EXISTS(${subQuery})`;
-      })
-      .orderBy('route.start_time', 'ASC')
-      .getMany();
 
     routes.forEach(route => {
       route.loadAddresses.map(address => {
