@@ -176,6 +176,6 @@ export class DriversService {
             });
         }
 
-        return { route, truck, driver };
+        return { ...route, truck, driver };
     }
 }

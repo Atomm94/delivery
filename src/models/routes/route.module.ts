@@ -10,9 +10,10 @@ import { Address } from '../../database/entities/address.entity';
 import { OrderProduct } from '../../database/entities/orderProduct.entity';
 import { RedisService } from '../../redis/redis.service';
 import { Driver } from '../../database/entities/driver.entity';
+import { Truck } from '../../database/entities/truck.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product, Address, OrderProduct, Driver])],
+  imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product, Address, OrderProduct, Driver, Truck])],
   providers: [RouteService, RedisService],
   controllers: [RouteController]
 })

@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
 import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
@@ -13,6 +13,7 @@ import { OrderProduct } from '../../database/entities/orderProduct.entity';
 import { ProductType } from '../../common/enums/product-type.enum';
 import { RedisService } from '../../redis/redis.service';
 import { Driver } from '../../database/entities/driver.entity';
+import { Truck } from '../../database/entities/truck.entity';
 
 @Injectable()
 export class RouteService {
@@ -36,6 +37,8 @@ export class RouteService {
     private readonly customerRepository: Repository<Customer>,
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Driver>,
+    @InjectRepository(Truck)
+    private readonly truckRepository: Repository<Truck>,
     private readonly redisService: RedisService
   ) {}
 
@@ -208,17 +211,27 @@ export class RouteService {
     const driverLocation: any = await redisClient.get(driverId.toString());
     const parsedLocation: any = JSON.parse(driverLocation);
     const searchRadius: number = radius * 1000 || 20 * 1000;
+    let routes: any[]
 
     const trucks = await this.driverRepository.findOne({where: {id: driverId}, relations: ['trucks']});
     if (!trucks) {
       throw new NotFoundException(`Driver with ID ${driverId} not found or can't find trucks`);
     }
     const truckTypes = trucks.trucks.map(truck => truck.type);
-    
-    const routes = await this.routeRepository
+
+    if (status === Status.IN_PROGRESS) {
+        routes = await this.routeRepository
+          .createQueryBuilder('route')
+          .where('route.status = :status')
+          .setParameters({ status: Status.IN_PROGRESS })
+          .getMany()
+    }
+
+    routes = await this.routeRepository
       .createQueryBuilder('route')
       .where('route.car_type IN (:...truckTypes) AND route.status = :status')
-      .setParameters({ truckTypes, status: status || Status.ACTIVE })
+      .setParameters({ truckTypes, status: Status.ACTIVE })
+      .innerJoinAndSelect('route.customer', 'customer')
       .leftJoinAndSelect('route.orders', 'order')
       .leftJoinAndSelect('order.orderProducts', 'orderProduct')
       .leftJoinAndSelect('orderProduct.product', 'product')
@@ -348,8 +361,6 @@ export class RouteService {
         });
       }
     });
-
-
 
     return routes;
   }
