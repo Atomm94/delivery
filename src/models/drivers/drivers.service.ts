@@ -3,13 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Driver } from '../../database/entities/driver.entity';
 import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
-import { CompleteDriverDataDto, RateDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
 import {
     completeDtoToPartialDriverEntity,
     updateDtoToPartialDriverEntity,
 } from '../../common/helpers/dtoToPartialEntity';
 import { Route } from '../../database/entities/route.entity';
-import { Status } from '../../common/enums/route.enum';
+import { PaymentStatus, Status } from '../../common/enums/route.enum';
 import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { GeoGateway } from '../geo/geo.gateway';
@@ -120,7 +120,7 @@ export class DriversService {
             throw new NotFoundException('Truck is not found or is not attached to this Driver');
         }
 
-        let route = await this.routeRepository.findOne({ where: { id: routeId, status: Status.ACTIVE } });
+        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED } });
 
         if (!route) {
             throw new NotFoundException('Route is not found or not active');

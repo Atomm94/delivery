@@ -208,7 +208,7 @@ export class UpdateRouteDto {
     enum: Status,
     description: 'The current status of the route',
     default: Status.INCOMING,
-    example: Status.ACTIVE,
+    example: Status.IN_PROGRESS,
   })
   @IsOptional()
   status?: string;
@@ -328,7 +328,7 @@ export class ChangeStatusDto {
     description: 'The current status of the route',
     enum: Status,
     default: Status.INCOMING,
-    example: Status.ACTIVE,
+    example: Status.IN_PROGRESS,
   })
   @IsNotEmpty()
   status: Status;
