@@ -123,7 +123,7 @@ export class DriversService {
         let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED } });
 
         if (!route) {
-            throw new NotFoundException('Route is not found or not active');
+            throw new NotFoundException('Route is not found or not payed');
         }
 
         await this.routeRepository.update(
