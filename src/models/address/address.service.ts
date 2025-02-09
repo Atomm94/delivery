@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Address } from '../../database/entities/address.entity';
@@ -57,7 +57,7 @@ export class AddressService {
       .getMany()
 
     if (addresses.length === 0) {
-      throw new Error('not found any addresses');
+      return [];
     }
 
     return addresses.map(address => ({
@@ -77,7 +77,7 @@ export class AddressService {
     });
 
     if (!address) {
-      throw new Error('Address not found');
+      throw new NotFoundException('Address not found');
     }
 
     return {
@@ -92,7 +92,7 @@ export class AddressService {
   async update(addressId: number, updateAddressDto: CreateAddressDto): Promise<any> {
     const address = await this.getOne(addressId);
     if (!address) {
-      throw new Error('Address not found');
+      throw new NotFoundException('Address not found');
     }
 
     const { latitude, longitude, ...updateAddressData } = updateAddressDto;
@@ -117,13 +117,13 @@ export class AddressService {
     const driverData = await redisClient.get(driverId.toString());
 
     if (!driverData) {
-      throw new Error(`No data found for driverId: ${driverId}`);
+      throw new NotFoundException(`No data found for driverId: ${driverId}`);
     }
 
     const { latitude, longitude } = JSON.parse(driverData);
 
     if (!latitude || !longitude) {
-      throw new Error('Invalid location data for the driver');
+      throw new NotFoundException('Invalid location data for the driver');
     }
 
     const radius = 10; // Radius in kilometers (can be parameterized if needed)
@@ -143,7 +143,7 @@ export class AddressService {
       .getMany()
 
     if (addresses.length === 0) {
-      throw new Error('not found any addresses');
+      return [];
     }
 
     return addresses.map(address => ({

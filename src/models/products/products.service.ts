@@ -84,7 +84,7 @@ export class ProductsService {
   async update(customerId: number, productId: number, updateProductDto: Partial<Product>): Promise<Product> {
     const product = await this.getOne(customerId, productId);
     if (!product) {
-      throw new Error('Product not found');
+      throw new NotFoundException('Product not found');
     }
 
     Object.assign(product, updateProductDto);

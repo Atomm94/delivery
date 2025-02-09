@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RedisService } from '../../redis/redis.service';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 interface LocationData {
   driverId: string;
@@ -63,7 +63,7 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       try {
         if (!data || !data.driverId || !data.location) {
-          throw new Error('Invalid data: driverId and location are required.');
+          throw new BadRequestException('Invalid data: driverId and location are required.');
         }
 
         const DriverId: any = data.driverId;
@@ -95,7 +95,7 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       // Ensure valid data format
       if (!data || !data.driverId || !data.location) {
-        throw new Error('Invalid data: driverId and location are required.');
+        throw new BadRequestException('Invalid data: driverId and location are required.');
       }
 
       // Get Redis client
