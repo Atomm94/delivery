@@ -178,4 +178,23 @@ export class DriversService {
 
         return { ...route, truck, driver };
     }
+
+    async doneRoute(driverId: number, routeId: number): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+        if (!driver) {
+            throw new NotFoundException('Driver is not found');
+        }
+
+        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED } });
+
+        if (!route) {
+            throw new NotFoundException('Route is not found');
+        }
+
+        return await this.routeRepository.update(
+          { id: routeId },
+          { status: Status.DONE as Status },
+        );
+    }
 }

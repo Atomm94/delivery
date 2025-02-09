@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RouteService } from './route.service';
 import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
@@ -147,5 +147,27 @@ export class RouteController {
   async delete(@Param('routeId') routeId: number): Promise<{ message: string }> {
     await this.routeService.delete(routeId);
     return { message: 'Route successfully deleted' };
+  }
+
+  @Get('month/count')
+  @ApiBearerAuth('Authorization')
+  async getCount(
+    @Req() req,
+    @Res() res,
+  ) {
+    try {
+      const { user: customer } = req;
+
+      const data = await this.routeService.getRoutesCountByMonth(customer.id);
+
+      return res.json({ message: 'count', data });
+    } catch (error) {
+
+      return res.status(404).json({
+        statusCode: 404,
+        timestamp: new Date().toISOString(),
+        message: error.message,
+      })
+    }
   }
 }

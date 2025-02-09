@@ -147,26 +147,4 @@ export class CustomersController {
             })
         }
     }
-
-    @Get('count')
-    @ApiBearerAuth('Authorization')
-    async getCount(
-      @Req() req,
-      @Res() res,
-    ) {
-        try {
-            const { user: customer } = req;
-
-            const data = await this.customerService.getRoutesCountByMonth(customer.id);
-
-            return res.json({ message: 'count', data });
-        } catch (error) {
-
-            return res.status(404).json({
-                statusCode: 404,
-                timestamp: new Date().toISOString(),
-                message: error.message,
-            })
-        }
-    }
 }
