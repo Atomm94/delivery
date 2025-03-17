@@ -209,6 +209,10 @@ export class RouteService {
   async getDriverRoutes(driverId: number, radius: number, status: Status): Promise<Route[]> {
     const redisClient = this.redisService.getClient();
     const driverLocation: any = await redisClient.get(driverId.toString());
+
+    if (!driverLocation) {
+      throw new NotFoundException('Driver location is not found');
+    }
     const parsedLocation: any = JSON.parse(driverLocation);
     const searchRadius: number = radius * 1000 || 20 * 1000;
     let routes: any[]

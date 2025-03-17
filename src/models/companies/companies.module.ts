@@ -4,9 +4,10 @@ import { CompaniesService } from './companies.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '../auth/auth.module';
 import { Company } from '../../database/entities/company.entity';
+import { CompanyDriver } from '../../database/entities/company-driver.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Company]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Company, CompanyDriver]), AuthModule],
   controllers: [CompaniesController],
   providers: [CompaniesService],
   exports: [CompaniesService],

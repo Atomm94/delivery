@@ -2,6 +2,7 @@ import { CompleteDriverDataDto, UpdateDataDto } from '../DTOs/driver.dto';
 import { TruckDataDto } from '../DTOs/truck.dto';
 import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../DTOs/customer.dto';
 import { CreateRouteDto } from '../DTOs/route.dto';
+import { CompleteCompanyDataDto, UpdateCompanyDataDto } from '../DTOs/company.dto';
 
 export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
   return {
@@ -16,6 +17,21 @@ export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
     second_porter: Boolean(Number(dto.second_porter)),
     third_porter: Boolean(Number(dto.third_porter)),
     emergency_driver: Boolean(Number(dto.emergency_driver)),
+  };
+}
+
+export function completeDtoToPartialCompanyEntity(dto: CompleteCompanyDataDto) {
+  return {
+    license: dto.license,
+    isVerified: true
+  };
+}
+
+export function updateDtoToPartialCompanyEntity(dto: UpdateCompanyDataDto) {
+  return {
+    name: dto.name,
+    password: dto.password,
+    license: dto.license,
   };
 }
 

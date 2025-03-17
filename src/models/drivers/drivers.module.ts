@@ -11,9 +11,10 @@ import { Truck } from '../../database/entities/truck.entity';
 import { GeoModule } from '../geo/geo.module';
 import { GeoGateway } from '../geo/geo.gateway';
 import { RedisService } from '../../redis/redis.service';
+import { CompanyDriver } from '../../database/entities/company-driver.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck]), AuthModule, GeoModule],
+  imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck, CompanyDriver]), AuthModule, GeoModule],
   providers: [DriversService, IsDriverPhoneNumberUnique, GeoGateway, RedisService],
   controllers: [DriversController],
   exports: [DriversService],

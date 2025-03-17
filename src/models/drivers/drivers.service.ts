@@ -13,12 +13,15 @@ import { PaymentStatus, Status } from '../../common/enums/route.enum';
 import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { GeoGateway } from '../geo/geo.gateway';
+import { CompanyDriver } from '../../database/entities/company-driver.entity';
 
 @Injectable()
 export class DriversService {
     constructor(
         @InjectRepository(Driver)
         private readonly driverRepository: Repository<Driver>,
+        @InjectRepository(CompanyDriver)
+        private readonly companyDriverRepository: Repository<CompanyDriver>,
         @InjectRepository(Route)
         private readonly routeRepository: Repository<Route>,
         @InjectRepository(Rate)
@@ -45,6 +48,15 @@ export class DriversService {
 
         if (driver) {
             throw new ConflictException('phone number is already exists');
+        }
+
+        const checkCompanyDriver = await this.companyDriverRepository.findOne({
+            where: { phone_number: driverData.phone_number }
+        });
+
+        if (checkCompanyDriver) {
+            const companyId: any = checkCompanyDriver.companyId
+            driverData.company = companyId
         }
 
         driverData.password = await this.authService.hashPassword(driverData.password);
@@ -131,8 +143,6 @@ export class DriversService {
           { truck: { id: truckId }, status: Status.IN_PROGRESS as Status },
         );
 
-       // await this.geoService.emitDriverLocation(driverId, customerId)
-
         route = await this.routeRepository.findOne({
             where: {
                 id: routeId,
@@ -175,6 +185,8 @@ export class DriversService {
                 };
             });
         }
+
+        //await emitToChannel()
 
         return { ...route, truck, driver };
     }

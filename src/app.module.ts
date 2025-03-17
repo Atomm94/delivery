@@ -34,6 +34,8 @@ import { GeoModule } from './models/geo/geo.module';
 import { RedisModule } from './redis/redis.module';
 import { Contact } from './database/entities/contact.entity';
 import { Rate } from './database/entities/rate.entity';
+import { CompanyDriver } from './database/entities/company-driver.entity';
+import { CompaniesService } from './models/companies/companies.service';
 
 
 initializeTransactionalContext();
@@ -56,6 +58,7 @@ initializeTransactionalContext();
           Truck,
           Customer,
           Company,
+          CompanyDriver,
           Route,
           Card,
           Address,
@@ -79,7 +82,7 @@ initializeTransactionalContext();
       RouteModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DriversService, CustomersService, FilesInterceptor, GeoGateway],
+  providers: [AppService, DriversService, CustomersService, CompaniesService, FilesInterceptor, GeoGateway],
 })
 
 export class AppModule {

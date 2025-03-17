@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
 import { Truck } from './truck.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Company } from './company.entity';
@@ -74,8 +74,8 @@ export class Driver {
     @OneToMany(() => Rate, rate => rate.driver, { onDelete: 'CASCADE', nullable: true })
     ratings: Rate[];
 
-    @ManyToMany(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
+    @ManyToOne(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'companyId' })
-    companies: Company[];
+    company: Company;
 }
 

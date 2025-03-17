@@ -14,6 +14,9 @@ export class Company {
     @Column({ type: 'varchar' })
     name: string;
 
+    @Column({ type: 'varchar' })
+    password: string;
+
     @Column('simple-array', { nullable: true })
     license: string[];
 
@@ -30,6 +33,6 @@ export class Company {
     @OneToMany(() => Truck, truck => truck.company)
     trucks: Truck[];
 
-    @ManyToMany(() => Driver, driver => driver.companies)
+    @OneToMany(() => Driver, driver => driver.company)
     drivers: Driver[];
 }
