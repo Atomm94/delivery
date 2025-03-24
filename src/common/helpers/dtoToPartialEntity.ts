@@ -22,7 +22,20 @@ export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
 
 export function completeDtoToPartialCompanyEntity(dto: CompleteCompanyDataDto) {
   return {
-    license: dto.license,
+    phone_number: dto.phone_number,
+    name: dto.name,
+    email: dto.email,
+    password: dto.password,
+    ITN: dto.ITN,
+    address: dto.address ? dto.address : null,
+    owner: dto.owner,
+    owner_social_number: dto.owner_social_number,
+    city: dto.city ? dto.city : null,
+    state: dto.state ? dto.state : null,
+    zip_code: dto.zip_code ? dto.zip_code : null,
+    op_state: dto.op_state ? dto.op_state : null,
+    op_city: dto.op_city ? dto.op_city : null,
+    contact_person_info: dto.contact_person_info ? dto.contact_person_info : null,
     isVerified: true
   };
 }
@@ -31,7 +44,7 @@ export function updateDtoToPartialCompanyEntity(dto: UpdateCompanyDataDto) {
   return {
     name: dto.name,
     password: dto.password,
-    license: dto.license,
+    email: dto.email,
   };
 }
 

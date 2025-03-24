@@ -14,6 +14,7 @@ import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { GeoGateway } from '../geo/geo.gateway';
 import { CompanyDriver } from '../../database/entities/company-driver.entity';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class DriversService {
@@ -29,7 +30,7 @@ export class DriversService {
         @InjectRepository(Truck)
         private readonly truckRepository: Repository<Truck>,
         private readonly authService: AuthService,
-        private readonly geoService: GeoGateway,
+        private readonly geoGateway: GeoGateway
     ) {}
 
 
@@ -186,7 +187,15 @@ export class DriversService {
             });
         }
 
-        //await emitToChannel()
+        const eventName = `start:${driverId}`;
+
+        const dynamicHandler = (client: Socket, data: any) => {
+            console.log(`Dynamic event "${eventName}" triggered with data:`, data);
+
+            client.emit(eventName, JSON.stringify({ message: `Processed ${eventName}` }));
+        };
+
+        this.geoGateway.addDynamicEvent(eventName, dynamicHandler);
 
         return { ...route, truck, driver };
     }

@@ -5,6 +5,8 @@ import { Truck } from '../../database/entities/truck.entity';
 import { Driver } from '../../database/entities/driver.entity';
 import { CreateMultipleTrucksDto, TruckDataDto } from '../../common/DTOs/truck.dto';
 import { updateDtoToPartialTruckEntity } from '../../common/helpers/dtoToPartialEntity';
+import { UserRole } from '../../common/enums/user-role.enum';
+import { Company } from '../../database/entities/company.entity';
 
 @Injectable()
 export class TrucksService {
@@ -13,35 +15,67 @@ export class TrucksService {
     private readonly truckRepository: Repository<Truck>,
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Driver>,
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
   ) {}
 
-  async bulkInsert(driverId: number, data: CreateMultipleTrucksDto): Promise<Truck[]> {
-    const driver = await this.driverRepository.findOne({
-      where: {id: driverId}
-    });
+  async bulkInsert(userId: number, role: any, data: CreateMultipleTrucksDto): Promise<Truck[]> {
+    let responseData: any
 
-    if (!driver) {
-      throw new NotFoundException('Driver not found');
+    if (role !== UserRole.COMPANY) {
+      const driver = await this.driverRepository.findOne({
+        where: {id: userId}
+      });
+
+      if (!driver) {
+        throw new NotFoundException('Driver not found');
+      }
+      const savedDriverData = data.trucks.map((truckData) => {
+        truckData['driver'] = userId;
+
+        return this.truckRepository.save([truckData]);
+      });
+
+      const { affected } = await this.driverRepository
+        .createQueryBuilder()
+        .update(Driver)
+        .set({ isVerified: true })
+        .where("id = :id", { id: userId })
+        .execute();
+
+      if (!affected) {
+        throw new UnauthorizedException('Driver is not verified');
+      }
+
+      responseData = await Promise.all(savedDriverData);
+    } else {
+      const company = await this.companyRepository.findOne({
+        where: {id: userId}
+      })
+      if (!company) {
+        throw new NotFoundException('Company not found');
+      }
+      const savedCompanyData = data.trucks.map((truckData) => {
+        truckData['company'] = userId;
+
+        return this.truckRepository.save([truckData]);
+      });
+
+      const { affected } = await this.companyRepository
+        .createQueryBuilder()
+        .update(Company)
+        .set({ isVerified: true })
+        .where("id = :id", { id: userId })
+        .execute();
+
+      if (!affected) {
+        throw new UnauthorizedException('Company is not verified');
+      }
+
+      responseData = await Promise.all(savedCompanyData);
     }
 
-    const savedData = data.trucks.map((truckData) => {
-      truckData['driver'] = driverId;
-
-      return this.truckRepository.save([truckData]);
-    });
-
-    const { affected } = await this.driverRepository
-      .createQueryBuilder()
-      .update(Driver)
-      .set({ isVerified: true })
-      .where("id = :id", { id: driverId })
-      .execute();
-
-    if (!affected) {
-      throw new UnauthorizedException('Driver is not verified');
-    }
-
-    return await Promise.all(savedData);
+    return responseData;
   }
 
   async update(id: number, updatedData: TruckDataDto): Promise<Truck> {

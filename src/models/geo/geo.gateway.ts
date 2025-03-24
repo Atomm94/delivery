@@ -1,24 +1,18 @@
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RedisService } from '../../redis/redis.service';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
-
-interface LocationData {
-  driverId: string;
-  location: { lat: number; lng: number };
-}
+import { BadRequestException } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
-    methods: ['GET', 'POST'], // Ensure methods are allowed
-    credentials: true, // Allow credentials if necessary
+    methods: ['GET', 'POST'],
+    credentials: true,
     allowedHeaders: ['Content-Type'],
   },
 })
@@ -30,71 +24,44 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleConnection(client: Socket): void {
     console.log(`Client connected: ${client.id}`);
-
-    client.emit('client_connected', { message: 'Client connected successfully' });
-
-    client.on('message', async (data) => {
-      console.log('Message received from client:', data);
-
-      try {
-        if (!data || !data.driverId || !data.location) {
-          throw new BadRequestException('Invalid data: driverId and location are required.');
-        }
-
-        const DriverId: any = data.driverId;
-        const Location: any = data.location;
-
-        const redisClient = this.redisService.getClient();
-        await redisClient.set(data.driverId.toString(), JSON.stringify(data.location));
-
-        this.server.emit('message', { driverId: DriverId, location: Location });
-      } catch (error: any) {
-        console.error('Error processing location:', error.message || error);
-        client.emit('error', { message: 'Failed to process your request.' });
-      }
-    });
+    client.emit('client_connected', JSON.stringify({ message: 'Client connected successfully' }));
 
     client.on('disconnect', (reason) => {
-      console.log(`Client disconnected: ${reason}`);
+      console.log(JSON.stringify(`Client disconnected: ${reason}`));
     });
 
-    client.on('connect_error', (err) => {
-      console.error('Client connection error:', err);
-    });
-  }
+    client.onAny(async (event: string, data: any) => {
+      console.log(`Received event: ${event} with data:`, data);
 
-  @SubscribeMessage('message')
-  async handleMessage(client: Socket, data: LocationData): Promise<void> {
-    try {
-      console.log('Received data:', data);
-
-      // Ensure valid data format
       if (!data || !data.driverId || !data.location) {
         throw new BadRequestException('Invalid data: driverId and location are required.');
       }
 
-      // Get Redis client
       const redisClient = await this.redisService.getClient();
 
-      // Save location to Redis
       const redisKey = data.driverId.toString();
       await redisClient.set(redisKey, JSON.stringify(data.location));
 
       console.log('Data saved in Redis for driver:', data.driverId);
 
-      // Emit back to the client
-      client.emit('message', data);
-
-    } catch (error: any) {
-      // Log error details for better debugging
-      console.error('Error processing request:', error.message || error);
-
-      // Emit error message to the client
-      client.emit('error', { message: 'Failed to process your request.' });
-    }
+      client.emit(event, data);
+    });
   }
 
   handleDisconnect(client: Socket): void {
-    console.log(`Client disconnected: ${client.id}`);
+    console.log(JSON.stringify(`Client disconnected: ${client.id}`));
+  }
+
+  addDynamicEvent(eventName: string, handler: (client: Socket, data: any) => void): void {
+    console.log(`Registering dynamic event: ${eventName}`);
+
+    this.server.sockets.on(eventName, (data) => {
+      handler;
+    });
+  }
+
+
+  removeDynamicEvent(eventName: string): void {
+    console.log(`Event "${eventName}" has been removed.`);
   }
 }

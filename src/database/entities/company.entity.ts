@@ -14,11 +14,49 @@ export class Company {
     @Column({ type: 'varchar' })
     name: string;
 
+    @Column({ type: 'varchar', nullable: true })
+    email: string;
+
     @Column({ type: 'varchar' })
     password: string;
 
-    @Column('simple-array', { nullable: true })
-    license: string[];
+    @Column({ type: 'varchar', nullable: true  })
+    ITN: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    owner: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    owner_social_number: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    address: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    city: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    state: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    zip_code: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    op_state: string;
+
+    @Column({ type: 'varchar', nullable: true  })
+    op_city: string;
+
+    @Column({
+        type: 'jsonb',
+        nullable: true,
+        default: () => "'{}'",
+        transformer: {
+            from: (value: any) => (value ? (typeof value === 'string' ? JSON.parse(value) : value) : null),
+            to: (value: any) => value,
+        },
+    })
+    contact_person_info: { [key: string]: any } = {};
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;

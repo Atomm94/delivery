@@ -75,9 +75,9 @@ export class TrucksController {
         })
       }
 
-      const { user: driver } = req;
+      const { user } = req;
 
-      const data = await this.trucksService.bulkInsert(driver.id, completeDataDto);
+      const data = await this.trucksService.bulkInsert(user.id, user.role, completeDataDto);
 
       return res.json({ message: 'Successfully added', data });
     } catch (error) {
