@@ -189,13 +189,7 @@ export class DriversService {
 
         const eventName = `start:${driverId}`;
 
-        const dynamicHandler = (client: Socket, data: any) => {
-            console.log(`Dynamic event "${eventName}" triggered with data:`, data);
-
-            client.emit(eventName, JSON.stringify({ message: `Processed ${eventName}` }));
-        };
-
-        this.geoGateway.addDynamicEvent(eventName, dynamicHandler);
+        this.geoGateway.addDynamicEvent(eventName);
 
         return { ...route, truck, driver };
     }

@@ -52,12 +52,10 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(JSON.stringify(`Client disconnected: ${client.id}`));
   }
 
-  addDynamicEvent(eventName: string, handler: (client: Socket, data: any) => void): void {
+  addDynamicEvent(eventName: string): void {
     console.log(`Registering dynamic event: ${eventName}`);
 
-    this.server.sockets.on(eventName, (data) => {
-      handler;
-    });
+    this.server.emit(eventName, JSON.stringify({ message: `Processed ${eventName}` }));
   }
 
 
