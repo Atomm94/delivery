@@ -330,10 +330,14 @@ export class RouteService {
       .leftJoinAndSelect('orderProduct.product', 'product')
       .leftJoinAndSelect('order.address', 'address')
       .leftJoinAndSelect('route.loadAddresses', 'Address')
+      .leftJoinAndSelect('route.truck', 'truck')
       .orderBy('route.start_time', 'ASC')
       .getMany();
 
     routes.forEach(route => {
+      route['truckId'] = route.truck.id;
+      route.truck = undefined;
+
       route.loadAddresses.map(address => {
         address.location = {
           latitude: address.location.coordinates[0],
@@ -386,8 +390,12 @@ export class RouteService {
           'orders.address',
           'orders.orderProducts.product',
           'loadAddresses',
+          'truck'
         ],
       });
+
+      route['truckId'] = route.truck.id;
+      route.truck = undefined;
 
       route.loadAddresses.map(address => {
         address.location = {
