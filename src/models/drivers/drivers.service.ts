@@ -9,15 +9,19 @@ import {
     updateDtoToPartialDriverEntity,
 } from '../../common/helpers/dtoToPartialEntity';
 import { Route } from '../../database/entities/route.entity';
+import { Order } from '../../database/entities/order.entity';
 import { PaymentStatus, Status } from '../../common/enums/route.enum';
 import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { GeoGateway } from '../geo/geo.gateway';
 import { CompanyDriver } from '../../database/entities/company-driver.entity';
-import { Socket } from 'socket.io';
+import { ConfigService } from '@nestjs/config';
+import { Twilio } from 'twilio';
 
 @Injectable()
 export class DriversService {
+    private twilioClient: Twilio;
+
     constructor(
         @InjectRepository(Driver)
         private readonly driverRepository: Repository<Driver>,
@@ -25,13 +29,21 @@ export class DriversService {
         private readonly companyDriverRepository: Repository<CompanyDriver>,
         @InjectRepository(Route)
         private readonly routeRepository: Repository<Route>,
+        @InjectRepository(Order)
+        private readonly orderRepository: Repository<Order>,
         @InjectRepository(Rate)
         private readonly rateRepository: Repository<Rate>,
         @InjectRepository(Truck)
         private readonly truckRepository: Repository<Truck>,
         private readonly authService: AuthService,
-        private readonly geoGateway: GeoGateway
-    ) {}
+        private readonly geoGateway: GeoGateway,
+        private configService: ConfigService
+    ) {
+        this.twilioClient = new Twilio(
+          this.configService.get('TWILIO_ACCOUNT_SID'),
+          this.configService.get('TWILIO_AUTH_TOKEN'),
+        );
+    }
 
 
     async get(condition: any): Promise<Driver> {
@@ -117,7 +129,7 @@ export class DriversService {
         return { averageRate };
     }
 
-    async startRoute(driverId: number, customerId: number, routeId: number, truckId: number): Promise<any> {
+    async takeRoute(driverId: number, customerId: number, routeId: number, truckId: number): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 
         if (!driver) {
@@ -133,10 +145,10 @@ export class DriversService {
             throw new NotFoundException('Truck is not found or is not attached to this Driver');
         }
 
-        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED } });
+        let route = await this.routeRepository.findOne({ where: { id: routeId } });
 
         if (!route) {
-            throw new NotFoundException('Route is not found or not payed');
+            throw new NotFoundException('Route is not found');
         }
 
         await this.routeRepository.update(
@@ -187,11 +199,73 @@ export class DriversService {
             });
         }
 
+        return { ...route, truck, driver };
+    }
+
+    async startRoute(driverId: number, routeId: number): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+        if (!driver) {
+            throw new NotFoundException('Driver is not found');
+        }
+
+        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED, status: Status.IN_PROGRESS as Status } });
+
+        if (!route) {
+            throw new NotFoundException('Route is / not payed / not in progress / not found');
+        }
+
         const eventName = `start:${driverId}`;
 
         this.geoGateway.addDynamicEvent(eventName);
 
-        return { ...route, truck, driver };
+        return route;
+    }
+
+    async dropOff(driverId: number, orderId: number): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+        if (!driver) {
+            throw new NotFoundException('Driver is not found');
+        }
+
+        let order = await this.orderRepository.findOne({
+            where: { id: orderId },
+            relations: [
+              'route',
+              'route.customer'
+            ]
+        });
+
+        if (!order) {
+            throw new NotFoundException('Order is not found');
+        }
+
+        await this.sendCode(order.route.customer.phone_number, order.verify_code.toString());
+
+        return order;
+    }
+
+    async resendCode(phone_number: string, verify_code: string): Promise<any> {
+        await this.sendCode(phone_number, verify_code);
+    }
+
+    async verifyCode(driverId: number, verify_code: string): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+        if (!driver) {
+            throw new NotFoundException('Driver is not found');
+        }
+
+        let order = await this.orderRepository.findOne({ where: { verify_code: +verify_code } });
+
+        if (!order) {
+            throw new NotFoundException('Invalid code');
+        }
+
+        order.verify_code = null;
+
+        return { msg: 'success' };
     }
 
     async doneRoute(driverId: number, routeId: number): Promise<any> {
@@ -211,5 +285,15 @@ export class DriversService {
           { id: routeId },
           { status: Status.DONE as Status },
         );
+    }
+
+    private async sendCode(phoneNumber: string, code: string): Promise<any> {
+        await this.twilioClient.messages.create({
+            body: `Your verification code is: ${code}`,
+            from: this.configService.get('TWILIO_PHONE_NUMBER'),
+            to: phoneNumber,
+        });
+
+        return { msg: 'success' };
     }
 }

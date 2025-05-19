@@ -14,6 +14,7 @@ import { ProductType } from '../../common/enums/product-type.enum';
 import { RedisService } from '../../redis/redis.service';
 import { Driver } from '../../database/entities/driver.entity';
 import { Truck } from '../../database/entities/truck.entity';
+import { generateVerificationCode } from '../../utils/code-generator';
 
 @Injectable()
 export class RouteService {
@@ -92,6 +93,7 @@ export class RouteService {
     const saveRoute: any = await this.routeRepository.save(createRoute);
 
     for (const order of orders) {
+      order.verify_code = generateVerificationCode();
       totalPrice += Number(order.price)
       order.route = saveRoute.id
       order.invoiceId = Number(order.invoiceId) || null
@@ -229,6 +231,7 @@ export class RouteService {
           .where('route.status = :status')
           .setParameters({ status: Status.IN_PROGRESS })
           .innerJoinAndSelect('route.customer', 'customer')
+          .leftJoinAndSelect('route.truck', 'truck')
           .leftJoinAndSelect('route.orders', 'order')
           .leftJoinAndSelect('order.orderProducts', 'orderProduct')
           .leftJoinAndSelect('orderProduct.product', 'product')
@@ -242,6 +245,7 @@ export class RouteService {
         .where('route.car_type IN (:...truckTypes) AND route.status = :status')
         .setParameters({ truckTypes, status })
         .innerJoinAndSelect('route.customer', 'customer')
+        .leftJoinAndSelect('route.truck', 'truck')
         .leftJoinAndSelect('route.orders', 'order')
         .leftJoinAndSelect('order.orderProducts', 'orderProduct')
         .leftJoinAndSelect('orderProduct.product', 'product')
@@ -269,6 +273,10 @@ export class RouteService {
     }
 
     routes.forEach(route => {
+      if (route.truck) {
+        route['truckId'] = route.truck.id;
+        route.truck = undefined;
+      }
       route.loadAddresses.map(address => {
         address.location = {
           latitude: address.location.coordinates[0],
@@ -335,8 +343,10 @@ export class RouteService {
       .getMany();
 
     routes.forEach(route => {
-      route['truckId'] = route.truck.id;
-      route.truck = undefined;
+      if (route.truck) {
+        route['truckId'] = route.truck.id;
+        route.truck = undefined;
+      }
 
       route.loadAddresses.map(address => {
         address.location = {
@@ -394,8 +404,10 @@ export class RouteService {
         ],
       });
 
-      route['truckId'] = route.truck.id;
-      route.truck = undefined;
+      if (route.truck) {
+        route['truckId'] = route.truck.id;
+        route.truck = undefined;
+      }
 
       route.loadAddresses.map(address => {
         address.location = {

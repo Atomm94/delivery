@@ -36,6 +36,7 @@ import { Contact } from './database/entities/contact.entity';
 import { Rate } from './database/entities/rate.entity';
 import { CompanyDriver } from './database/entities/company-driver.entity';
 import { CompaniesService } from './models/companies/companies.service';
+import { Order } from './database/entities/order.entity';
 
 
 initializeTransactionalContext();
@@ -64,6 +65,7 @@ initializeTransactionalContext();
           Address,
           Contact,
           Rate,
+          Order
       ]),
       MulterModule.register(multerConfig),
       ServeStaticModule.forRoot({

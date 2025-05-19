@@ -113,10 +113,10 @@ export class DriversController{
     return res.json({ rate })
   }
 
-  @Post('start/:customerId/:routeId/:truckId')
+  @Post('take/:customerId/:routeId/:truckId')
   @ApiOperation({ summary: 'connect driver to route' })
   @ApiBearerAuth('Authorization')
-  async startRoute(
+  async takeRoute(
     @Req() req,
     @Res() res,
     @Param('customerId') customerId: number,
@@ -125,9 +125,71 @@ export class DriversController{
   ) {
     const { user: driver } = req;
 
-    const route = await this.driversService.startRoute(driver.id, customerId, routeId, truckId);
+    const route = await this.driversService.takeRoute(driver.id, customerId, routeId, truckId);
 
     return res.send({ route })
+  }
+
+  @Put('start/:routeId')
+  @ApiOperation({ summary: 'driver start route' })
+  @ApiBearerAuth('Authorization')
+  async startRoute(
+    @Req() req,
+    @Res() res,
+    @Param('routeId') routeId: number
+  ) {
+    const { user: driver } = req;
+
+    const route = await this.driversService.startRoute(driver.id, routeId);
+
+    return res.send({ route })
+  }
+
+  @Put('dropOff/:orderId')
+  @ApiOperation({ summary: 'driver drop off' })
+  @ApiBearerAuth('Authorization')
+  async dropOff(
+    @Req() req,
+    @Res() res,
+    @Param('orderId') orderId: number
+  ) {
+    const { user: driver } = req;
+
+    const order = await this.driversService.dropOff(driver.id, orderId);
+
+    return res.send({ order })
+  }
+
+
+  @Post('verifyCode')
+  @ApiOperation({ summary: 'verify code' })
+  @ApiBearerAuth('Authorization')
+  @ApiBody({ schema: { properties: { verify_code: { type: 'string' } } } })
+  async verifyCode(
+    @Req() req,
+    @Res() res,
+    @Body() verify_code: string,
+  ) {
+    const { user: driver } = req;
+
+    const response = await this.driversService.verifyCode(driver.id, verify_code);
+
+    return res.send(response)
+  }
+
+  @Post('resendCode')
+  @ApiOperation({ summary: 'resend code' })
+  @ApiBearerAuth('Authorization')
+  @ApiBody({ schema: { properties: { phone_number: { type: 'string' }, verify_code: { type: 'string' } } } })
+  async resendCode(
+    @Req() req,
+    @Res() res,
+    @Body() phone_number: string,
+    @Body() verify_code: string,
+  ) {
+    const response = await this.driversService.resendCode(phone_number, verify_code);
+
+    return res.send(response)
   }
 
   @Put('done/:routeId')

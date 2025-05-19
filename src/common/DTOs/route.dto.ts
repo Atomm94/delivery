@@ -85,6 +85,9 @@ export class CreateOrderDto {
   })
   @IsInt()
   invoiceId: number;
+
+  @IsInt()
+  verify_code: number;
 }
 
 export class CreateRouteDto {
