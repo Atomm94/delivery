@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Driver } from '../../database/entities/driver.entity';
 import { Repository } from 'typeorm';
 import { AuthService } from '../auth/auth.service';
-import { CompleteDriverDataDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, DriverVerifyCode, UpdateDataDto } from '../../common/DTOs/driver.dto';
 import {
     completeDtoToPartialDriverEntity,
     updateDtoToPartialDriverEntity,
@@ -241,7 +241,7 @@ export class DriversService {
             throw new NotFoundException('Order is not found');
         }
 
-        await this.sendCode(order.route.customer.phone_number, order.verify_code.toString());
+        await this.sendCode(order.route.customer.phone_number, order.verify_code);
 
         return order;
     }
@@ -250,20 +250,23 @@ export class DriversService {
         await this.sendCode(phone_number, verify_code);
     }
 
-    async verifyCode(driverId: number, verify_code: string): Promise<any> {
+    async verifyCode(driverId: number, driverVerifyCode: DriverVerifyCode): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 
         if (!driver) {
             throw new NotFoundException('Driver is not found');
         }
 
-        let order = await this.orderRepository.findOne({ where: { verify_code } });
+
+        let order = await this.orderRepository.findOne({ where: { verify_code: driverVerifyCode.verify_code } });
 
         if (!order) {
             throw new NotFoundException('Invalid code');
         }
 
         order.verify_code = null;
+
+        await this.orderRepository.save(order);
 
         return { msg: 'success' };
     }

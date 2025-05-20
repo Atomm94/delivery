@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { CompleteDriverDataDto, DriversSignUpDto, RateDto, UpdateDataDto } from '../../common/DTOs/driver.dto';
+import { CompleteDriverDataDto, DriversSignUpDto, RateDto, UpdateDataDto, DriverVerifyCode } from '../../common/DTOs/driver.dto';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
@@ -164,15 +164,15 @@ export class DriversController{
   @Post('verifyCode')
   @ApiOperation({ summary: 'verify code' })
   @ApiBearerAuth('Authorization')
-  @ApiBody({ schema: { properties: { verify_code: { type: 'string' } } } })
+  @ApiBody({ type: DriverVerifyCode })
   async verifyCode(
     @Req() req,
     @Res() res,
-    @Body() verify_code: string,
+    @Body() driverVerifyCode: DriverVerifyCode,
   ) {
     const { user: driver } = req;
 
-    const response = await this.driversService.verifyCode(driver.id, verify_code);
+    const response = await this.driversService.verifyCode(driver.id, driverVerifyCode);
 
     return res.send(response)
   }

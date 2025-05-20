@@ -251,3 +251,14 @@ export class RateDto {
   @IsString()
   criteria: string;
 }
+
+export class DriverVerifyCode {
+  @ApiProperty({
+    example: '123456',
+    description: 'Verification code for driver',
+    required: true,
+  })
+  @IsNotEmpty({ message: 'Verification code is required' })
+  @IsString({ message: 'Verification code must be a string' })
+  verify_code: string;
+}
