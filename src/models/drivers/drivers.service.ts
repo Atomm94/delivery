@@ -257,7 +257,7 @@ export class DriversService {
             throw new NotFoundException('Driver is not found');
         }
 
-        let order = await this.orderRepository.findOne({ where: { verify_code: +verify_code } });
+        let order = await this.orderRepository.findOne({ where: { verify_code } });
 
         if (!order) {
             throw new NotFoundException('Invalid code');
