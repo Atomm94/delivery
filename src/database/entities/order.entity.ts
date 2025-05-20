@@ -27,7 +27,7 @@ export class Order {
   @Column({ type: 'int', nullable: true })
   invoiceId: number;
 
-  @Column({ type: 'string', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   verify_code: string;
 
   @ManyToOne(() => Address, (address) => address.orders, { onDelete: 'CASCADE', nullable: true })
