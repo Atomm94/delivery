@@ -45,8 +45,10 @@ initializeTransactionalContext();
   imports: [
       ConfigModule.forRoot({
           isGlobal: true,
-          envFilePath: '.env',
+          envFilePath: ['.env.local', '.env'],
           load: [databaseConfig],
+          expandVariables: true,
+          cache: true,
       }),
       TypeOrmModule.forRootAsync({
           imports: [ConfigModule],

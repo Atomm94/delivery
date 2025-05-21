@@ -13,10 +13,11 @@ import { GeoModule } from '../geo/geo.module';
 import { GeoGateway } from '../geo/geo.gateway';
 import { RedisService } from '../../redis/redis.service';
 import { CompanyDriver } from '../../database/entities/company-driver.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck, CompanyDriver, Order]), AuthModule, GeoModule],
-  providers: [DriversService, IsDriverPhoneNumberUnique, GeoGateway, RedisService],
+  providers: [DriversService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, ConfigService],
   controllers: [DriversController],
   exports: [DriversService],
 })

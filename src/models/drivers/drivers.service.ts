@@ -17,6 +17,7 @@ import { GeoGateway } from '../geo/geo.gateway';
 import { CompanyDriver } from '../../database/entities/company-driver.entity';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
+import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
 
 @Injectable()
 export class DriversService {
@@ -130,10 +131,10 @@ export class DriversService {
     }
 
     async takeRoute(driverId: number, customerId: number, routeId: number, truckId: number): Promise<any> {
-        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+        const driver = await this.driverRepository.findOne({ where: { id: driverId, status: DriverStatusEnum.AVAILABLE as DriverStatusEnum } });
 
         if (!driver) {
-            throw new NotFoundException('Driver is not found');
+            throw new NotFoundException('Driver is not found or is not available');
         }
 
         const truck: any = await this.truckRepository.createQueryBuilder('truck')
@@ -155,6 +156,11 @@ export class DriversService {
           { id: routeId },
           { truck: { id: truckId }, status: Status.IN_PROGRESS as Status },
         );
+
+        await this.driverRepository.update(
+          { id: driverId },
+          { status: DriverStatusEnum.ON_TRIP as DriverStatusEnum },
+        )
 
         route = await this.routeRepository.findOne({
             where: {
@@ -199,7 +205,7 @@ export class DriversService {
             });
         }
 
-        return { ...route, truck, driver };
+        return { ...route, truck, driver: await this.driverRepository.findOne({ where: { id: driverId } }) };
     }
 
     async startRoute(driverId: number, routeId: number): Promise<any> {
@@ -283,6 +289,11 @@ export class DriversService {
         if (!route) {
             throw new NotFoundException('Route is not found');
         }
+
+        await this.driverRepository.update(
+          { id: driverId },
+          { status: DriverStatusEnum.AVAILABLE as DriverStatusEnum },
+        )
 
         return await this.routeRepository.update(
           { id: routeId },

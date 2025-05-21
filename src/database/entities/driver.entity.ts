@@ -5,6 +5,7 @@ import { Company } from './company.entity';
 import { Address } from './address.entity';
 import { Route } from './route.entity';
 import { Rate } from './rate.entity';
+import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
 
 //import { Card } from './payment.entity';
 
@@ -45,6 +46,13 @@ export class Driver {
 
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
+
+    @Column({
+        type: 'enum',
+        enum: DriverStatusEnum,
+        default: DriverStatusEnum.AVAILABLE
+    })
+    status: DriverStatusEnum;
 
     @Column({
         type: 'enum',
