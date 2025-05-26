@@ -53,6 +53,11 @@ export class RouteController {
     @Query('radius') radius: number = 20
   ): Promise<Route[]> {
     const { user } = req;
+
+    if (!Object.values(Status).includes(status)) {
+      throw new BadRequestException(`Invalid status: ${status}`);
+    }
+
     return this.routeService.getDriverRoutes(user.id, radius, status);
   }
 
@@ -63,13 +68,13 @@ export class RouteController {
    * @param {enum} status The type parameter used to filter routes.
    * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
-  @Get('customer/:status')
+  @Get('customer')
   @ApiOperation({ summary: 'Get all routes by order ID' })
   @ApiResponse({ status: 200, description: 'The list of routes', })
   @ApiResponse({ status: 404, description: 'No routes found' })
   async getCustomerRoutes(
     @Req() req,
-    @Param('status') status: Status
+    @Query('status') status: Status,
   ): Promise<Route[]> {
 
     const { user } = req;

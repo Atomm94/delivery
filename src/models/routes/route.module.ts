@@ -15,6 +15,7 @@ import { Truck } from '../../database/entities/truck.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product, Address, OrderProduct, Driver, Truck])],
   providers: [RouteService, RedisService],
+  exports: [RouteService],
   controllers: [RouteController]
 })
 export class RouteModule {}

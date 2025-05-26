@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 't
 import { Truck } from './truck.entity';
 import { Driver } from './driver.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
+import { Address } from './address.entity';
 
 @Entity('Company')
 export class Company {
@@ -73,4 +74,7 @@ export class Company {
 
     @OneToMany(() => Driver, driver => driver.company)
     drivers: Driver[];
+
+    @OneToMany(() => Address, (address) => address.driver, { onDelete: 'CASCADE', nullable: true })
+    addresses: Address[];
 }

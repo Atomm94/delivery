@@ -7,7 +7,8 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { TakeRouteDto } from './route.dto';
 
 export class DriversSignUpDto {
   @ApiProperty({
@@ -262,3 +263,5 @@ export class DriverVerifyCode {
   @IsString({ message: 'Verification code must be a string' })
   verify_code: string;
 }
+
+export class DriverTakeRouteDto extends OmitType(TakeRouteDto, ['companyId'] as const){}

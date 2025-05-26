@@ -1,13 +1,21 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsOptional, IsPhoneNumber, IsString, Matches, MinLength } from 'class-validator';
-
-export class CompanyDriverDto {
-  @ApiProperty({ description: 'Phone number', example: '+1234567890' })
-  @IsNotEmpty({ message: 'phone number is required' })
-  @IsString({ message: 'phone number must be a string' })
-  @Matches(/^\+?[1-9]\d{1,14}$/, { message: 'phone number must be a valid international phone number' })
-  phone_number: string;
-}
+// import { IntersectionType } from '@nestjs/mapped-types';
+import { ApiProperty, IntersectionType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import {
+  IsEmail,
+  IsNotEmpty,
+  ValidateNested,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  Matches,
+  MinLength,
+  ArrayMinSize, IsArray,
+} from 'class-validator';
+import { CompleteDriverDataDto, DriversSignUpDto } from './driver.dto';
+import { TakeRouteDto } from './route.dto';
+import { TruckCondition } from '../enums/truck-condition.enum';
+import { TruckDataDto } from './truck.dto';
 
 export class CompanySignUpDto {
   @ApiProperty({
@@ -155,3 +163,41 @@ export class UpdateCompanyDataDto {
   @MinLength(6, { message: 'password must be at least 6 characters long' })
   password?: string;
 }
+
+class CompanyDriverDto extends IntersectionType(
+  DriversSignUpDto,
+  CompleteDriverDataDto
+) {}
+
+export class CompanyMultipleDriverDto {
+  @ApiProperty({
+    type: [CompanyDriverDto],
+    description: 'An array of company driver data',
+    example: [{
+      name: 'John Doe',
+      email: 'john@example.com',
+      phone_number: '+1234567890',
+      password: 'Password123',
+      license_number: 'DL123456',
+      license_exp: '2025-12-31',
+      license_class: 'Class A',
+      medical_card_exp: '2024-06-30',
+      social_number: '123-45-6789',
+      address: '123 Main St',
+      city: 'Los Angeles',
+      state: 'CA',
+      zip_code: '90001',
+      drug_test: 'drug-test.pdf',
+      mvr: 'mvr.pdf',
+      license_photo: 'license.jpg',
+      medical_card: 'medical.pdf',
+    }],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CompanyDriverDto)
+  @ArrayMinSize(1)
+  drivers: CompanyDriverDto[]
+}
+
+export class CompanyTakeRouteDto extends TakeRouteDto{}

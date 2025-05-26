@@ -5,6 +5,7 @@ export enum PaymentStatus {
 
 export enum Status {
   INCOMING = 'incoming',
+  ON_HOLD = 'on_hold',
   IN_PROGRESS = 'in_progress',
   DONE = 'done',
 }

@@ -1,8 +1,8 @@
 import { Body, Controller, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
-  CompanyDriverDto,
-  CompanySignUpDto,
+  CompanyMultipleDriverDto,
+  CompanySignUpDto, CompanyTakeRouteDto,
   CompleteCompanyDataDto,
   UpdateCompanyDataDto,
 } from '../../common/DTOs/company.dto';
@@ -10,12 +10,14 @@ import { CompaniesService } from './companies.service';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
+import { RouteService } from '../routes/route.service';
 
 @ApiTags( 'companies' )
 @Controller('companies')
 export class CompaniesController {
   constructor(
     private readonly companiesService: CompaniesService,
+    private readonly routeService: RouteService,
   ) {}
 
   @Post('signUp')
@@ -26,18 +28,15 @@ export class CompaniesController {
     return res.json({ message: 'Signed Up', data: { data } });
   }
 
-  @Post('driverRegister')
-  @ApiOperation({ summary: 'Register a new driver' })
-  @ApiResponse({
-    status: 201,
-    description: 'The driver has been successfully registered',
-  })
-  async driverRegister(
-    @Body() companyDriverDto: CompanyDriverDto,
+  @Post('drivers')
+  @ApiOperation({ summary: 'Register new drivers' })
+  @ApiBody({ type: CompanyMultipleDriverDto })
+  async createDrivers(
+    @Body() companyMultipleDriverDto: CompanyMultipleDriverDto,
     @Req() req,
   ): Promise<any> {
-    const { user } = req;
-    return await this.companiesService.createCompanyDriver(user, companyDriverDto);
+    const { user: company } = req;
+    return await this.companiesService.createCompanyDrivers(company.id, companyMultipleDriverDto);
   }
 
   @Put('complete')
@@ -106,5 +105,21 @@ export class CompaniesController {
         message: error.message,
       })
     }
+  }
+
+  @Post('take')
+  @ApiOperation({ summary: 'connect route to driver' })
+  @ApiBearerAuth('Authorization')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CompanyTakeRouteDto })
+  async takeRoute(
+    @Req() req,
+    @Res() res,
+    @Body() companyTakeRouteDto: CompanyTakeRouteDto,
+  ) {
+
+    const route = await this.routeService.takeRoute(companyTakeRouteDto);
+
+    return res.send({ route })
   }
 }

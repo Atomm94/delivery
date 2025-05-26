@@ -5,5 +5,6 @@ import { GeoGateway } from './geo.gateway';
 @Module({
   imports: [RedisModule],
   providers: [GeoGateway],
+  exports: [GeoGateway]
 })
 export class GeoModule {}

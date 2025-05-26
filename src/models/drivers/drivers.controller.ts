@@ -10,7 +10,14 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DriversService } from './drivers.service';
-import { CompleteDriverDataDto, DriversSignUpDto, RateDto, UpdateDataDto, DriverVerifyCode } from '../../common/DTOs/driver.dto';
+import { RouteService } from '../routes/route.service';
+import {
+  CompleteDriverDataDto,
+  DriversSignUpDto,
+  UpdateDataDto,
+  DriverVerifyCode,
+  DriverTakeRouteDto,
+} from '../../common/DTOs/driver.dto';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
@@ -22,6 +29,7 @@ export class DriversController{
     constructor(
         private readonly configService: ConfigService,
         private readonly driversService: DriversService,
+        private readonly routeService: RouteService,
     ) {}
 
     @Post('signUp')
@@ -113,19 +121,19 @@ export class DriversController{
     return res.json({ rate })
   }
 
-  @Post('take/:customerId/:routeId/:truckId')
+  @Post('take')
   @ApiOperation({ summary: 'connect driver to route' })
   @ApiBearerAuth('Authorization')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: DriverTakeRouteDto })
   async takeRoute(
     @Req() req,
     @Res() res,
-    @Param('customerId') customerId: number,
-    @Param('routeId') routeId: number,
-    @Param('truckId') truckId: number
+    @Body() driverTakeRoute: DriverTakeRouteDto
   ) {
     const { user: driver } = req;
 
-    const route = await this.driversService.takeRoute(driver.id, customerId, routeId, truckId);
+    const route = await this.routeService.takeRoute(driver.id, driverTakeRoute);
 
     return res.send({ route })
   }

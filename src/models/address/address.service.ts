@@ -16,10 +16,16 @@ export class AddressService {
   ) {}
 
   async create(userId: number, role, createAddressDto: CreateAddressDto): Promise<any> {
-    let createAddress: any = { customer: userId, ...createAddressDto };
-    if (role === UserRole.COURIER) {
-      createAddress = { driver: userId, ...createAddressDto };
-    }
+    const userRoleMapping = {
+      [UserRole.COURIER]: { driver: userId },
+      [UserRole.CUSTOMER]: { customer: userId },
+      [UserRole.COMPANY]: { company: userId },
+    };
+
+    let createAddress = {
+      ...userRoleMapping[role],
+      ...createAddressDto,
+    };
 
     if (createAddress.latitude && createAddress.longitude) {
       const {latitude, longitude, ...Dto} = createAddress;

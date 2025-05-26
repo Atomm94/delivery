@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migrations1747860971287 implements MigrationInterface {
-    name = 'Migrations1747860971287'
+export class Migrations1748174861574 implements MigrationInterface {
+    name = 'Migrations1748174861574'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "card" ("id" SERIAL NOT NULL, "card_number" character varying NOT NULL, "card_date" character varying NOT NULL, "card_cvv" character varying NOT NULL, "customerId" integer, CONSTRAINT "PK_9451069b6f1199730791a7f4ae4" PRIMARY KEY ("id"))`);
@@ -11,9 +11,8 @@ export class Migrations1747860971287 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "route" ("id" SERIAL NOT NULL, "start_time" TIMESTAMP WITH TIME ZONE, "car_type" character varying, "porter" character varying NOT NULL DEFAULT 'Without porter', "payment" "public"."route_payment_enum" NOT NULL DEFAULT 'not_payed', "status" "public"."route_status_enum" NOT NULL DEFAULT 'incoming', "price" double precision, "invoiceId" integer, "customerId" integer, "truckId" integer, CONSTRAINT "PK_08affcd076e46415e5821acf52d" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "contact" ("id" SERIAL NOT NULL, "name" character varying(255) NOT NULL, "surname" character varying(255) NOT NULL, "phone" character varying(15) NOT NULL, "email" character varying(255) NOT NULL, "message" text NOT NULL, "files" text, "customerId" integer, CONSTRAINT "UQ_eff09bb429f175523787f46003b" UNIQUE ("email"), CONSTRAINT "PK_2cbbe00f59ab6b3bb5b8d19f989" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Customer" ("id" SERIAL NOT NULL, "phone_number" character varying, "company_name" character varying, "email" character varying, "password" character varying NOT NULL, "company_info" jsonb DEFAULT '{}', "company_address" jsonb DEFAULT '{}', "contact_info" jsonb DEFAULT '{}', "orgz_docs" text, "role" "public"."Customer_role_enum" NOT NULL DEFAULT 'customer', "isVerified" boolean NOT NULL DEFAULT false, CONSTRAINT "PK_60596e16740e1fa20dbf0154ec7" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "Address" ("id" SERIAL NOT NULL, "institution_name" character varying NOT NULL, "address" character varying NOT NULL, "city" character varying NOT NULL, "state" character varying NOT NULL, "zip_code" character varying NOT NULL, "main" boolean NOT NULL DEFAULT false, "type" "public"."Address_type_enum" NOT NULL DEFAULT 'load', "contact_person" character varying, "phone" character varying, "location" geometry(Point,4326), "customerId" integer, "driverId" integer, CONSTRAINT "PK_9034683839599c80ebe9ebb0891" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "Address" ("id" SERIAL NOT NULL, "institution_name" character varying NOT NULL, "address" character varying NOT NULL, "city" character varying NOT NULL, "state" character varying NOT NULL, "zip_code" character varying NOT NULL, "main" boolean NOT NULL DEFAULT false, "type" "public"."Address_type_enum" NOT NULL DEFAULT 'load', "contact_person" character varying, "phone" character varying, "location" geometry(Point,4326), "customerId" integer, "driverId" integer, "companyId" integer, CONSTRAINT "PK_9034683839599c80ebe9ebb0891" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "rate" ("id" SERIAL NOT NULL, "star" double precision NOT NULL, "type" character varying NOT NULL, "criteria" text NOT NULL, "driverId" integer, CONSTRAINT "PK_2618d0d38af322d152ccc328f33" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TYPE "public"."Driver_status_enum" AS ENUM('on_trip', 'available', 'offline')`);
         await queryRunner.query(`CREATE TABLE "Driver" ("id" SERIAL NOT NULL, "phone_number" character varying NOT NULL, "password" character varying NOT NULL, "firstName" character varying NOT NULL, "lastName" character varying NOT NULL, "email" character varying, "social_number" character varying, "license" character varying, "identity" character varying, "op_state" character varying, "op_cities" text, "isVerified" boolean NOT NULL DEFAULT false, "status" "public"."Driver_status_enum" NOT NULL DEFAULT 'available', "role" "public"."Driver_role_enum" NOT NULL DEFAULT 'courier', "porter" boolean NOT NULL DEFAULT false, "second_porter" boolean NOT NULL DEFAULT false, "third_porter" boolean NOT NULL DEFAULT false, "emergency_driver" boolean NOT NULL DEFAULT false, "companyId" integer, CONSTRAINT "UQ_6b49f11bf0cac3874e8959dc01f" UNIQUE ("phone_number"), CONSTRAINT "PK_9b78eddc1b0c643ec4e956eaac5" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Company" ("id" SERIAL NOT NULL, "phone_number" character varying NOT NULL, "name" character varying NOT NULL, "email" character varying, "password" character varying NOT NULL, "ITN" character varying, "owner" character varying, "owner_social_number" character varying, "address" character varying, "city" character varying, "state" character varying, "zip_code" character varying, "op_state" character varying, "op_city" character varying, "contact_person_info" jsonb DEFAULT '{}', "isVerified" boolean NOT NULL DEFAULT false, "role" "public"."Company_role_enum" NOT NULL DEFAULT 'company', CONSTRAINT "UQ_5d31fb90bee42a41ec5467a055d" UNIQUE ("phone_number"), CONSTRAINT "PK_b4993a6b3d3194767a59698298f" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Truck" ("id" SERIAL NOT NULL, "mark" character varying, "model" character varying, "year" character varying, "vin_code" character varying, "license_plate_number" character varying, "max_capacity" integer, "length" integer, "width" integer, "height" integer, "type" character varying, "condition" "public"."Truck_condition_enum", "vehicle_title" text, "insurance_photos" text, "insurance_files" text, "photos" text, "driverId" integer, "companyId" integer, CONSTRAINT "PK_10d8b7678c66c21bf3438e203dc" PRIMARY KEY ("id"))`);
@@ -33,6 +32,7 @@ export class Migrations1747860971287 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "contact" ADD CONSTRAINT "FK_a54f4088bd2e596cc15c1f7aa3d" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Address" ADD CONSTRAINT "FK_8504c9fdeabd51cd7496047bc81" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Address" ADD CONSTRAINT "FK_6343aa5fe674e2d0bf3c37db19e" FOREIGN KEY ("driverId") REFERENCES "Driver"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "Address" ADD CONSTRAINT "FK_970f432f4c23992914d23f291e6" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "rate" ADD CONSTRAINT "FK_5745880098d608dde18a4a63e98" FOREIGN KEY ("driverId") REFERENCES "Driver"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Driver" ADD CONSTRAINT "FK_c2e201050699025dc55f030381a" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Truck" ADD CONSTRAINT "FK_4458f9f08ead4e4b773bd4a396e" FOREIGN KEY ("driverId") REFERENCES "Driver"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
@@ -50,6 +50,7 @@ export class Migrations1747860971287 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "Truck" DROP CONSTRAINT "FK_4458f9f08ead4e4b773bd4a396e"`);
         await queryRunner.query(`ALTER TABLE "Driver" DROP CONSTRAINT "FK_c2e201050699025dc55f030381a"`);
         await queryRunner.query(`ALTER TABLE "rate" DROP CONSTRAINT "FK_5745880098d608dde18a4a63e98"`);
+        await queryRunner.query(`ALTER TABLE "Address" DROP CONSTRAINT "FK_970f432f4c23992914d23f291e6"`);
         await queryRunner.query(`ALTER TABLE "Address" DROP CONSTRAINT "FK_6343aa5fe674e2d0bf3c37db19e"`);
         await queryRunner.query(`ALTER TABLE "Address" DROP CONSTRAINT "FK_8504c9fdeabd51cd7496047bc81"`);
         await queryRunner.query(`ALTER TABLE "contact" DROP CONSTRAINT "FK_a54f4088bd2e596cc15c1f7aa3d"`);
@@ -69,7 +70,6 @@ export class Migrations1747860971287 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "Truck"`);
         await queryRunner.query(`DROP TABLE "Company"`);
         await queryRunner.query(`DROP TABLE "Driver"`);
-        await queryRunner.query(`DROP TYPE "public"."Driver_status_enum"`);
         await queryRunner.query(`DROP TABLE "rate"`);
         await queryRunner.query(`DROP TABLE "Address"`);
         await queryRunner.query(`DROP TABLE "Customer"`);

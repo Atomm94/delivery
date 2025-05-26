@@ -130,84 +130,6 @@ export class DriversService {
         return { averageRate };
     }
 
-    async takeRoute(driverId: number, customerId: number, routeId: number, truckId: number): Promise<any> {
-        const driver = await this.driverRepository.findOne({ where: { id: driverId, status: DriverStatusEnum.AVAILABLE as DriverStatusEnum } });
-
-        if (!driver) {
-            throw new NotFoundException('Driver is not found or is not available');
-        }
-
-        const truck: any = await this.truckRepository.createQueryBuilder('truck')
-          .where('truck.id = :truckId', { truckId })
-          .andWhere('truck.driverId = :driverId', { driverId })
-          .getOne();
-
-        if (!truck) {
-            throw new NotFoundException('Truck is not found or is not attached to this Driver');
-        }
-
-        let route = await this.routeRepository.findOne({ where: { id: routeId } });
-
-        if (!route) {
-            throw new NotFoundException('Route is not found');
-        }
-
-        await this.routeRepository.update(
-          { id: routeId },
-          { truck: { id: truckId }, status: Status.IN_PROGRESS as Status },
-        );
-
-        await this.driverRepository.update(
-          { id: driverId },
-          { status: DriverStatusEnum.ON_TRIP as DriverStatusEnum },
-        )
-
-        route = await this.routeRepository.findOne({
-            where: {
-                id: routeId,
-            },
-            relations: [
-                'orders',
-                'orders.address',
-                'orders.orderProducts.product',
-            ],
-        });
-
-        if (route && route.orders)
-        {
-            route.orders = route.orders.map(order => {
-                order.address.location = {
-                    latitude: order.address.location.coordinates[0],
-                    longitude: order.address.location.coordinates[1],
-                };
-                const products = order.orderProducts.map(orderProduct => {
-                    return {
-                        count: orderProduct.count,
-                        price: orderProduct.price,
-                        product: {
-                            id: orderProduct.product.id,
-                            name: orderProduct.product.name,
-                            weight: orderProduct.product.weight,
-                            length: orderProduct.product.length,
-                            width: orderProduct.product.width,
-                            height: orderProduct.product.height,
-                            measure: orderProduct.product.measure,
-                            type: orderProduct.product.type,
-                        }
-                    };
-                });
-
-                return {
-                    ...order,
-                    products,
-                    orderProducts: undefined,
-                };
-            });
-        }
-
-        return { ...route, truck, driver: await this.driverRepository.findOne({ where: { id: driverId } }) };
-    }
-
     async startRoute(driverId: number, routeId: number): Promise<any> {
         const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 
@@ -215,11 +137,22 @@ export class DriversService {
             throw new NotFoundException('Driver is not found');
         }
 
-        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED, status: Status.IN_PROGRESS as Status } });
+        //TODO
+        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED, status: Status.ON_HOLD as Status } });
 
         if (!route) {
             throw new NotFoundException('Route is / not payed / not in progress / not found');
         }
+
+        await this.driverRepository.update(
+          { id: driverId },
+          { status: DriverStatusEnum.ON_TRIP as DriverStatusEnum },
+        )
+
+        await this.routeRepository.update(
+          { id: routeId },
+          { status: Status.IN_PROGRESS as Status },
+        )
 
         const eventName = `start:${driverId}`;
 
@@ -247,7 +180,9 @@ export class DriversService {
             throw new NotFoundException('Order is not found');
         }
 
-        await this.sendCode(order.route.customer.phone_number, order.verify_code);
+
+        // TODO
+        // await this.sendCode(order.route.customer.phone_number, order.verify_code);
 
         return order;
     }

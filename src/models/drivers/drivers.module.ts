@@ -14,10 +14,19 @@ import { GeoGateway } from '../geo/geo.gateway';
 import { RedisService } from '../../redis/redis.service';
 import { CompanyDriver } from '../../database/entities/company-driver.entity';
 import { ConfigService } from '@nestjs/config';
+import { RouteService } from '../routes/route.service';
+import { Product } from '../../database/entities/product.entity';
+import { OrderProduct } from '../../database/entities/orderProduct.entity';
+import { Address } from '../../database/entities/address.entity';
+import { Customer } from '../../database/entities/customer.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Driver, Route, Rate, Truck, CompanyDriver, Order]), AuthModule, GeoModule],
-  providers: [DriversService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, ConfigService],
+  imports: [
+    TypeOrmModule.forFeature([Driver, Route, Rate, Truck, CompanyDriver, Order, Product, OrderProduct, Address, Customer]),
+    AuthModule,
+    GeoModule
+  ],
+  providers: [DriversService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, ConfigService, RouteService],
   controllers: [DriversController],
   exports: [DriversService],
 })

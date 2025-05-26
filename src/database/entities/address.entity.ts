@@ -4,6 +4,7 @@ import { AddressType } from '../../common/enums/address-type.enum';
 import { Order } from './order.entity';
 import { Driver } from './driver.entity';
 import { Route } from './route.entity';
+import { Company } from './company.entity';
 
 @Entity('Address')
 export class Address {
@@ -61,5 +62,9 @@ export class Address {
   @ManyToOne(() => Driver, (driver) => driver.addresses, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'driverId' })
   driver: Driver | null;
+
+  @ManyToOne(() => Company, (company) => company.addresses, { onDelete: 'CASCADE', nullable: true })
+  @JoinColumn({ name: 'companyId' })
+  company: Company | null;
 }
 

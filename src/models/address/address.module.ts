@@ -9,6 +9,7 @@ import { RedisService } from '../../redis/redis.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Address, Customer])],
   providers: [AddressService, RedisService],
+  exports: [AddressService, RedisService],
   controllers: [AddressController]
 })
 export class AddressModule {}

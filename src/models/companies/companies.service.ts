@@ -1,11 +1,11 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { CompanyDriverDto, CompleteCompanyDataDto, UpdateCompanyDataDto } from '../../common/DTOs/company.dto';
+import { CompanyMultipleDriverDto, CompleteCompanyDataDto, UpdateCompanyDataDto } from '../../common/DTOs/company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CompanyDriver } from '../../database/entities/company-driver.entity';
 import { Company } from '../../database/entities/company.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { AuthService } from '../auth/auth.service';
+import { Driver } from '../../database/entities/driver.entity';
 import {
   completeDtoToPartialCompanyEntity,
   updateDtoToPartialCompanyEntity,
@@ -16,8 +16,8 @@ export class CompaniesService {
   constructor(
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
-    @InjectRepository(CompanyDriver)
-    private readonly companyDriverRepository: Repository<CompanyDriver>,
+    @InjectRepository(Driver)
+    private readonly driverRepository: Repository<Driver>,
     private readonly authService: AuthService,
   ) {}
 
@@ -29,34 +29,25 @@ export class CompaniesService {
     return await this.companyRepository.find({ where: condition });
   }
 
-  async createCompanyDriver(user: any, companyDriverData: CompanyDriverDto): Promise<any> {
-    if (user.role !== UserRole.COMPANY) {
-      throw new ForbiddenException('invalid company user');
-    }
-
+  async createCompanyDrivers(companyId: number, data: CompanyMultipleDriverDto): Promise<Driver[]> {
     const company = await this.companyRepository.findOne({
-      where: { id: user.id }
+      where: { id: companyId },
     });
 
     if (!company) {
       throw new NotFoundException('company user is not found');
     }
 
-    const companyDriver = await this.companyDriverRepository.findOne({
-      where: { phone_number: companyDriverData.phone_number }
+    const saveDriversData = data.drivers.map((driverData) => {
+      return {
+        ...driverData,
+        companyId
+      };
     });
 
-    if (companyDriver) {
-      throw new ConflictException('phone number is already exists');
-    }
-
-    const saveCompanyDriver = {
-      companyId: company.id,
-      phone_number: companyDriverData.phone_number,
-    }
-
-    return await this.companyDriverRepository.save(saveCompanyDriver);
+    return await this.driverRepository.save(saveDriversData);
   }
+
 
   async create(companyData: Partial<Company>): Promise<Company> {
     const company = await this.companyRepository.findOne({

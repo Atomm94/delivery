@@ -86,7 +86,7 @@ initializeTransactionalContext();
       RouteModule,
   ],
   controllers: [AppController],
-  providers: [AppService, DriversService, CustomersService, CompaniesService, FilesInterceptor, GeoGateway],
+  providers: [AppService],
 })
 
 export class AppModule {

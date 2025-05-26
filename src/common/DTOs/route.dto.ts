@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { PaymentStatus, Porter, Status } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
 
@@ -336,4 +336,26 @@ export class ChangeStatusDto {
   })
   @IsNotEmpty()
   status: Status;
+}
+
+export class TakeRouteDto {
+  @ApiProperty({ example: 1, required: true })
+  @IsNotEmpty({ message: 'companyId is required' })
+  @IsNumber({}, { message: 'companyId must be a number' })
+  companyId: number;
+
+  @ApiProperty({ example: 1, required: true })
+  @IsNotEmpty({ message: 'routeId is required' })
+  @IsNumber({}, { message: 'routeId must be a number' })
+  routeId: number;
+
+  @ApiProperty({ example: 1, required: true })
+  @IsNotEmpty({ message: 'truckId is required' })
+  @IsNumber({}, { message: 'truckId must be a number' })
+  truckId: number;
+
+  @ApiProperty({ example: 1, required: true })
+  @IsNotEmpty({ message: 'driverId is required' })
+  @IsNumber({}, { message: 'driverId must be a number' })
+  driverId: number;
 }

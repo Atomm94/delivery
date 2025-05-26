@@ -58,7 +58,6 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.emit(eventName, JSON.stringify({ message: `Processed ${eventName}` }));
   }
 
-
   removeDynamicEvent(eventName: string): void {
     console.log(`Event "${eventName}" has been removed.`);
   }

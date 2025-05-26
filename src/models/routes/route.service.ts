@@ -14,7 +14,7 @@ import { ProductType } from '../../common/enums/product-type.enum';
 import { RedisService } from '../../redis/redis.service';
 import { Driver } from '../../database/entities/driver.entity';
 import { Truck } from '../../database/entities/truck.entity';
-import { generateVerificationCode } from '../../utils/code-generator';
+import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
 
 @Injectable()
 export class RouteService {
@@ -36,8 +36,10 @@ export class RouteService {
 
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Driver>,
+
     @InjectRepository(Truck)
     private readonly truckRepository: Repository<Truck>,
     private readonly redisService: RedisService
@@ -93,7 +95,9 @@ export class RouteService {
     const saveRoute: any = await this.routeRepository.save(createRoute);
 
     for (const order of orders) {
-      order.verify_code = generateVerificationCode();
+      //TODO
+      //order.verify_code = generateVerificationCode();
+      order.verify_code = '123456';
       totalPrice += Number(order.price)
       order.route = saveRoute.id
       order.invoiceId = Number(order.invoiceId) || null
@@ -208,38 +212,25 @@ export class RouteService {
     return await this.getOne(routeId);
   }
   
-  async getDriverRoutes(driverId: number, radius: number, status: Status): Promise<Route[]> {
+  async getDriverRoutes(user: any, radius: number, status: Status): Promise<Route[]> {
+    let routes: any;
     const redisClient = this.redisService.getClient();
-    const driverLocation: any = await redisClient.get(driverId.toString());
+    const driverLocation: any = await redisClient.get(user.id.toString());
 
     if (!driverLocation) {
       throw new NotFoundException('Driver location is not found');
     }
     const parsedLocation: any = JSON.parse(driverLocation);
-    const searchRadius: number = radius * 1000 || 20 * 1000;
-    let routes: any[]
 
-    const trucks = await this.driverRepository.findOne({where: {id: driverId}, relations: ['trucks']});
+    const trucks: any = await this.driverRepository.findOne({where: {id: user.id}, relations: ['trucks']});
     if (!trucks) {
-      throw new NotFoundException(`Driver with ID ${driverId} not found or can't find trucks`);
+      throw new NotFoundException(`Driver with ID ${user.id} not found or can't find trucks`);
     }
+
+    const searchRadius: number = radius * 1000 || 20 * 1000;
     const truckTypes = trucks.trucks.map(truck => truck.type);
 
-    if (status === Status.IN_PROGRESS) {
-        routes = await this.routeRepository
-          .createQueryBuilder('route')
-          .where('route.status = :status')
-          .setParameters({ status: Status.IN_PROGRESS })
-          .innerJoinAndSelect('route.customer', 'customer')
-          .leftJoinAndSelect('route.truck', 'truck')
-          .leftJoinAndSelect('route.orders', 'order')
-          .leftJoinAndSelect('order.orderProducts', 'orderProduct')
-          .leftJoinAndSelect('orderProduct.product', 'product')
-          .leftJoinAndSelect('order.address', 'orderAddress')
-          .leftJoinAndSelect('route.loadAddresses', 'address')
-          .orderBy('route.start_time', 'ASC')
-          .getMany()
-    } else {
+    if (status === Status.INCOMING) {
       routes = await this.routeRepository
         .createQueryBuilder('route')
         .where('route.car_type IN (:...truckTypes) AND route.status = :status')
@@ -270,6 +261,20 @@ export class RouteService {
         })
         .orderBy('route.start_time', 'ASC')
         .getMany();
+    } else {
+      routes = await this.routeRepository
+        .createQueryBuilder('route')
+        .where('route.status = :status')
+        .setParameters({ status: Status.IN_PROGRESS })
+        .innerJoinAndSelect('route.customer', 'customer')
+        .leftJoinAndSelect('route.truck', 'truck')
+        .leftJoinAndSelect('route.orders', 'order')
+        .leftJoinAndSelect('order.orderProducts', 'orderProduct')
+        .leftJoinAndSelect('orderProduct.product', 'product')
+        .leftJoinAndSelect('order.address', 'orderAddress')
+        .leftJoinAndSelect('route.loadAddresses', 'address')
+        .orderBy('route.start_time', 'ASC')
+        .getMany()
     }
 
     routes.forEach(route => {
@@ -479,5 +484,79 @@ export class RouteService {
       .where('route.start_time >= :startOfMonth', { startOfMonth })
       .andWhere('route.start_time < :endOfMonth', { endOfMonth })
       .getCount();
+  }
+
+  async takeRoute(...data: any): Promise<any> {
+    const { driverId, truckId, routeId, customerId: number } = data;
+    const driver = await this.driverRepository.findOne({ where: { id: driverId, status: DriverStatusEnum.AVAILABLE as DriverStatusEnum } });
+
+    if (!driver) {
+      throw new NotFoundException('Driver is not found or is not available');
+    }
+
+    const truck: any = await this.truckRepository.createQueryBuilder('truck')
+      .where('truck.id = :truckId', { truckId })
+      .andWhere('truck.driverId = :driverId', { driverId })
+      .getOne();
+
+    if (!truck) {
+      throw new NotFoundException('Truck is not found or is not attached to this Driver');
+    }
+
+    let route = await this.routeRepository.findOne({ where: { id: routeId } });
+
+    if (!route) {
+      throw new NotFoundException('Route is not found');
+    }
+
+    await this.routeRepository.update(
+      { id: routeId },
+      { truck: { id: truckId }, status: Status.ON_HOLD as Status },
+    );
+
+    route = await this.routeRepository.findOne({
+      where: {
+        id: routeId,
+      },
+      relations: [
+        'orders',
+        'orders.address',
+        'orders.orderProducts.product',
+      ],
+    });
+
+    if (route && route.orders)
+    {
+      route.orders = route.orders.map(order => {
+        order.address.location = {
+          latitude: order.address.location.coordinates[0],
+          longitude: order.address.location.coordinates[1],
+        };
+        const products = order.orderProducts.map(orderProduct => {
+          return {
+            count: orderProduct.count,
+            price: orderProduct.price,
+            product: {
+              id: orderProduct.product.id,
+              name: orderProduct.product.name,
+              weight: orderProduct.product.weight,
+              length: orderProduct.product.length,
+              width: orderProduct.product.width,
+              height: orderProduct.product.height,
+              measure: orderProduct.product.measure,
+              type: orderProduct.product.type,
+            }
+          };
+        });
+
+        return {
+          ...order,
+          products,
+          orderProducts: undefined,
+        };
+      });
+    }
+
+    return { ...route, truck, driver: await this.driverRepository.findOne({ where: { id: driverId } }) };
   }
 }
