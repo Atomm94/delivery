@@ -1,9 +1,8 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CompanyMultipleDriverDto, CompleteCompanyDataDto, UpdateCompanyDataDto } from '../../common/DTOs/company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from '../../database/entities/company.entity';
-import { UserRole } from '../../common/enums/user-role.enum';
 import { AuthService } from '../auth/auth.service';
 import { Driver } from '../../database/entities/driver.entity';
 import {
@@ -38,12 +37,15 @@ export class CompaniesService {
       throw new NotFoundException('company user is not found');
     }
 
-    const saveDriversData = data.drivers.map((driverData) => {
-      return {
+
+    const saveDriversData = [];
+    for await (const driverData of data.drivers) {
+      driverData.password = await this.authService.hashPassword(driverData.password);
+      saveDriversData.push({
         ...driverData,
-        companyId
-      };
-    });
+        company: companyId,
+      });
+    }
 
     return await this.driverRepository.save(saveDriversData);
   }

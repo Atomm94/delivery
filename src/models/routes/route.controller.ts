@@ -58,7 +58,7 @@ export class RouteController {
       throw new BadRequestException(`Invalid status: ${status}`);
     }
 
-    return this.routeService.getDriverRoutes(user.id, radius, status);
+    return this.routeService.getDriverRoutes(user, radius, status);
   }
 
   /**

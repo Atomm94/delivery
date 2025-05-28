@@ -340,11 +340,6 @@ export class ChangeStatusDto {
 
 export class TakeRouteDto {
   @ApiProperty({ example: 1, required: true })
-  @IsNotEmpty({ message: 'companyId is required' })
-  @IsNumber({}, { message: 'companyId must be a number' })
-  companyId: number;
-
-  @ApiProperty({ example: 1, required: true })
   @IsNotEmpty({ message: 'routeId is required' })
   @IsNumber({}, { message: 'routeId must be a number' })
   routeId: number;

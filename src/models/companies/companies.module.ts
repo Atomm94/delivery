@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { CompaniesController } from './companies.controller';
 import { CompaniesService } from './companies.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -14,11 +14,18 @@ import { Address } from '../../database/entities/address.entity';
 import { Customer } from '../../database/entities/customer.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { RedisService } from '../../redis/redis.service';
+import { DriversService } from '../drivers/drivers.service';
+import { GeoGateway } from '../geo/geo.gateway';
+import { RouteModule } from '../routes/route.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck]),
+    AuthModule,
+    forwardRef(() => RouteModule)
+  ],
   controllers: [CompaniesController],
-  providers: [CompaniesService, RedisService, RouteService],
-  exports: [CompaniesService],
+  providers: [CompaniesService, DriversService, RedisService, RouteService, GeoGateway, Company],
+  exports: [CompaniesService, Company],
 })
-export class CompaniesModule {}
+export class CompaniesModule {
+}

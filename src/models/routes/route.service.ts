@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
+import { ChangeStatusDto, CreateRouteDto, TakeRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
 import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -15,6 +15,7 @@ import { RedisService } from '../../redis/redis.service';
 import { Driver } from '../../database/entities/driver.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
+import { Company } from '../../database/entities/company.entity';
 
 @Injectable()
 export class RouteService {
@@ -36,6 +37,9 @@ export class RouteService {
 
     @InjectRepository(Customer)
     private readonly customerRepository: Repository<Customer>,
+
+    @InjectRepository(Company)
+    private readonly companyRepository: Repository<Company>,
 
     @InjectRepository(Driver)
     private readonly driverRepository: Repository<Driver>,
@@ -265,7 +269,7 @@ export class RouteService {
       routes = await this.routeRepository
         .createQueryBuilder('route')
         .where('route.status = :status')
-        .setParameters({ status: Status.IN_PROGRESS })
+        .setParameters({ status })
         .innerJoinAndSelect('route.customer', 'customer')
         .leftJoinAndSelect('route.truck', 'truck')
         .leftJoinAndSelect('route.orders', 'order')
@@ -486,13 +490,37 @@ export class RouteService {
       .getCount();
   }
 
-  async takeRoute(...data: any): Promise<any> {
-    const { driverId, truckId, routeId, customerId: number } = data;
-    const driver = await this.driverRepository.findOne({ where: { id: driverId, status: DriverStatusEnum.AVAILABLE as DriverStatusEnum } });
+  async takeRoute(user: any, data: any): Promise<TakeRouteDto> {
+    let driverId: number;
+    switch (user.role) {
+      case 'courier':
+        const driver = await this.driverRepository.findOne({ where: { id: user.id, status: DriverStatusEnum.AVAILABLE as DriverStatusEnum } });
 
-    if (!driver) {
-      throw new NotFoundException('Driver is not found or is not available');
+        if (!driver) {
+          throw new NotFoundException('Driver is not found or is not available');
+        }
+        console.log(user.id);
+        driverId = user.id;
+        break;
+      case 'company':
+        const company = await this.companyRepository.findOne({ where: { id: user.id } });
+
+        if (!company) {
+          throw new NotFoundException('Company is not found');
+        }
+
+        driverId = data.driverId;
+
+        const companyDriver = await this.driverRepository.findOne({ where: { id: driverId, company: user.id} });
+
+        if (!companyDriver) {
+          throw new NotFoundException('Driver is not found or not created by this company');
+        }
+
+        break;
     }
+
+    const { truckId, routeId } = data;
 
     const truck: any = await this.truckRepository.createQueryBuilder('truck')
       .where('truck.id = :truckId', { truckId })
@@ -557,6 +585,6 @@ export class RouteService {
       });
     }
 
-    return { ...route, truck, driver: await this.driverRepository.findOne({ where: { id: driverId } }) };
+    return { ...route, ...truck, driver: await this.driverRepository.findOne({ where: { id: driverId } }) };
   }
 }

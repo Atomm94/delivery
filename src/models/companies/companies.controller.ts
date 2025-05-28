@@ -29,6 +29,7 @@ export class CompaniesController {
   }
 
   @Post('drivers')
+  @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: 'Register new drivers' })
   @ApiBody({ type: CompanyMultipleDriverDto })
   async createDrivers(
@@ -110,15 +111,15 @@ export class CompaniesController {
   @Post('take')
   @ApiOperation({ summary: 'connect route to driver' })
   @ApiBearerAuth('Authorization')
-  @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CompanyTakeRouteDto })
   async takeRoute(
     @Req() req,
     @Res() res,
     @Body() companyTakeRouteDto: CompanyTakeRouteDto,
   ) {
+    const { user } = req;
 
-    const route = await this.routeService.takeRoute(companyTakeRouteDto);
+    const route = await this.routeService.takeRoute(user, companyTakeRouteDto);
 
     return res.send({ route })
   }

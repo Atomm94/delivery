@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { RouteService } from './route.service';
 import { RouteController } from './route.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,9 +11,16 @@ import { OrderProduct } from '../../database/entities/orderProduct.entity';
 import { RedisService } from '../../redis/redis.service';
 import { Driver } from '../../database/entities/driver.entity';
 import { Truck } from '../../database/entities/truck.entity';
+import { Company } from '../../database/entities/company.entity';
+import { DriversModule } from '../drivers/drivers.module';
+import { CompaniesModule } from '../companies/companies.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Route, Customer, Order, Product, Address, OrderProduct, Driver, Truck])],
+  imports: [
+    TypeOrmModule.forFeature([Route, Customer, Company, Order, Product, Address, OrderProduct, Driver, Truck]),
+    forwardRef(() => DriversModule),
+    forwardRef(() => CompaniesModule),
+  ],
   providers: [RouteService, RedisService],
   exports: [RouteService],
   controllers: [RouteController]

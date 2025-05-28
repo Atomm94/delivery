@@ -37,6 +37,8 @@ import { Rate } from './database/entities/rate.entity';
 import { CompanyDriver } from './database/entities/company-driver.entity';
 import { CompaniesService } from './models/companies/companies.service';
 import { Order } from './database/entities/order.entity';
+import { DriversController } from './models/drivers/drivers.controller';
+import { CompaniesController } from './models/companies/companies.controller';
 
 
 initializeTransactionalContext();
@@ -85,8 +87,8 @@ initializeTransactionalContext();
       AddressModule,
       RouteModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController, DriversController, CompaniesController],
+    providers: [AppService, DriversService, CustomersService, CompaniesService, GeoGateway],
 })
 
 export class AppModule {

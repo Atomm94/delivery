@@ -264,4 +264,4 @@ export class DriverVerifyCode {
   verify_code: string;
 }
 
-export class DriverTakeRouteDto extends OmitType(TakeRouteDto, ['companyId'] as const){}
+export class DriverTakeRouteDto extends OmitType(TakeRouteDto, ['driverId'] as const){}

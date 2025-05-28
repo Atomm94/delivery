@@ -124,16 +124,15 @@ export class DriversController{
   @Post('take')
   @ApiOperation({ summary: 'connect driver to route' })
   @ApiBearerAuth('Authorization')
-  @ApiConsumes('multipart/form-data')
   @ApiBody({ type: DriverTakeRouteDto })
   async takeRoute(
     @Req() req,
     @Res() res,
     @Body() driverTakeRoute: DriverTakeRouteDto
   ) {
-    const { user: driver } = req;
+    const { user } = req;
 
-    const route = await this.routeService.takeRoute(driver.id, driverTakeRoute);
+    const route = await this.routeService.takeRoute(user, driverTakeRoute);
 
     return res.send({ route })
   }

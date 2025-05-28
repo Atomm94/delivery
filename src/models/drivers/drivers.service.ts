@@ -11,10 +11,8 @@ import {
 import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
 import { PaymentStatus, Status } from '../../common/enums/route.enum';
-import { Rate } from '../../database/entities/rate.entity';
 import { Truck } from '../../database/entities/truck.entity';
 import { GeoGateway } from '../geo/geo.gateway';
-import { CompanyDriver } from '../../database/entities/company-driver.entity';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
 import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
@@ -26,14 +24,10 @@ export class DriversService {
     constructor(
         @InjectRepository(Driver)
         private readonly driverRepository: Repository<Driver>,
-        @InjectRepository(CompanyDriver)
-        private readonly companyDriverRepository: Repository<CompanyDriver>,
         @InjectRepository(Route)
         private readonly routeRepository: Repository<Route>,
         @InjectRepository(Order)
         private readonly orderRepository: Repository<Order>,
-        @InjectRepository(Rate)
-        private readonly rateRepository: Repository<Rate>,
         @InjectRepository(Truck)
         private readonly truckRepository: Repository<Truck>,
         private readonly authService: AuthService,
@@ -64,14 +58,14 @@ export class DriversService {
             throw new ConflictException('phone number is already exists');
         }
 
-        const checkCompanyDriver = await this.companyDriverRepository.findOne({
-            where: { phone_number: driverData.phone_number }
-        });
-
-        if (checkCompanyDriver) {
-            const companyId: any = checkCompanyDriver.companyId
-            driverData.company = companyId
-        }
+        // const checkCompanyDriver = await this.companyDriverRepository.findOne({
+        //     where: { phone_number: driverData.phone_number }
+        // });
+        //
+        // if (checkCompanyDriver) {
+        //     const companyId: any = checkCompanyDriver.companyId
+        //     driverData.company = companyId
+        // }
 
         driverData.password = await this.authService.hashPassword(driverData.password);
 
