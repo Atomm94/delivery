@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Address } from '../../database/entities/address.entity';
-import { CreateAddressDto } from '../../common/DTOs/address.dto';
+import { CreateAddressDto, SearchNearDto } from '../../common/DTOs/address.dto';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { AddressType } from '../../common/enums/address-type.enum';
 import { RedisService } from '../../redis/redis.service';
+import { Driver } from '../../database/entities/driver.entity';
 
 @Injectable()
 export class AddressService {
@@ -13,6 +14,8 @@ export class AddressService {
     private readonly redisService: RedisService,
     @InjectRepository(Address)
     private readonly addressRepository: Repository<Address>,
+    @InjectRepository(Driver)
+    private readonly driverRepository: Repository<Driver>,
   ) {}
 
   async create(userId: number, role, createAddressDto: CreateAddressDto): Promise<any> {
@@ -118,21 +121,20 @@ export class AddressService {
     return await this.addressRepository.delete({ id: addressId });
   }
   
-  async findNearAddress(driverId: number): Promise<any> {
-    const redisClient = this.redisService.getClient();
-    const driverData = await redisClient.get(driverId.toString());
+  async findNearAddress(driverId: number, searchNearDto: SearchNearDto): Promise<any> {
+    const { lat, long, radius } = searchNearDto
 
-    if (!driverData) {
+    const driver = await this.driverRepository.findOne({
+      where: { id: driverId }
+    });
+
+    if (!driver) {
       throw new NotFoundException(`No data found for driverId: ${driverId}`);
     }
 
-    const { latitude, longitude } = JSON.parse(driverData);
-
-    if (!latitude || !longitude) {
+    if (!lat && !long) {
       throw new NotFoundException('Invalid location data for the driver');
     }
-
-    const radius = 10; // Radius in kilometers (can be parameterized if needed)
 
     const searchRadius = radius * 1000; // Convert to meters
     const addresses = await this.addressRepository
@@ -140,11 +142,11 @@ export class AddressService {
       .where(
         `
      ST_DistanceSphere(
-       ST_SetSRID(ST_Point(:longitude, :latitude), 4326),
+       ST_SetSRID(ST_Point(:lat, :long), 4326),
        address.location
      ) <= :searchRadius
      `,
-        { latitude, longitude, searchRadius },
+        { lat, long, searchRadius },
       )
       .getMany()
 

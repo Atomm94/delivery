@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsEnum, IsPostalCode, IsNumber } from 'class-validator';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { IsString, IsOptional, IsBoolean, IsEnum, IsPostalCode, IsNumber, IsNotEmpty } from 'class-validator';
 import { AddressType } from '../enums/address-type.enum';
+import { SearchByLocationDto, TakeRouteDto } from './route.dto';
 
 export class CreateAddressDto {
   @ApiProperty({
@@ -97,3 +98,5 @@ export class CreateAddressDto {
   @IsOptional()
   phone: string | null;
 }
+
+export class SearchNearDto extends OmitType(SearchByLocationDto, ['status'] as const){}

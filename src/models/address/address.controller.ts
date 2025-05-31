@@ -1,6 +1,6 @@
-import { Controller, Post, Get, Param, Body, Put, Req, HttpException, Delete, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, Put, Req, HttpException, Delete, HttpStatus, Query } from '@nestjs/common';
 import { AddressService } from './address.service';
-import { CreateAddressDto } from '../../common/DTOs/address.dto';
+import { CreateAddressDto, SearchNearDto } from '../../common/DTOs/address.dto';
 import { Address } from '../../database/entities/address.entity';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AddressType } from '../../common/enums/address-type.enum';
@@ -22,8 +22,9 @@ export class AddressController {
   async findNearby(
     @Req() req,  // Accessing the request object to get the customer
     @Param('driverId') driverId: number,
+    @Query() searchNearDto: SearchNearDto,
   ): Promise<Address> {
-    return await this.addressService.findNearAddress(driverId)  // Use customer ID from req.user
+    return await this.addressService.findNearAddress(driverId, searchNearDto)  // Use customer ID from req.user
   }
 
   // Create a new address for a customer
