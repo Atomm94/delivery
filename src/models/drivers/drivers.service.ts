@@ -16,6 +16,7 @@ import { GeoGateway } from '../geo/geo.gateway';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
 import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
+import { Socket } from 'socket.io';
 
 @Injectable()
 export class DriversService {
@@ -148,9 +149,7 @@ export class DriversService {
           { status: Status.IN_PROGRESS as Status },
         )
 
-        const eventName = `start:${driverId}`;
-
-        this.geoGateway.addDynamicEvent(eventName);
+        this.geoGateway.addDynamicEvent(driverId);
 
         return route;
     }

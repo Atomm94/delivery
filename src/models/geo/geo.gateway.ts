@@ -7,6 +7,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { RedisService } from '../../redis/redis.service';
 import { BadRequestException } from '@nestjs/common';
+import generateRoomDetails from '../../utils/generateSocketDetails';
 
 @WebSocketGateway({
   cors: {
@@ -30,8 +31,13 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
       console.log(JSON.stringify(`Client disconnected: ${reason}`));
     });
 
-    client.onAny(async (event: string, data: any) => {
-      console.log(`Received event: ${event} with data:`, data);
+    client.onAny(async (event: string, message: any) => {
+      if (event === 'newEvent') {
+        client.join(message.room);
+      }
+      if (!event.startsWith('event:')) return;
+      console.log(`Received event: ${event} with data:`, message);
+      const { room, data } = message;
 
       if (!data || !data.driverId || !data.location) {
         throw new BadRequestException('Invalid data: driverId and location are required.');
@@ -44,7 +50,7 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
       console.log('Data saved in Redis for driver:', data.driverId);
 
-      client.emit(event, data);
+      this.server.to(room).emit(event, data);
     });
   }
 
@@ -52,10 +58,12 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(JSON.stringify(`Client disconnected: ${client.id}`));
   }
 
-  addDynamicEvent(eventName: string): void {
-    console.log(`Registering dynamic event: ${eventName}`);
+  addDynamicEvent(driverId: number): void {
+    const data = generateRoomDetails(driverId);
 
-    this.server.emit(eventName, JSON.stringify({ message: `Processed ${eventName}` }));
+    console.log(`Registering dynamic event: ${data.event}`);
+
+    this.server.emit('newEvent', data);
   }
 
   removeDynamicEvent(eventName: string): void {
