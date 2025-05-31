@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RouteService } from './route.service';
-import { ChangeStatusDto, CreateRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
+import { ChangeStatusDto, CreateRouteDto, SearchByLocationDto, UpdateRouteDto } from '../../common/DTOs/route.dto'; // Assuming CreateRouteDto exists in the specified path
 import { Route } from '../../database/entities/route.entity';
 import { Status } from '../../common/enums/route.enum';
 
@@ -33,8 +33,7 @@ export class RouteController {
    * Retrieves all routes based on the order ID and user details.
    *
    * @param {Request} req The request object containing user information.
-   * @param status
-   * @param radius
+   * @param query
    * @return {Promise<Route[]>} A promise that resolves to an array of Route objects.
    */
   @Get('driver')
@@ -49,16 +48,16 @@ export class RouteController {
   })
   async getDriverRoutes(
     @Req() req,
-    @Query('status') status: Status,
-    @Query('radius') radius: number = 20
+    @Query() query: SearchByLocationDto
   ): Promise<Route[]> {
     const { user } = req;
+    const { status } = query;
 
     if (!Object.values(Status).includes(status)) {
       throw new BadRequestException(`Invalid status: ${status}`);
     }
 
-    return this.routeService.getDriverRoutes(user, radius, status);
+    return this.routeService.getDriverRoutes(user, query);
   }
 
   /**

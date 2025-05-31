@@ -1,7 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ChangeStatusDto, CreateRouteDto, TakeRouteDto, UpdateRouteDto } from '../../common/DTOs/route.dto';
+import {
+  ChangeStatusDto,
+  CreateRouteDto,
+  SearchByLocationDto,
+  TakeRouteDto,
+  UpdateRouteDto,
+} from '../../common/DTOs/route.dto';
 import { Route } from '../../database/entities/route.entity';
 import { Order } from '../../database/entities/order.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
@@ -45,8 +51,7 @@ export class RouteService {
     private readonly driverRepository: Repository<Driver>,
 
     @InjectRepository(Truck)
-    private readonly truckRepository: Repository<Truck>,
-    private readonly redisService: RedisService
+    private readonly truckRepository: Repository<Truck>
   ) {}
 
 
@@ -216,15 +221,9 @@ export class RouteService {
     return await this.getOne(routeId);
   }
   
-  async getDriverRoutes(user: any, radius: number, status: Status): Promise<Route[]> {
+  async getDriverRoutes(user: any, query: SearchByLocationDto): Promise<Route[]> {
     let routes: any;
-    const redisClient = this.redisService.getClient();
-    const driverLocation: any = await redisClient.get(user.id.toString());
-
-    if (!driverLocation) {
-      throw new NotFoundException('Driver location is not found');
-    }
-    const parsedLocation: any = JSON.parse(driverLocation);
+    const { lat, long, radius, status } = query;
 
     const trucks: any = await this.driverRepository.findOne({where: {id: user.id}, relations: ['trucks']});
     if (!trucks) {
@@ -256,8 +255,8 @@ export class RouteService {
               `ST_DWithin(addr.location::geography, ST_SetSRID(ST_MakePoint(:lat, :lng)::geography, 4326), :radius)`,
             )
             .setParameters({
-              lat: parsedLocation.lat,
-              lng: parsedLocation.lng,
+              lat: lat,
+              lng: long,
               radius: searchRadius,
             })
             .getQuery();

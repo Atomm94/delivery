@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { PaymentStatus, Porter, Status } from '../enums/route.enum';
 import { CreateProductDto } from './product.dto';
-
+import { Transform } from 'class-transformer';
 
 export class OrderProductDto {
   count: number;
@@ -353,4 +353,44 @@ export class TakeRouteDto {
   @IsNotEmpty({ message: 'driverId is required' })
   @IsNumber({}, { message: 'driverId must be a number' })
   driverId: number;
+}
+
+export class SearchByLocationDto {
+  @ApiProperty({
+    description: 'The status of the route',
+    enum: Status,
+    default: Status.INCOMING,
+    example: Status.IN_PROGRESS,
+  })
+  @IsNotEmpty()
+  status: Status;
+
+  @ApiProperty({
+    description: 'Search radius in kilometers',
+    type: Number,
+    default: 20,
+    example: 20,
+  })
+  @IsNumber()
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  radius: number = 20;
+
+  @ApiProperty({
+    description: 'Latitude of the location',
+    type: Number,
+    example: 40.712776,
+  })
+  @IsNumber()
+  @Transform(({ value }) => parseFloat(value))
+  lat: number;
+
+  @ApiProperty({
+    description: 'Longitude of the location',
+    type: Number,
+    example: -74.005974,
+  })
+  @IsNumber()
+  @Transform(({ value }) => parseFloat(value))
+  long: number;
 }
