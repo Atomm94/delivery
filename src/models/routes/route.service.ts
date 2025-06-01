@@ -222,7 +222,7 @@ export class RouteService {
   }
   
   async getDriverRoutes(user: any, query: SearchByLocationDto): Promise<Route[]> {
-    let routes: any;
+    let routes: any, pgQuery: any, pgParams: any;
     const { lat, long, radius, status } = query;
 
     const trucks: any = await this.driverRepository.findOne({where: {id: user.id}, relations: ['trucks']});
@@ -234,10 +234,17 @@ export class RouteService {
     const truckTypes = trucks.trucks.map(truck => truck.type);
 
     if (status === Status.INCOMING) {
+      if (!truckTypes.length) {
+        pgQuery = 'route.status = :status';
+        pgParams = { status };
+      } else {
+        pgQuery = 'route.car_type IN (:...truckTypes) AND route.status = :status';
+        pgParams = { truckTypes, status };
+      }
       routes = await this.routeRepository
         .createQueryBuilder('route')
-        .where('route.car_type IN (:...truckTypes) AND route.status = :status')
-        .setParameters({ truckTypes, status })
+        .where(pgQuery)
+        .setParameters(pgParams)
         .innerJoinAndSelect('route.customer', 'customer')
         .leftJoinAndSelect('route.truck', 'truck')
         .leftJoinAndSelect('route.orders', 'order')
