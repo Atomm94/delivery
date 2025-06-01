@@ -382,6 +382,7 @@ export class SearchByLocationDto {
     example: 40.712776,
   })
   @IsNumber()
+  @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   lat: number;
 
@@ -391,6 +392,7 @@ export class SearchByLocationDto {
     example: -74.005974,
   })
   @IsNumber()
+  @IsOptional()
   @Transform(({ value }) => parseFloat(value))
   long: number;
 }

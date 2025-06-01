@@ -318,6 +318,7 @@ export class RouteService {
           return {
             ...order,
             products,
+            driverId: user.id,
             orderProducts: undefined,
           };
         });
