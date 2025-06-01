@@ -368,31 +368,33 @@ export class SearchByLocationDto {
   @ApiProperty({
     description: 'Search radius in kilometers',
     type: Number,
-    default: 20,
     example: 20,
+    required: false
   })
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   @Transform(({ value }) => parseInt(value))
-  radius: number = 20;
+  radius?: number;
 
   @ApiProperty({
     description: 'Latitude of the location',
     type: Number,
     example: 40.712776,
+    required: false
   })
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   @Transform(({ value }) => parseFloat(value))
-  lat: number;
+  lat?: number;
 
   @ApiProperty({
     description: 'Longitude of the location',
     type: Number,
     example: -74.005974,
+    required: false
   })
-  @IsNumber()
   @IsOptional()
+  @IsNumber()
   @Transform(({ value }) => parseFloat(value))
-  long: number;
+  long?: number;
 }

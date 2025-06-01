@@ -225,6 +225,8 @@ export class RouteService {
     let routes: any;
     const { lat, long, radius, status } = query;
 
+    console.log(query);
+
     const trucks: any = await this.driverRepository.findOne({where: {id: user.id}, relations: ['trucks']});
     if (!trucks) {
       throw new NotFoundException(`Driver with ID ${user.id} not found or can't find trucks`);
@@ -318,8 +320,8 @@ export class RouteService {
           return {
             ...order,
             products,
-            driverId: user.id,
             orderProducts: undefined,
+            driverId: user.id,
           };
         });
       }
