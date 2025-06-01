@@ -35,8 +35,8 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     const redisClient = await this.redisService.getClient();
-    const redisKey = data.driverId.toString();
-    await redisClient.set(redisKey, JSON.stringify(data.location));
+    const redisKey = `${client.id}`;
+    await redisClient.set(redisKey, JSON.stringify(data));
 
     console.log('Data saved in Redis for driver:', data.driverId);
 
@@ -71,7 +71,10 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  handleDisconnect(client: Socket): void {
+  async handleDisconnect(client: Socket) {
+    const redisClient = await this.redisService.getClient();
+    const redisKey = `${client.id}`;
+    await redisClient.del(redisKey);
     console.log(JSON.stringify(`Client disconnected: ${client.id}`));
   }
 }

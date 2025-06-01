@@ -170,7 +170,6 @@ export class DriversService {
             throw new NotFoundException('Order is not found');
         }
 
-
         // TODO
         // await this.sendCode(order.route.customer.phone_number, order.verify_code);
 
