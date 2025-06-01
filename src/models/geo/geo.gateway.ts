@@ -3,6 +3,9 @@ import {
   OnGatewayDisconnect,
   WebSocketGateway,
   WebSocketServer,
+  ConnectedSocket,
+  SubscribeMessage,
+  MessageBody
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RedisService } from '../../redis/redis.service';
@@ -25,7 +28,8 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private readonly redisService: RedisService,
   ) {}
 
-  private async handleLocationUpdate(event: string, data: any, client: Socket): Promise<void> {
+  private async handleLocationUpdate(event: string, message: any, client: Socket): Promise<void> {
+    const { room, data } = message;
     if (!data || !data.driverId || !data.location) {
       throw new BadRequestException('Invalid data: driverId and location are required.');
     }
@@ -36,11 +40,18 @@ export class GeoGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     console.log('Data saved in Redis for driver:', data.driverId);
 
-    const room = roomNameGenerator(data.driverId);
-    client.join(room);
-    console.log('join room:', data.driverId);
-
     this.server.to(room).emit(event, data);
+  }
+
+  @SubscribeMessage('room')
+  handleJoinRoom(
+    @MessageBody() driverId: number,
+    @ConnectedSocket() client: Socket,
+  ) {
+    const room = roomNameGenerator(driverId);
+    client.join(room);
+    console.log('join room:', driverId);
+    this.server.to(room).emit('room', 'you are connected to room: ' + room + '');
   }
 
   handleConnection(client: Socket): void {

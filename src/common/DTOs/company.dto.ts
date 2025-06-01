@@ -1,4 +1,3 @@
-// import { IntersectionType } from '@nestjs/mapped-types';
 import { ApiProperty, IntersectionType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -14,8 +13,6 @@ import {
 } from 'class-validator';
 import { CompleteDriverDataDto, DriversSignUpDto } from './driver.dto';
 import { TakeRouteDto } from './route.dto';
-import { TruckCondition } from '../enums/truck-condition.enum';
-import { TruckDataDto } from './truck.dto';
 
 export class CompanySignUpDto {
   @ApiProperty({

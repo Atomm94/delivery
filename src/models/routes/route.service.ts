@@ -498,7 +498,6 @@ export class RouteService {
         if (!driver) {
           throw new NotFoundException('Driver is not found or is not available');
         }
-        console.log(user.id);
         driverId = user.id;
         break;
       case 'company':
