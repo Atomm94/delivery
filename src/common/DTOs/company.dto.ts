@@ -1,4 +1,4 @@
-import { ApiProperty, IntersectionType } from '@nestjs/swagger';
+import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEmail,
@@ -13,6 +13,8 @@ import {
 } from 'class-validator';
 import { CompleteDriverDataDto, DriversSignUpDto } from './driver.dto';
 import { TakeRouteDto } from './route.dto';
+import { TruckCondition } from '../enums/truck-condition.enum';
+import { TruckDataDto } from './truck.dto';
 
 export class CompanySignUpDto {
   @ApiProperty({
@@ -161,9 +163,13 @@ export class UpdateCompanyDataDto {
   password?: string;
 }
 
+class CompanyDriverCompleteDto extends OmitType(CompleteDriverDataDto, ['identity, op_state, op_cities'] as const) {}
+
+
+
 class CompanyDriverDto extends IntersectionType(
   DriversSignUpDto,
-  CompleteDriverDataDto
+  CompanyDriverCompleteDto
 ) {}
 
 export class CompanyMultipleDriverDto {
@@ -178,9 +184,6 @@ export class CompanyMultipleDriverDto {
       password: 'Password123',
       social_number: '123-45-6789',
       license: 'license.jpg',
-      identity: 'identity.jpg',
-      op_state: 'California',
-      op_cities: ['Los Angeles', 'San Francisco'],
       porter: true,
       second_porter: false,
       third_porter: false,
@@ -195,3 +198,34 @@ export class CompanyMultipleDriverDto {
 }
 
 export class CompanyTakeRouteDto extends TakeRouteDto{}
+
+export class CompanyTrucksDto extends OmitType(TruckDataDto, ['insurance_files'] as const) {}
+
+export class CompanyMultipleTrucksDto {
+  @ApiProperty({
+    type: [CompanyTrucksDto],
+    description: 'An array of truck data',
+    example: [
+      {
+        mark: 'Ford',
+        model: 'F-150',
+        year: '2021',
+        vin_code: '1FTEW1E59MFA12345',
+        license_plate_number: 'ABC1234',
+        max_capacity: '10000 lbs',
+        length: '20 ft',
+        width: '8 ft',
+        height: '10 ft',
+        type: 'Pickup',
+        condition: TruckCondition.GOOD,
+        vehicle_title: ['Title1', 'Title2'],
+        insurance_photos: ['insurance1.jpg', 'insurance2.jpg'],
+        photos: ['photo1.jpg', 'photo2.jpg'],
+      },
+    ],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TruckDataDto)
+  trucks: TruckDataDto[];
+}

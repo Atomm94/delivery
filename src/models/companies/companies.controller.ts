@@ -20,13 +20,13 @@ export class CompaniesController {
     private readonly routeService: RouteService,
   ) {}
 
-  @Post('signUp')
-  @ApiConsumes('application/json')
-  async signUp(@Req() req, @Res() res, @Body() signUpDto: CompanySignUpDto) {
-    const data = await this.companiesService.create(signUpDto);
-
-    return res.json({ message: 'Signed Up', data: { data } });
-  }
+  // @Post('signUp')
+  // @ApiConsumes('application/json')
+  // async signUp(@Req() req, @Res() res, @Body() signUpDto: CompanySignUpDto) {
+  //   const data = await this.companiesService.create(signUpDto);
+  //
+  //   return res.json({ message: 'Signed Up', data: { data } });
+  // }
 
   @Post('drivers')
   @ApiBearerAuth('Authorization')
@@ -40,8 +40,7 @@ export class CompaniesController {
     return await this.companiesService.createCompanyDrivers(company.id, companyMultipleDriverDto);
   }
 
-  @Put('complete')
-  @ApiBearerAuth('Authorization')
+  @Post('complete')
   @ApiConsumes('multipart/form-data')
   @UseInterceptors(FilesInterceptor)
   @ApiBody({ type: CompleteCompanyDataDto })
@@ -58,9 +57,7 @@ export class CompaniesController {
         })
       }
 
-      const { user: company } = req;
-
-      const data = await this.companiesService.complete(company.id, completeDataDto);
+      const data = await this.companiesService.complete(completeDataDto);
 
       return res.json({ message: 'Successfully completed', data });
     } catch (error) {

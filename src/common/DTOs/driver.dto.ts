@@ -70,7 +70,7 @@ export class CompleteDriverDataDto {
   @IsOptional()
   @IsString({ message: 'License must be a string' })
   license?: string;
-
+///////////////////////////////////////////////////////////////////////
   @ApiProperty({
     type: 'string',
     format: 'binary',
@@ -97,7 +97,7 @@ export class CompleteDriverDataDto {
   @IsArray({ message: 'Operational cities must be an array' })
   @IsString({ each: true, message: 'Each city in operations cities must be a string' })
   op_cities?: string[];
-
+/////////////////////////////////////////////////////////////
   @ApiProperty({
     type: Boolean,
     description: 'A boolean number value',

@@ -51,7 +51,23 @@ export class CompaniesService {
   }
 
 
-  async create(companyData: Partial<Company>): Promise<Company> {
+  // async create(companyData: Partial<Company>): Promise<Company> {
+  //   const company = await this.companyRepository.findOne({
+  //     where: { phone_number: companyData.phone_number }
+  //   });
+  //
+  //   if (company) {
+  //     throw new ConflictException('phone number is already exists');
+  //   }
+  //
+  //   companyData.password = await this.authService.hashPassword(companyData.password);
+  //
+  //   return await this.companyRepository.save(companyData);
+  // }
+
+  async complete(completeDataDto: CompleteCompanyDataDto): Promise<Company> {
+    const companyData: any = completeDtoToPartialCompanyEntity(completeDataDto);
+
     const company = await this.companyRepository.findOne({
       where: { phone_number: companyData.phone_number }
     });
@@ -63,23 +79,6 @@ export class CompaniesService {
     companyData.password = await this.authService.hashPassword(companyData.password);
 
     return await this.companyRepository.save(companyData);
-  }
-
-  async complete(id: number, completeDataDto: CompleteCompanyDataDto): Promise<Company> {
-    const updateData: any = completeDtoToPartialCompanyEntity(completeDataDto);
-
-    const { affected } = await this.companyRepository
-      .createQueryBuilder()
-      .update(Company)
-      .set(updateData)
-      .where("id = :id", { id })
-      .execute();
-
-    if (!affected) {
-      throw new NotFoundException('Company not found');
-    }
-
-    return await this.companyRepository.findOneBy({ id });
   }
 
   async update(id: number, updateDataDto: UpdateCompanyDataDto): Promise<Company> {
@@ -98,6 +97,4 @@ export class CompaniesService {
 
     return await this.companyRepository.findOneBy({ id });
   }
-
-
 }
