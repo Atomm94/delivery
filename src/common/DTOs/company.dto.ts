@@ -163,7 +163,7 @@ export class UpdateCompanyDataDto {
   password?: string;
 }
 
-class CompanyDriverCompleteDto extends OmitType(CompleteDriverDataDto, ['identity, op_state, op_cities'] as const) {}
+class CompanyDriverCompleteDto extends OmitType(CompleteDriverDataDto, ['identity', 'op_state', 'op_cities'] as const) {}
 
 
 
