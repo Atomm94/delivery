@@ -28,6 +28,26 @@ export class CompaniesController {
   //   return res.json({ message: 'Signed Up', data: { data } });
   // }
 
+  @Post('signUp')
+  @ApiBody({ type: CompleteCompanyDataDto })
+  async complete(
+    @Req() req,
+    @Res() res,
+    @Body() completeDataDto: CompleteCompanyDataDto,
+  ) {
+    try {
+      const data = await this.companiesService.complete(completeDataDto);
+
+      return res.json({ message: 'Successfully completed', data });
+    } catch (error) {
+      return res.status(404).json({
+        statusCode: 404,
+        timestamp: new Date().toISOString(),
+        message: error.message,
+      })
+    }
+  }
+
   @Post('drivers')
   @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: 'Register new drivers' })
@@ -38,37 +58,6 @@ export class CompaniesController {
   ): Promise<any> {
     const { user: company } = req;
     return await this.companiesService.createCompanyDrivers(company.id, companyMultipleDriverDto);
-  }
-
-  @Post('complete')
-  @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FilesInterceptor)
-  @ApiBody({ type: CompleteCompanyDataDto })
-  async complete(
-    @Req() req,
-    @Res() res,
-    @Body() completeDataDto: CompleteCompanyDataDto,
-    @UploadedFiles() files: any,
-  ) {
-    try {
-      if (files) {
-        Object.entries(files).forEach(([key, value]) => {
-          completeDataDto[value['fieldname']] = getFileUrl(value['filename'] as string);
-        })
-      }
-
-      const data = await this.companiesService.complete(completeDataDto);
-
-      return res.json({ message: 'Successfully completed', data });
-    } catch (error) {
-      await removeFiles(files)
-
-      return res.status(404).json({
-        statusCode: 404,
-        timestamp: new Date().toISOString(),
-        message: error.message,
-      })
-    }
   }
 
   @Put()
