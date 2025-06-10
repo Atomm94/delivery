@@ -355,6 +355,7 @@ export class RouteService {
       .leftJoinAndSelect('order.address', 'address')
       .leftJoinAndSelect('route.loadAddresses', 'Address')
       .leftJoinAndSelect('route.truck', 'truck')
+      .leftJoinAndSelect('truck.driverId', 'driverId')
       .orderBy('route.start_time', 'ASC')
       .getMany();
 
