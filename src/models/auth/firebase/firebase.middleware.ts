@@ -1,36 +1,27 @@
-import serviceAccount from "../configs";
-import * as admin from "firebase-admin";
 import { Request } from "express";
 import {Injectable, NestMiddleware, Response, Next} from "@nestjs/common";
+import { FirebaseService } from './firebase.service';
 
 Injectable()
 export class FirebaseMiddleware implements NestMiddleware {
-    private deliveryApp: any;
+    constructor(
+      private readonly firebaseService: FirebaseService,
+    ) {}
 
-    constructor() {
-        let authCredentials = {};
-        Object.assign(authCredentials, serviceAccount);
-
-        this.deliveryApp = admin.initializeApp({
-            credential: admin.credential.cert(authCredentials)
-        })
-    }
-
-    use(req: Request, @Response() res, @Next() next) {
+    async use(req: Request, @Response() res, @Next() next) {
         const token = req.headers.authorization;
 
         if (!token) {
             return this.accessDenied(req.url, res);
         }
 
-        this.deliveryApp.auth().verifyIdToken(token.replace('Bearer ', ''))
-            .then(async decodedToken => {
+        const decodedToken = await this.firebaseService.auth(token)
 
-                next();
-            })
-            .catch((error) => {
-                return this.accessDenied(req.url, res);
-            });
+        if (!decodedToken) {
+            return this.accessDenied(req.url, res);
+        }
+
+        next()
     }
 
     private accessDenied(url: string, @Response() res) {

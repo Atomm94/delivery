@@ -54,7 +54,7 @@
     "sequelize-typescript": "^2.1.6",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
-    "stripe": "^17.2.1",
+    "stripe": "^17.7.0",
     "swagger-ui-express": "^5.0.1",
     "twilio": "^5.6.1",
     "typeorm": "^0.3.20",

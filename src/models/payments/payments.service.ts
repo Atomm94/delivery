@@ -1,140 +1,100 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Card } from '../../database/entities/card.entity';
 import { Repository } from 'typeorm';
+import Stripe from 'stripe';
 import { Customer } from '../../database/entities/customer.entity';
-import { CardDto } from '../../common/DTOs/card.dto';
-// import { Payment } from '../database/entities/payment.entity';
-// import { InjectRepository } from '@nestjs/typeorm';
-// import { Driver } from '../database/entities/driver.entity';
-// import { Repository } from 'typeorm';
-// import Stripe from 'stripe';
+import { Route } from '../../database/entities/route.entity';
+import { Transaction } from '../../database/entities/transaction.entity';
+import { PaymentStatus } from '../../common/enums/route.enum';
 
-//
 @Injectable()
 export class PaymentsService {
+  private stripe: Stripe;
+
   constructor(
-    @InjectRepository(Card)
-    private readonly cardRepository: Repository<Card>,
-  ) {}
-//   public readonly stripe: Stripe;
-//
-//   constructor(
-//     @InjectRepository(Driver)
-//     private readonly driverRepository: Repository<Driver>,
-//     @InjectRepository(Payment)
-//     private readonly paymentRepository: Repository<Payment>,
-//   ) {
-//     this.stripe = new Stripe(this.process.env.STRIPE_SECRET_KEY);
-//   }
-//
-//   async getUsers(phone_number: string): Promise<any> {
-//     return this.stripe.customers.list({ phone_number });
-//   }
-//
-//   async getPaymentMethods(userId: string): Promise<any> {
-//     return this.stripe.paymentMethods.list({
-//       user: userId,
-//       type: 'card',
-//     });
-//   }
-//
-//   async getUser(phone_number: string): Promise<any> {
-//     const user = await this.getUsers(phone_number)
-//
-//     if (!user.data.length) {
-//       return await this.stripe.customers.create({ phone_number });
-//     }
-//
-//     return user.data[0];
-//   }
-//
-//   async saveCard(paymentMethodId: string, userId: string): Promise<any> {
-//     await this.stripe.paymentMethods.attach(paymentMethodId, { user: userId });
-//
-//     return await this.stripe.customers.update(userId, {
-//       invoice_settings: {
-//         default_payment_method: paymentMethodId,
-//       },
-//     });
-//   }
-//
-//   async checkout(userId: string, orderId: number, price: number): Promise<any> {
-//     const session = await this.stripe.checkout.sessions.create({
-//       payment_method_types: ['card'],
-//       customer: userId,
-//       line_items: [
-//         {
-//           price_data: {
-//             currency: 'usd',
-//             product_data: {
-//               order: orderId,
-//             },
-//             unit_amount: price, // Amount in cents ex` 2000
-//           },
-//           quantity: 1,
-//         },
-//       ],
-//       mode: 'payment',
-//       success_url: 'http://localhost:3000/success',
-//       cancel_url: 'http://localhost:3000/cancel',
-//     });
-//
-//     // Save session ID and customer ID to the database
-//     const checkoutSession = this.paymentRepository.create({
-//       sessionId: session.id,
-//       createdAt: new Date(),
-//       paymentStatus: 'success', // Initial status
-//       userId,
-//     });
-//
-//     await this.paymentRepository.save(checkoutSession);
-//
-//     return session.id;
-//   }
-//
-//   async setDefault(userId: string, paymentMethodId: string): Promise<any> {
-//     return await this.stripe.customers.update(userId, {
-//       invoice_settings: {
-//         default_payment_method: paymentMethodId,
-//       },
-//     });
-//   }
-//
+    @InjectRepository(Customer)
+    private customerRepository: Repository<Customer>,
 
-  // Create a new card
-  async create(customer: number, cardDto: CardDto): Promise<any> {
-    const createCard: any = { customer, ...cardDto };
-    const card = this.cardRepository.create(createCard);
-    return await this.cardRepository.save(card);
+    @InjectRepository(Route)
+    private routeRepository: Repository<Route>,
+
+    @InjectRepository(Transaction)
+    private transactionRepository: Repository<Transaction>,
+  ) {
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: '2025-05-28.basil' as any,
+    });
   }
 
-  // Get all cards
-  async getAll(customerId: number): Promise<Card[]> {
-    return await this.cardRepository
-      .createQueryBuilder('card')
-      .andWhere('card.customerId = :customerId', { customerId })
-      .getMany();
+  async createCheckoutSession(customerId: number, routeId: number, price: number) {
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+    if (!customer) throw new NotFoundException('Customer not found');
+
+    const route = await this.routeRepository.findOne({ where: { id: routeId } });
+    if (!route) throw new NotFoundException('Route not found');
+
+    const session = await this.stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: price * 100, // cents
+          },
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        customerId,
+        routeId,
+      },
+      success_url: `${process.env.HOSTING}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.HOSTING}/cancel`,
+    });
+
+    return { url: session.url };
   }
 
-  // Get a card by ID
-  async getOne(id: number): Promise<Card> {
-    const card = await this.cardRepository.findOne({ where: { id }, relations: ['customer'] });
-    if (!card) {
-      throw new NotFoundException(`Card with ID ${id} not found`);
+  async handleCheckoutWebhook(event: Stripe.Event) {
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const customerId = session.metadata?.customerId;
+      const routeId = session.metadata?.routeId;
+
+      const customer = await this.customerRepository.findOne({ where: { id: Number(customerId) } });
+      const route = await this.routeRepository.findOne({ where: { id: Number(routeId) } });
+
+      if (!customer || !route) return;
+
+      const transaction = new Transaction();
+      transaction.stripeSessionId = session.id;
+      transaction.amount = session.amount_total!;
+      transaction.currency = session.currency!;
+      transaction.status = session.payment_status;
+      transaction.createdAt = new Date();
+      transaction.customer = customer;
+      transaction.route = route;
+
+      await this.transactionRepository.save(transaction);
+
+      route.payment = PaymentStatus.PAYED
+
+      await this.routeRepository.save(route)
     }
-    return card;
   }
 
-  // Update a card
-  async updateCard(id: number, updateCardDto: CardDto): Promise<Card> {
-    const card = await this.getOne(id); // Check if the card exists
+  async getCustomerTransactions(customerId: number) {
+    return this.transactionRepository.find({
+      where: { customer: { id: customerId } },
+      relations: ['route'],
+    });
+  }
 
-    if (!card) {
-      throw new NotFoundException(`Card is not found`);
-    }
-
-    await this.cardRepository.update(id, updateCardDto);
-    return await this.getOne(id); // Return the updated card
+  async getRouteTransactions(routeId: number) {
+    return this.transactionRepository.find({
+      where: { route: { id: routeId } },
+      relations: ['customer'],
+    });
   }
 }

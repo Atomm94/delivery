@@ -18,7 +18,6 @@ import { Customer } from './database/entities/customer.entity';
 import { Company } from './database/entities/company.entity';
 import { JwtMiddleware } from './models/auth/jwt/jwt.middleware';
 import { MulterModule } from '@nestjs/platform-express';
-import { FilesInterceptor } from './interceptors/files.interceptor';
 import { TrucksModule } from './models/trucks/trucks.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';

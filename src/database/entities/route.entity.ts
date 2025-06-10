@@ -11,9 +11,9 @@ import {
 import { PaymentStatus, Porter, Status } from '../../common/enums/route.enum';
 import { Order } from './order.entity';
 import { Customer } from './customer.entity';
-import { Driver } from './driver.entity';
 import { Address } from './address.entity';
 import { Truck } from './truck.entity';
+import { Transaction } from './transaction.entity';
 
 @Entity()
 export class Route {
@@ -69,4 +69,7 @@ export class Route {
   @ManyToOne(() => Truck, (truck) => truck.routes, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'truckId' })
   truck: Truck | null;
+
+  @OneToMany(() => Transaction, transaction => transaction.route)
+  transactions: Transaction[];
 }

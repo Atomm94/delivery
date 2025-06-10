@@ -1,4 +1,4 @@
-import { ApiProperty, IntersectionType, OmitType } from '@nestjs/swagger';
+import { ApiProperty, IntersectionType, OmitType, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsEmail,
@@ -141,27 +141,7 @@ export class CompleteCompanyDataDto {
   contact_person_info?: ContactInfoDto;
 }
 
-export class UpdateCompanyDataDto {
-  @ApiProperty({
-    example: 'Poll'
-  })
-  @IsOptional()
-  @IsString({ message: 'name must be a string' })
-  name?: string;
-
-  @ApiProperty({ description: 'Email address', example: 'user@example.com' })
-  @IsNotEmpty({ message: 'email is required' })
-  @IsEmail({}, { message: 'Invalid email format' })
-  email?: string;
-
-  @ApiProperty({
-    example: 'pol123#'
-  })
-  @IsOptional()
-  @IsString({ message: 'password must be a string' })
-  @MinLength(6, { message: 'password must be at least 6 characters long' })
-  password?: string;
-}
+export class UpdateCompanyDataDto  extends PartialType(CompleteCompanyDataDto) {}
 
 class CompanyDriverCompleteDto extends OmitType(CompleteDriverDataDto, ['identity', 'op_state', 'op_cities'] as const) {}
 

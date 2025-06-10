@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as fs from 'fs';
 import { join } from 'path';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as bodyParser from 'body-parser';
 import * as path from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
@@ -41,6 +42,11 @@ async function bootstrap() {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
   }
+
+  app.use(
+    '/payments/webhook',
+    bodyParser.raw({ type: 'application/json' }),
+  );
 
   await app.listen(3000);
 }
