@@ -355,13 +355,14 @@ export class RouteService {
       .leftJoinAndSelect('order.address', 'address')
       .leftJoinAndSelect('route.loadAddresses', 'Address')
       .leftJoinAndSelect('route.truck', 'truck')
-      .leftJoinAndSelect('truck.driverId', 'driverId')
+      .leftJoinAndSelect('truck.driver', 'driver')
       .orderBy('route.start_time', 'ASC')
       .getMany();
 
     routes.forEach(route => {
       if (route.truck) {
         route['truckId'] = route.truck.id;
+        route['driverId'] = route.truck.driver.id;
         route.truck = undefined;
       }
 
