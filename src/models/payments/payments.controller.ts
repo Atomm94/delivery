@@ -1,12 +1,14 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   Req,
   Headers,
   HttpCode,
   BadRequestException,
-  ParseIntPipe
+  ParseIntPipe,
+  Query
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { Request } from 'express';
@@ -21,50 +23,32 @@ export class PaymentsController {
   // 🎯 Create Checkout Session
   @ApiBearerAuth('Authorization')
   @Post('create-checkout')
-  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       properties: {
         customerId: { type: 'integer', example: 1 },
         routeId: { type: 'integer', example: 1 },
         price: { type: 'integer', example: 1000 },
+        paymentMethodId: { type: 'string' },
       },
     },
   })
-  async createCheckout(@Body('customerId', ParseIntPipe) customerId: number, @Body('routeId', ParseIntPipe) routeId: number, @Body('price', ParseIntPipe) price: number) {
+  async createCheckout(
+    @Body('customerId', ParseIntPipe) customerId: number,
+    @Body('routeId', ParseIntPipe) routeId: number,
+    @Body('price', ParseIntPipe) price: number,
+    @Body('paymentMethodId') paymentMethodId: string
+  ) {
     if (!customerId || !routeId || !price) {
       throw new BadRequestException('Missing required fields');
     }
 
-    return await this.paymentsService.createCheckoutSession(customerId, routeId, price);
+    return await this.paymentsService.createPaymentWithPaymentMethod(customerId, routeId, price, paymentMethodId);
   }
 
-  // 📡 Webhook to handle Stripe events (like payment success)
-  @Post('webhook')
-
-  @HttpCode(200)
-  async handleStripeWebhook(@Req() req: Request, @Headers('stripe-signature') sig: string) {
-    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-05-28.basil' as any,
-    });
-
-    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-    let event: Stripe.Event;
-
-    try {
-      const rawBody = (req as any).rawBody || req.body;
-      event = stripe.webhooks.constructEvent(
-        rawBody,
-        sig,
-        webhookSecret
-      );
-    } catch (err) {
-      console.error('Webhook signature verification failed:', err.message);
-      throw new BadRequestException('Invalid signature');
-    }
-
-    await this.paymentsService.handleCheckoutWebhook(event);
-    return { received: true };
+  @Get('success')
+  getCheckoutSuccess(@Query('session_id') sessionId: string) {
+    return { message: 'Payment succeeded', sessionId };
   }
+
 }

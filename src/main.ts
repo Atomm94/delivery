@@ -13,6 +13,12 @@ async function bootstrap() {
 
   app.setGlobalPrefix('app');
 
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
+
   const options = new DocumentBuilder()
     .setTitle('delivery')
     .setDescription('delivery service')
@@ -32,6 +38,10 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('/swagger', app, document);
+  app.use(
+    '/payments/webhook',
+    bodyParser.raw({ type: 'application/json' }),
+  );
   app.useGlobalPipes(new ValidationPipe({
     forbidNonWhitelisted: true,
     transform: true,
@@ -42,11 +52,6 @@ async function bootstrap() {
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
   }
-
-  app.use(
-    '/payments/webhook',
-    bodyParser.raw({ type: 'application/json' }),
-  );
 
   await app.listen(3000);
 }

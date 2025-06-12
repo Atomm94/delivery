@@ -26,52 +26,37 @@ export class PaymentsService {
     });
   }
 
-  async createCheckoutSession(customerId: number, routeId: number, price: number) {
+  async createPaymentWithPaymentMethod(
+    customerId: number,
+    routeId: number,
+    price: number,
+    paymentMethodId: string,
+  ): Promise<any> {
     const customer = await this.customerRepository.findOne({ where: { id: customerId } });
     if (!customer) throw new NotFoundException('Customer not found');
 
     const route = await this.routeRepository.findOne({ where: { id: routeId } });
     if (!route) throw new NotFoundException('Route not found');
 
-    const session = await this.stripe.checkout.sessions.create({
-      mode: 'payment',
-      payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'usd',
-            unit_amount: price * 100, // cents
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        customerId,
-        routeId,
-      },
-      success_url: `${process.env.HOSTING}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.HOSTING}/cancel`,
+    const stripeCustomer = await this.stripe.customers.create({ email: customer.email });
+
+    // await this.stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomer.id });
+
+    const payment = await this.stripe.paymentIntents.create({
+      amount: price * 100,
+      currency: 'usd',
+      customer: stripeCustomer.id,
+      payment_method: paymentMethodId,
+      off_session: true,
+      confirm: true,
     });
 
-    return { url: session.url };
-  }
-
-  async handleCheckoutWebhook(event: Stripe.Event) {
-    if (event.type === 'checkout.session.completed') {
-      const session = event.data.object as Stripe.Checkout.Session;
-      const customerId = session.metadata?.customerId;
-      const routeId = session.metadata?.routeId;
-
-      const customer = await this.customerRepository.findOne({ where: { id: Number(customerId) } });
-      const route = await this.routeRepository.findOne({ where: { id: Number(routeId) } });
-
-      if (!customer || !route) return;
-
+    if (payment.status === 'succeeded') {
       const transaction = new Transaction();
-      transaction.stripeSessionId = session.id;
-      transaction.amount = session.amount_total!;
-      transaction.currency = session.currency!;
-      transaction.status = session.payment_status;
+      transaction.paymentId = payment.id;
+      transaction.amount = payment.amount!;
+      transaction.currency = payment.currency!;
+      transaction.status = payment.status;
       transaction.createdAt = new Date();
       transaction.customer = customer;
       transaction.route = route;
@@ -81,7 +66,15 @@ export class PaymentsService {
       route.payment = PaymentStatus.PAYED
 
       await this.routeRepository.save(route)
+
+      return PaymentStatus.PAYED
     }
+
+    return PaymentStatus.NOT_PAYED;
+  }
+
+  async getPaymentIntentDetails(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
+    return this.stripe.paymentIntents.retrieve(paymentIntentId);
   }
 
   async getCustomerTransactions(customerId: number) {

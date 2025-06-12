@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { SignInDto } from '../../common/DTOs/auth.dto';
 import { AuthService } from './auth.service';
 import {ConfigService} from "@nestjs/config";
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags( 'auth' )
 @Controller('auth')
@@ -14,6 +14,11 @@ export class AuthController {
   ) {}
 
   @Post('signIn')
+  @ApiBearerAuth('Authorization')
+  @ApiOperation({
+    summary: 'Sign in with Firebase authentication token',
+    description: 'Authenticate user with Firebase token and return user data with JWT',
+  })
   async signIn(@Req() req, @Res() res, @Body() signInDto: SignInDto) {
     try {
       const user = await this.authService.signIn(signInDto);

@@ -1,19 +1,12 @@
-import serviceAccount from '../configs';
-import * as admin from 'firebase-admin';
+import { admin } from './firebase.admin';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class FirebaseService {
-  constructor() {
-    let authCredentials = {};
-    Object.assign(authCredentials, serviceAccount);
-
-    admin.initializeApp({
-      credential: admin.credential.cert(authCredentials)
-    })
-  }
+  constructor() {}
 
   public async auth(token: string) {
+    console.log('token: ', token);
     return admin.auth().verifyIdToken(token.replace('Bearer ', ''))
   }
 

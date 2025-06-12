@@ -8,7 +8,7 @@ export class Transaction {
   id: number;
 
   @Column()
-  stripeSessionId: string;
+  paymentId: string;
 
   @Column()
   amount: number; // in cents
