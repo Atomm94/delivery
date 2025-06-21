@@ -95,13 +95,19 @@ export class PaymentsService {
     const customer = await this.customerRepository.findOne({ where: { id: customerId } });
     if (!customer) throw new NotFoundException('Customer not found');
 
+    console.log(customer.email);
+
     const stripeCustomer = await this.stripe.customers.create({ email: customer.email });
 
+    console.log('sssss');
     // Create a payment method from the token
     const paymentMethod = await this.stripe.paymentMethods.create({
       type: 'card',
       card: { token: tokenId },
     });
+
+    console.log('ssss3333333333');
+    console.log(paymentMethod);
 
 
     // Attach payment method to the customer
@@ -109,12 +115,16 @@ export class PaymentsService {
       customer: stripeCustomer.id,
     });
 
+    console.log('ssss55555');
+
     // Set as default payment method (optional)
     await this.stripe.customers.update(stripeCustomer.id, {
       invoice_settings: {
         default_payment_method: paymentMethod.id,
       },
     });
+
+    console.log('ppppppp');
 
     return paymentMethod;
   }

@@ -48,16 +48,23 @@ export class PaymentsController {
 
   @ApiBearerAuth('Authorization')
   @Post('save-card')
+  @ApiBody({
+    schema: {
+      properties: {
+        tokenId: { type: 'string', example: 'tok_1234567890abcdef' },
+      },
+    },
+  })
   async saveCardToken(
     @Req() req,
     @Res() res,
-    @Body('tokenId') tokenId: string
+    @Body() body: { tokenId: string },
   ) {
     try {
       const { user: customer } = req;
 
       const paymentMethod = await this.paymentsService.createPaymentMethodFromToken(
-        tokenId,
+        body.tokenId,
         customer.id,
       );
       return { success: true, paymentMethodId: paymentMethod.id };
