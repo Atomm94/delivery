@@ -51,13 +51,13 @@ export class PaymentsController {
   async saveCardToken(
     @Req() req,
     @Res() res,
-    @Body() body: { tokenId: string }
+    @Body('tokenId') tokenId: string
   ) {
     try {
       const { user: customer } = req;
 
       const paymentMethod = await this.paymentsService.createPaymentMethodFromToken(
-        body.tokenId,
+        tokenId,
         customer.id,
       );
       return { success: true, paymentMethodId: paymentMethod.id };
