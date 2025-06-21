@@ -90,4 +90,32 @@ export class PaymentsService {
       relations: ['customer'],
     });
   }
+
+  async createPaymentMethodFromToken(tokenId: string, customerId: number) {
+    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+    if (!customer) throw new NotFoundException('Customer not found');
+
+    const stripeCustomer = await this.stripe.customers.create({ email: customer.email });
+
+    // Create a payment method from the token
+    const paymentMethod = await this.stripe.paymentMethods.create({
+      type: 'card',
+      card: { token: tokenId },
+    });
+
+
+    // Attach payment method to the customer
+    await this.stripe.paymentMethods.attach(paymentMethod.id, {
+      customer: stripeCustomer.id,
+    });
+
+    // Set as default payment method (optional)
+    await this.stripe.customers.update(stripeCustomer.id, {
+      invoice_settings: {
+        default_payment_method: paymentMethod.id,
+      },
+    });
+
+    return paymentMethod;
+  }
 }

@@ -8,7 +8,7 @@ import {
   HttpCode,
   BadRequestException,
   ParseIntPipe,
-  Query
+  Query, Res,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { Request } from 'express';
@@ -44,6 +44,26 @@ export class PaymentsController {
     }
 
     return await this.paymentsService.createPaymentWithPaymentMethod(customerId, routeId, price, paymentMethodId);
+  }
+
+  @ApiBearerAuth('Authorization')
+  @Post('save-card')
+  async saveCardToken(
+    @Req() req,
+    @Res() res,
+    @Body() body: { tokenId: string }
+  ) {
+    try {
+      const { user: customer } = req;
+
+      const paymentMethod = await this.paymentsService.createPaymentMethodFromToken(
+        body.tokenId,
+        customer.id,
+      );
+      return { success: true, paymentMethodId: paymentMethod.id };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
   }
 
   @Get('success')
