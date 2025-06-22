@@ -7,13 +7,34 @@ export class Card {
   id: number;
 
   @Column()
-  card_number: string;
+  brand: string;
 
   @Column()
-  card_date: string;
+  last4: string;
 
   @Column()
-  card_cvv: string;
+  exp_month: number;
+
+  @Column()
+  exp_year: number;
+
+  @Column()
+  funding: string;
+
+  @Column()
+  country: string;
+
+  @Column()
+  name: string;
+
+  @Column()
+  stripeCustomerId: string;
+
+  @Column()
+  default: boolean;
+
+  @Column()
+  paymentMethodId: string;
 
   @ManyToOne(() => Customer, (customer) => customer.cards, { onDelete: 'CASCADE', nullable: true })
   @JoinColumn({ name: 'customerId' })

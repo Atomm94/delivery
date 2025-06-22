@@ -4,29 +4,24 @@ import {
   Get,
   Body,
   Req,
-  Headers,
-  HttpCode,
   BadRequestException,
   ParseIntPipe,
   Query, Res,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { Request } from 'express';
-import Stripe from 'stripe';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 
+@ApiBearerAuth('Authorization')
 @ApiTags('payments')
 @Controller('payments')
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   // 🎯 Create Checkout Session
-  @ApiBearerAuth('Authorization')
   @Post('create-checkout')
   @ApiBody({
     schema: {
       properties: {
-        customerId: { type: 'integer', example: 1 },
         routeId: { type: 'integer', example: 1 },
         price: { type: 'integer', example: 1000 },
         paymentMethodId: { type: 'string' },
@@ -34,19 +29,23 @@ export class PaymentsController {
     },
   })
   async createCheckout(
-    @Body('customerId', ParseIntPipe) customerId: number,
+    @Req() req,
+    @Res() res,
     @Body('routeId', ParseIntPipe) routeId: number,
     @Body('price', ParseIntPipe) price: number,
     @Body('paymentMethodId') paymentMethodId: string
   ) {
-    if (!customerId || !routeId || !price) {
+    if (!routeId || !price) {
       throw new BadRequestException('Missing required fields');
     }
 
-    return await this.paymentsService.createPaymentWithPaymentMethod(customerId, routeId, price, paymentMethodId);
+    const { user: customer } = req;
+
+    const payment = await this.paymentsService.createPaymentWithPaymentMethod(customer.id, routeId, price, paymentMethodId)
+
+    return res.send({ message: 'checkout success', payment });
   }
 
-  @ApiBearerAuth('Authorization')
   @Post('save-card')
   @ApiBody({
     schema: {
@@ -58,7 +57,7 @@ export class PaymentsController {
   async saveCardToken(
     @Req() req,
     @Res() res,
-    @Body() body: { tokenId: string },
+    @Body() body: { tokenId: string, default: boolean },
   ) {
     try {
       const { user: customer } = req;
@@ -66,16 +65,51 @@ export class PaymentsController {
       const paymentMethod = await this.paymentsService.createPaymentMethodFromToken(
         body.tokenId,
         customer.id,
+        body.default,
       );
-      return { success: true, paymentMethodId: paymentMethod.id };
+
+      return res.send({ paymentMethodId: paymentMethod.id });
     } catch (error) {
-      return { success: false, message: error.message };
+      return res.send({ message: error.message });
     }
   }
 
-  @Get('success')
-  getCheckoutSuccess(@Query('session_id') sessionId: string) {
-    return { message: 'Payment succeeded', sessionId };
+  @Get('cards')
+  async getCustomerCards(
+    @Req() req,
+    @Res() res,
+  ) {
+    const { user: customer } = req;
+
+    return res.send({ cards: await this.paymentsService.getCustomerCards(customer.id) });
+  }
+
+  @Get('card/:id')
+  async getCard(
+    @Req() req,
+    @Res() res,
+    @Query('id') cardId: number,
+  ) {
+    return res.send(await this.paymentsService.getCard(cardId));
+  }
+
+  @Get('transactions')
+  async getTransactions(
+    @Req() req,
+    @Res() res,
+  ) {
+    const { user: customer } = req;
+
+    return res.send({ transactions: await this.paymentsService.getCustomerTransactions(customer.id) });
+  }
+
+  @Get('transaction/:id')
+  async getTransaction(
+    @Req() req,
+    @Res() res,
+    @Query('id') transactionId: number,
+  ) {
+    return res.send(await this.paymentsService.getTransaction(transactionId));
   }
 
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import Stripe from 'stripe';
@@ -6,6 +6,7 @@ import { Customer } from '../../database/entities/customer.entity';
 import { Route } from '../../database/entities/route.entity';
 import { Transaction } from '../../database/entities/transaction.entity';
 import { PaymentStatus } from '../../common/enums/route.enum';
+import { Card } from '../../database/entities/card.entity';
 
 @Injectable()
 export class PaymentsService {
@@ -20,6 +21,9 @@ export class PaymentsService {
 
     @InjectRepository(Transaction)
     private transactionRepository: Repository<Transaction>,
+
+    @InjectRepository(Card)
+    private cardRepository: Repository<Card>,
   ) {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-05-28.basil' as any,
@@ -38,14 +42,13 @@ export class PaymentsService {
     const route = await this.routeRepository.findOne({ where: { id: routeId } });
     if (!route) throw new NotFoundException('Route not found');
 
-    const stripeCustomer = await this.stripe.customers.create({ email: customer.email });
-
-    // await this.stripe.paymentMethods.attach(paymentMethodId, { customer: stripeCustomer.id });
+    const card = await this.cardRepository.findOne({ where: { paymentMethodId } });
+    if (!card) throw new NotFoundException('Card not found');
 
     const payment = await this.stripe.paymentIntents.create({
       amount: price * 100,
       currency: 'usd',
-      customer: stripeCustomer.id,
+      customer: card.stripeCustomerId,
       payment_method: paymentMethodId,
       off_session: true,
       confirm: true,
@@ -70,11 +73,7 @@ export class PaymentsService {
       return PaymentStatus.PAYED
     }
 
-    return PaymentStatus.NOT_PAYED;
-  }
-
-  async getPaymentIntentDetails(paymentIntentId: string): Promise<Stripe.PaymentIntent> {
-    return this.stripe.paymentIntents.retrieve(paymentIntentId);
+    throw new BadRequestException('Payment failed');
   }
 
   async getCustomerTransactions(customerId: number) {
@@ -84,48 +83,63 @@ export class PaymentsService {
     });
   }
 
-  async getRouteTransactions(routeId: number) {
-    return this.transactionRepository.find({
-      where: { route: { id: routeId } },
-      relations: ['customer'],
+  async getTransaction(transactionId: number) {
+    return this.transactionRepository.findOne({
+      where: { id: transactionId },
+      relations: ['route'],
     });
   }
 
-  async createPaymentMethodFromToken(tokenId: string, customerId: number) {
-    const customer = await this.customerRepository.findOne({ where: { id: customerId } });
-    if (!customer) throw new NotFoundException('Customer not found');
+  async createPaymentMethodFromToken(tokenId: string, customerId: number, status_default = false) {
+    try {
+      const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+      if (!customer) throw new NotFoundException('Customer not found');
 
-    console.log(customer.email);
+      const stripeCustomer = await this.stripe.customers.create({ email: customer.email });
 
-    const stripeCustomer = await this.stripe.customers.create({ email: customer.email });
+      // Create a payment method from the token
+      const paymentMethod = await this.stripe.paymentMethods.create({
+        type: 'card',
+        card: { token: tokenId },
+      });
 
-    console.log('sssss');
-    // Create a payment method from the token
-    const paymentMethod = await this.stripe.paymentMethods.create({
-      type: 'card',
-      card: { token: tokenId },
-    });
+      // Attach payment method to the customer
+      await this.stripe.paymentMethods.attach(paymentMethod.id, {
+        customer: stripeCustomer.id,
+      });
 
-    console.log('ssss3333333333');
-    console.log(paymentMethod);
+      // Set as default payment method (optional)
+      await this.stripe.customers.update(stripeCustomer.id, {
+        invoice_settings: {
+          default_payment_method: paymentMethod.id,
+        },
+      });
 
+      await this.cardRepository.save({
+        customer: customer,
+        paymentMethodId: paymentMethod.id,
+        stripeCustomerId: stripeCustomer.id,
+        brand: paymentMethod.card.brand,
+        last4: paymentMethod.card.last4,
+        exp_month: paymentMethod.card.exp_month,
+        exp_year: paymentMethod.card.exp_year,
+        funding: paymentMethod.card.funding,
+        country: paymentMethod.card.country,
+        name: paymentMethod.billing_details?.name ?? 'N/A',
+        default: status_default,
+      })
 
-    // Attach payment method to the customer
-    await this.stripe.paymentMethods.attach(paymentMethod.id, {
-      customer: stripeCustomer.id,
-    });
+      return paymentMethod;
+    } catch (error) {
+      throw error
+    }
+  }
 
-    console.log('ssss55555');
+  async getCustomerCards(customerId: number): Promise<Card[]> {
+    return await this.cardRepository.find({ where: { customer: { id: customerId } } });
+  }
 
-    // Set as default payment method (optional)
-    await this.stripe.customers.update(stripeCustomer.id, {
-      invoice_settings: {
-        default_payment_method: paymentMethod.id,
-      },
-    });
-
-    console.log('ppppppp');
-
-    return paymentMethod;
+  async getCard(cardId: number): Promise<Card> {
+    return await this.cardRepository.findOne({where: { id: cardId }});
   }
 }
