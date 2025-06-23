@@ -142,4 +142,31 @@ export class PaymentsService {
   async getCard(cardId: number): Promise<Card> {
     return await this.cardRepository.findOne({where: { id: cardId }});
   }
+
+  async changeStatusCard(cardId: number, defaultStatus: boolean): Promise<Card> {
+    const card = await this.cardRepository.findOne({ where: { id: cardId } });
+    if (!card) throw new NotFoundException('Card not found');
+
+    await this.cardRepository.update(
+      { id: cardId },
+      { default: defaultStatus },
+    );
+
+    return await this.cardRepository.findOne({ where: { id: cardId } });
+  }
+
+  async deleteCard(cardId: number): Promise<boolean> {
+    const card = await this.cardRepository.findOne({ where: { id: cardId } });
+    if (!card) throw new NotFoundException('Card not found');
+
+    try {
+      await this.stripe.paymentMethods.detach(card.paymentMethodId);
+      await this.cardRepository.remove(card);
+      return true;
+    } catch (error) {
+      throw new BadRequestException('Failed to delete card');
+    }
+  }
+
+
 }

@@ -17,9 +17,10 @@ import { RedisService } from '../../redis/redis.service';
 import { DriversService } from '../drivers/drivers.service';
 import { GeoGateway } from '../geo/geo.gateway';
 import { RouteModule } from '../routes/route.module';
+import { UserToken } from '../../database/entities/user-token.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck]),
+  imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck, UserToken]),
     AuthModule,
     forwardRef(() => RouteModule)
   ],

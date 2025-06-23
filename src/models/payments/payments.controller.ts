@@ -7,6 +7,7 @@ import {
   BadRequestException,
   ParseIntPipe,
   Query, Res,
+  Delete, Put
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -51,6 +52,7 @@ export class PaymentsController {
     schema: {
       properties: {
         tokenId: { type: 'string', example: 'tok_1234567890abcdef' },
+        default: { type: 'boolean', example: 'true', default: true },
       },
     },
   })
@@ -93,6 +95,32 @@ export class PaymentsController {
     return res.send(await this.paymentsService.getCard(cardId));
   }
 
+  @Put('card/:id')
+  @ApiBody({
+    schema: {
+      properties: {
+        default: { type: 'boolean', example: 'true' },
+      },
+    },
+  })
+  async changeStatusCard(
+    @Req() req,
+    @Res() res,
+    @Query('id') cardId: number,
+    @Body() body: { default: boolean },
+  ) {
+    return res.send(await this.paymentsService.changeStatusCard(cardId, body.default));
+  }
+
+  @Delete('card/:id')
+  async deleteCard(
+    @Req() req,
+    @Res() res,
+    @Query('id') cardId: number,
+  ) {
+    return res.send(await this.paymentsService.deleteCard(cardId));
+  }
+
   @Get('transactions')
   async getTransactions(
     @Req() req,
@@ -111,5 +139,4 @@ export class PaymentsController {
   ) {
     return res.send(await this.paymentsService.getTransaction(transactionId));
   }
-
 }

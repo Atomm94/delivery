@@ -14,15 +14,17 @@ import { Truck } from '../../database/entities/truck.entity';
 import { Company } from '../../database/entities/company.entity';
 import { DriversModule } from '../drivers/drivers.module';
 import { CompaniesModule } from '../companies/companies.module';
+import { CronService } from '../../cron/cron.service';
+import { UserToken } from '../../database/entities/user-token.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Route, Customer, Company, Order, Product, Address, OrderProduct, Driver, Truck]),
+    TypeOrmModule.forFeature([Route, Customer, Company, Order, Product, Address, OrderProduct, Driver, Truck, UserToken]),
     forwardRef(() => DriversModule),
     forwardRef(() => CompaniesModule),
   ],
-  providers: [RouteService, RedisService],
-  exports: [RouteService],
+  providers: [RouteService, RedisService, CronService],
+  exports: [RouteService, CronService],
   controllers: [RouteController]
 })
 export class RouteModule {}

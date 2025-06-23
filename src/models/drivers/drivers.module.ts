@@ -20,10 +20,11 @@ import { Customer } from '../../database/entities/customer.entity';
 import { CompaniesService } from '../companies/companies.service';
 import { RouteModule } from '../routes/route.module';
 import { Company } from '../../database/entities/company.entity';
+import { UserToken } from '../../database/entities/user-token.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Driver, Route, Rate, Truck, Order, Product, OrderProduct, Address, Customer, Company]),
+    TypeOrmModule.forFeature([Driver, Route, Rate, Truck, Order, Product, OrderProduct, Address, Customer, Company, UserToken]),
     forwardRef(() => RouteModule),
     AuthModule,
     GeoModule,

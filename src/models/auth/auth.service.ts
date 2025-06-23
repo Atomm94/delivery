@@ -7,6 +7,7 @@ import { Driver } from '../../database/entities/driver.entity';
 import { Company } from '../../database/entities/company.entity';
 import { Customer } from '../../database/entities/customer.entity';
 import { Repository } from 'typeorm';
+import { UserToken } from '../../database/entities/user-token.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,8 @@ export class AuthService {
       private readonly customerRepository: Repository<Customer>,
       @InjectRepository(Company)
       private readonly companyRepository: Repository<Company>,
+      @InjectRepository(UserToken)
+      private readonly userTokenRepository: Repository<UserToken>,
     ) {}
 
     async hashPassword(password: string): Promise<string> {
@@ -64,5 +67,38 @@ export class AuthService {
         }
 
         return user;
+    }
+
+
+    async findOrUpdateTokenByUserId(userId: number, role: UserRole, firebaseToken: string): Promise<UserToken> {
+        let userToken = await this.userTokenRepository.findOne({
+            where: { userId, role },
+        });
+
+        if (userToken) {
+            userToken.token = firebaseToken;
+            userToken.role = role;
+            return await this.userTokenRepository.save(userToken);
+        }
+
+        userToken = this.userTokenRepository.create({
+            userId,
+            role,
+            token: firebaseToken,
+        });
+
+        return await this.userTokenRepository.save(userToken);
+    }
+
+    async getTokenByUserId(userId: number, role: UserRole): Promise<any> {
+        const userToken = await this.userTokenRepository.findOne({
+            where: { userId, role },
+        });
+
+        if (!userToken) {
+           throw new NotFoundException('token for this user not found');
+        }
+
+        return { token: userToken.token };
     }
 }

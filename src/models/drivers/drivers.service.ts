@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Driver } from '../../database/entities/driver.entity';
 import { Repository } from 'typeorm';
@@ -16,12 +16,17 @@ import { GeoGateway } from '../geo/geo.gateway';
 import { ConfigService } from '@nestjs/config';
 import { Twilio } from 'twilio';
 import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
+import { UserToken } from '../../database/entities/user-token.entity';
+import { UserRole } from '../../common/enums/user-role.enum';
+import firebaseNotification from '../auth/firebase/firebase.notification';
 
 @Injectable()
 export class DriversService {
     private twilioClient: Twilio;
 
     constructor(
+        @InjectRepository(UserToken)
+        private readonly userTokenRepository: Repository<UserToken>,
         @InjectRepository(Driver)
         private readonly driverRepository: Repository<Driver>,
         @InjectRepository(Route)
@@ -125,30 +130,48 @@ export class DriversService {
     }
 
     async startRoute(driverId: number, routeId: number): Promise<any> {
-        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+        try {
+            const driver = await this.driverRepository.findOne({ where: { id: driverId } });
 
-        if (!driver) {
-            throw new NotFoundException('Driver is not found');
+            if (!driver) {
+                throw new NotFoundException('Driver is not found');
+            }
+
+            //TODO
+            let route = await this.routeRepository.findOne({
+                where: {
+                    id: routeId,
+                    payment: PaymentStatus.PAYED,
+                    status: Status.ON_HOLD as Status,
+                }, relations: ['customer'],
+            });
+
+            if (!route) {
+                throw new NotFoundException('Route is / not payed / not in progress / not found');
+            }
+
+            await this.driverRepository.update(
+              { id: driverId },
+              { status: DriverStatusEnum.ON_TRIP as DriverStatusEnum },
+            )
+
+            await this.routeRepository.update(
+              { id: routeId },
+              { status: Status.IN_PROGRESS as Status },
+            )
+
+            const customer = await this.userTokenRepository.findOne({ where: { userId: route.customer.id, role: UserRole.CUSTOMER } });
+
+            if (!customer) {
+                throw new NotFoundException('Token for this user is not found');
+            }
+
+            await firebaseNotification(customer.token, 'route alert', 'Your route is on the way');
+
+            return route;
+        }catch (e) {
+            return e.message;
         }
-
-        //TODO
-        let route = await this.routeRepository.findOne({ where: { id: routeId, payment: PaymentStatus.PAYED, status: Status.ON_HOLD as Status } });
-
-        if (!route) {
-            throw new NotFoundException('Route is / not payed / not in progress / not found');
-        }
-
-        await this.driverRepository.update(
-          { id: driverId },
-          { status: DriverStatusEnum.ON_TRIP as DriverStatusEnum },
-        )
-
-        await this.routeRepository.update(
-          { id: routeId },
-          { status: Status.IN_PROGRESS as Status },
-        )
-
-        return route;
     }
 
     async dropOff(driverId: number, orderId: number): Promise<any> {

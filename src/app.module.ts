@@ -38,7 +38,9 @@ import { CompaniesService } from './models/companies/companies.service';
 import { Order } from './database/entities/order.entity';
 import { DriversController } from './models/drivers/drivers.controller';
 import { CompaniesController } from './models/companies/companies.controller';
-
+import { CronModule } from './cron/cron.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { UserToken } from './database/entities/user-token.entity';
 
 initializeTransactionalContext();
 
@@ -68,12 +70,14 @@ initializeTransactionalContext();
           Address,
           Contact,
           Rate,
-          Order
+          Order,
+          UserToken
       ]),
       MulterModule.register(multerConfig),
       ServeStaticModule.forRoot({
           rootPath: join(__dirname, '..', 'uploads'),
       }),
+      ScheduleModule.forRoot(),
       CustomersModule,
       DriversModule,
       CompaniesModule,
@@ -85,6 +89,7 @@ initializeTransactionalContext();
       ProductsModule,
       AddressModule,
       RouteModule,
+      CronModule,
   ],
   controllers: [AppController, DriversController, CompaniesController],
     providers: [AppService, DriversService, CustomersService, CompaniesService, GeoGateway],

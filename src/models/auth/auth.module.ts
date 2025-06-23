@@ -1,5 +1,4 @@
 import {MiddlewareConsumer, Module, NestModule, RequestMethod} from '@nestjs/common';
-import {FirebaseMiddleware} from "./firebase/firebase.middleware";
 import {JwtModule} from "@nestjs/jwt";
 import {JwtMiddleware} from "./jwt/jwt.middleware";
 import { AuthService } from './auth.service';
@@ -8,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Driver } from '../../database/entities/driver.entity';
 import { Company } from '../../database/entities/company.entity';
 import { Customer } from '../../database/entities/customer.entity';
+import { UserToken } from '../../database/entities/user-token.entity';
 
 @Module({
     imports: [
@@ -15,7 +15,7 @@ import { Customer } from '../../database/entities/customer.entity';
             secret: '1692334321984-9b2c6e4d',
             signOptions: { expiresIn: '1800s' },
         }),
-        TypeOrmModule.forFeature([Driver, Company, Customer]),
+        TypeOrmModule.forFeature([Driver, Company, Customer, UserToken]),
     ],
     providers: [AuthService],
     exports: [AuthService],
@@ -25,12 +25,6 @@ import { Customer } from '../../database/entities/customer.entity';
 export class AuthModule implements NestModule {
 
     configure(consumer: MiddlewareConsumer) {
-        consumer.apply(FirebaseMiddleware)
-            .forRoutes(
-                {path: '/bg/signUp', method: RequestMethod.POST},
-              //       {path: 'auth/signIn', method: RequestMethod.POST},
-            );
-
         consumer.apply(JwtMiddleware)
           .exclude(
             {path: 'drivers/signUp', method: RequestMethod.POST},
