@@ -47,6 +47,12 @@ export class Driver {
     @Column({ type: 'boolean', default: false })
     isVerified: boolean;
 
+    @Column({ type: 'boolean', default: false })
+    paymentVerified: boolean;
+
+    @Column({ type: 'varchar', nullable: true })
+    paymentAccountId: string;
+
     @Column({
         type: 'enum',
         enum: DriverStatusEnum,

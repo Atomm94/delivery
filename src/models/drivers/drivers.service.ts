@@ -19,6 +19,7 @@ import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
 import { UserToken } from '../../database/entities/user-token.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import firebaseNotification from '../auth/firebase/firebase.notification';
+import { PaymentsService } from '../payments/payments.service';
 
 @Injectable()
 export class DriversService {
@@ -35,6 +36,7 @@ export class DriversService {
         private readonly orderRepository: Repository<Order>,
         @InjectRepository(Truck)
         private readonly truckRepository: Repository<Truck>,
+        private readonly paymentsService: PaymentsService,
         private readonly authService: AuthService,
         private readonly geoGateway: GeoGateway,
         private configService: ConfigService
@@ -242,10 +244,12 @@ export class DriversService {
           { status: DriverStatusEnum.AVAILABLE as DriverStatusEnum },
         )
 
-        return await this.routeRepository.update(
+        await this.routeRepository.update(
           { id: routeId },
           { status: Status.DONE as Status },
         );
+
+        return await this.paymentsService.sendPayoutToDriver(driver.paymentAccountId, route.price)
     }
 
     private async sendCode(phoneNumber: string, code: string): Promise<any> {

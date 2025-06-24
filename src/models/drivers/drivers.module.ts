@@ -21,17 +21,22 @@ import { CompaniesService } from '../companies/companies.service';
 import { RouteModule } from '../routes/route.module';
 import { Company } from '../../database/entities/company.entity';
 import { UserToken } from '../../database/entities/user-token.entity';
+import { PaymentsService } from '../payments/payments.service';
+import { PaymentsModule } from '../payments/payments.module';
+import { Transaction } from '../../database/entities/transaction.entity';
+import { Card } from '../../database/entities/card.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Driver, Route, Rate, Truck, Order, Product, OrderProduct, Address, Customer, Company, UserToken]),
+    TypeOrmModule.forFeature([Driver, Route, Rate, Truck, Order, Product, OrderProduct, Address, Customer, Company, UserToken, Transaction, Card]),
     forwardRef(() => RouteModule),
+    forwardRef(() => PaymentsModule),
     AuthModule,
     GeoModule,
   ],
-  providers: [DriversService, CompaniesService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, RouteService, Driver],
+  providers: [DriversService, CompaniesService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, RouteService, Driver, PaymentsService],
   controllers: [DriversController],
-  exports: [DriversService, Driver],
+  exports: [DriversService, Driver, PaymentsService],
 })
 export class DriversModule {
 }

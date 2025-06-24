@@ -7,6 +7,8 @@ import { Route } from '../../database/entities/route.entity';
 import { Transaction } from '../../database/entities/transaction.entity';
 import { PaymentStatus } from '../../common/enums/route.enum';
 import { Card } from '../../database/entities/card.entity';
+import { Driver } from '../../database/entities/driver.entity';
+import PaymentsConfig from './payment.config';
 
 @Injectable()
 export class PaymentsService {
@@ -15,6 +17,9 @@ export class PaymentsService {
   constructor(
     @InjectRepository(Customer)
     private customerRepository: Repository<Customer>,
+
+    @InjectRepository(Driver)
+    private driverRepository: Repository<Driver>,
 
     @InjectRepository(Route)
     private routeRepository: Repository<Route>,
@@ -169,4 +174,84 @@ export class PaymentsService {
   }
 
 
+  // 🔹 Create a connected account (Express)
+  async createConnectedAccount() {
+    const account = await this.stripe.accounts.create({
+      type: 'custom',
+      country: 'US',
+      email: 'driver@example.com',
+      business_type: 'individual',
+      capabilities: {
+        transfers: { requested: true }
+      }
+    });
+
+    // const accountLink = await this.stripe.accountLinks.create({
+    //   account: account.id,
+    //   refresh_url: `${process.env.HOSTING}/payment/onboarding/refresh`,
+    //   return_url: `${process.env.HOSTING}/payment/onboarding/complete`,
+    //   type: 'account_onboarding',
+    // });
+
+
+
+    return account.id
+  }
+
+  async completeOnboarding(accountId: string, driverId: number, tokenId: string) {
+    // console.log('asssssssssssss');
+    await this.stripe.accounts.update(accountId, {
+      individual: {
+        first_name: 'John',
+        last_name: 'Mccartey',
+        ssn_last_4: '0000',
+        dob: { day: 1, month: 1, year: 1990 },
+        phone: '+15555551234',
+        email: 'driver@example.com',
+        address: {
+          line1: '123 Main St',
+          city: 'Los Angeles',
+          state: 'CA',
+          postal_code: '90001',
+          country: 'US'
+        }
+      },
+      // tos_acceptance: {
+      //   date: Math.floor(Date.now() / 1000),
+      //   ip: '127.0.0.1'
+      // }
+    });
+
+    console.log(accountId);
+
+    console.log(tokenId);
+
+    await this.stripe.accounts.createExternalAccount(accountId, {
+      external_account: tokenId,
+    });
+
+    return await this.driverRepository.update(
+      { id: driverId },
+      { paymentAccountId: accountId, paymentVerified: true },
+    );
+  }
+
+  async sendPayoutToDriver(driverAccountId: string, amount: number) {
+    return await this.stripe.payouts.create({
+      amount: Math.floor(amount * (1 - PaymentsConfig.PLATFORM_FEE)),
+      currency: PaymentsConfig.CURRENCY,
+    }, {
+      stripeAccount: driverAccountId
+    });
+    // return this.stripe.transfers.create({
+    //   amount: Math.floor(amount * (1 - PaymentsConfig.PLATFORM_FEE / 100)),
+    //   currency: PaymentsConfig.CURRENCY,
+    //   destination: driverAccountId,
+    // });
+  }
+
+  // 🔹 Get account info by ID
+  async retrieveAccount(accountId: string) {
+    return this.stripe.accounts.retrieve(accountId);
+  }
 }

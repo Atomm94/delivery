@@ -213,4 +213,19 @@ export class DriversController{
 
     return res.send({ route })
   }
+
+  @Put('done/:routeId')
+  @ApiOperation({ summary: 'driver finish' })
+  @ApiBearerAuth('Authorization')
+  async verifyPayment(
+    @Req() req,
+    @Res() res,
+    @Param('routeId') routeId: number,
+  ) {
+    const { user: driver } = req;
+
+    const route = await this.driversService.doneRoute(driver.id, routeId);
+
+    return res.send({ route })
+  }
 }

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Add Debit Card for Payout</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+      .StripeElement {
+          border: 1px solid #ccc;
+          padding: 10px;
+          border-radius: 4px;
+          margin-bottom: 12px;
+          width: 320px;
+      }
+  </style>
+</head>
+<body>
+
+<h2>Add Debit Card</h2>
+<form id="card-form">
+  <input type="text" id="name" placeholder="Cardholder name" required />
+  <div id="card-element" class="StripeElement"></div>
+  <button type="submit">Add Card</button>
+</form>
+
+<div id="card-result"></div>
+
+<h2>Payout to Driver</h2>
+<form id="payout-form">
+  <input type="number" id="payout-amount" placeholder="Amount in USD" required />
+  <button type="submit">Payout</button>
+</form>
+
+<div id="payout-result"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+  const stripe = Stripe('pk_test_51RYZElPgea5wN8rwrWHmrveEmVXVr2kp2NdsIRYgWbq6NyYPJmI0NgikBtmHJtlQACFbpkmDpnOoMAkuFexc23bv00YwCesQJR');
+  const elements = stripe.elements();
+  const card = elements.create('card');
+  card.mount('#card-element');
+
+  const form = document.getElementById('card-form');
+  const resultDiv = document.getElementById('card-result');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const cardholderName = document.getElementById('name').value;
+
+    const { token, error } = await stripe.createToken(card, {
+      name: cardholderName,
+    });
+
+    if (error) {
+      resultDiv.textContent = '❌ Error: ' + error.message;
+    } else {
+      resultDiv.textContent = '✅ Token created: ' + token.id;
+
+      try {
+        const response = await axios.post('http://localhost:3000/app/payments/complete-account', {
+          tokenId: token.id,
+          accountId: 'acct_1RdeQSPYOf0szJPW',
+        }, {
+          headers: {
+            'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwicm9sZSI6ImNvdXJpZXIiLCJwaG9uZV9udW1iZXIiOiIrNjYxOTQ4ODI2IiwiaWF0IjoxNzUwNzk3NjQ2fQ.6wdw8jmA6Lq3jshe25eL2n3zoYeXTiplgWcRKwaf8L4`,
+          },
+        });
+        resultDiv.textContent = '✅ Token sent to backend!';
+      } catch (err) {
+        resultDiv.textContent = '❌ Backend error: ' + err.message;
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

@@ -6,7 +6,7 @@ import {
   Req,
   BadRequestException,
   ParseIntPipe,
-  Query, Res,
+  Param, Res,
   Delete, Put
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
@@ -90,7 +90,7 @@ export class PaymentsController {
   async getCard(
     @Req() req,
     @Res() res,
-    @Query('id') cardId: number,
+    @Param('id') cardId: number,
   ) {
     return res.send(await this.paymentsService.getCard(cardId));
   }
@@ -106,7 +106,7 @@ export class PaymentsController {
   async changeStatusCard(
     @Req() req,
     @Res() res,
-    @Query('id') cardId: number,
+    @Param('id') cardId: number,
     @Body() body: { default: boolean },
   ) {
     return res.send(await this.paymentsService.changeStatusCard(cardId, body.default));
@@ -116,7 +116,7 @@ export class PaymentsController {
   async deleteCard(
     @Req() req,
     @Res() res,
-    @Query('id') cardId: number,
+    @Param('id') cardId: number,
   ) {
     return res.send(await this.paymentsService.deleteCard(cardId));
   }
@@ -135,8 +135,38 @@ export class PaymentsController {
   async getTransaction(
     @Req() req,
     @Res() res,
-    @Query('id') transactionId: number,
+    @Param('id') transactionId: number,
   ) {
     return res.send(await this.paymentsService.getTransaction(transactionId));
+  }
+
+  @Post('create-account')
+  async createAccount(
+    @Req() req,
+    @Res() res,
+  ) {
+    const accountId = await this.paymentsService.createConnectedAccount();
+
+    return res.json({
+      message: 'Driver stripe account created successfully',
+      accountId,
+    });
+  }
+
+  @Post('complete-account')
+  async completeAccount(
+    @Req() req,
+    @Res() res,
+    @Body('accountId') accountId: string,
+    @Body('tokenId') tokenId: string,
+  ) {
+    const { user: driver } = req;
+
+    const account = await this.paymentsService.completeOnboarding(accountId, driver.id, tokenId);
+
+    return res.json({
+      message: 'Driver stripe account completed successfully',
+      account,
+    });
   }
 }
