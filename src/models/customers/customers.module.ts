@@ -11,7 +11,7 @@ import { Driver } from '../../database/entities/driver.entity';
 import { Route } from '../../database/entities/route.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Customer, Address, Contact, Rate, Driver, Route]), AuthModule],
+  imports: [TypeOrmModule.forFeature([Customer, Address, Contact, Rate, Driver, Route, Rate]), AuthModule],
   controllers: [CustomersController],
   providers: [CustomersService],
   exports: [CustomersService],

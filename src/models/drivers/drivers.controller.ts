@@ -22,6 +22,7 @@ import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { FilesInterceptor } from '../../interceptors/files.interceptor';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { RateDto } from '../../common/DTOs/rate.dto';
 
 @ApiTags( 'drivers' )
 @Controller('drivers')
@@ -227,5 +228,20 @@ export class DriversController{
     const route = await this.driversService.doneRoute(driver.id, routeId);
 
     return res.send({ route })
+  }
+
+  @Post('rate/:customerId')
+  @ApiBearerAuth('Authorization')
+  async doRate(
+    @Req() req,
+    @Res() res,
+    @Param('customerId') customerId: number,
+    @Body() rateDto: RateDto,
+  ) {
+    const { user: driver } = req;
+
+    const rate = await this.driversService.doRate(driver.id, customerId, rateDto);
+
+    return res.json({ rate })
   }
 }

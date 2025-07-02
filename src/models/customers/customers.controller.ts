@@ -11,7 +11,7 @@ import { FilesInterceptor } from '../../interceptors/files.interceptor';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { RateDto } from '../../common/DTOs/driver.dto';
+import { RateDto } from '../../common/DTOs/rate.dto';
 
 @ApiTags( 'customers' )
 @Controller('customers')
@@ -22,7 +22,6 @@ export class CustomersController {
     ) {}
 
     @Post('rate/:driverId')
-    @ApiConsumes('multipart/form-data')
     @ApiBearerAuth('Authorization')
     async doRate(
       @Req() req,
@@ -146,5 +145,18 @@ export class CustomersController {
                 message: error.message,
             })
         }
+    }
+
+    @Get('rate')
+    @ApiBearerAuth('Authorization')
+    async getRate(
+      @Req() req,
+      @Res() res
+    ) {
+        const { user: customer } = req;
+
+        const rate = await this.customerService.getRate(customer.id);
+
+        return res.json({ rate })
     }
 }

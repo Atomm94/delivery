@@ -8,7 +8,7 @@ import { CompleteCustomerDataDto, UpdateCustomerDataDto } from '../../common/DTO
 import { Address } from '../../database/entities/address.entity';
 import { CreateAddressDto } from '../../common/DTOs/address.dto';
 import { Contact } from '../../database/entities/contact.entity';
-import { RateDto } from '../../common/DTOs/driver.dto';
+import { RateDto } from '../../common/DTOs/rate.dto';
 import { Rate } from '../../database/entities/rate.entity';
 import { Driver } from '../../database/entities/driver.entity';
 import { Route } from '../../database/entities/route.entity';
@@ -135,5 +135,23 @@ export class CustomersService {
     Object.assign(rateDto, { driver: driverId });
 
     return await this.rateRepository.save(rateDto);
+  }
+
+  async getRate(customerId: number): Promise<any> {
+    const customer = await this.customerRepository.findOne({ where: { id: customerId }, relations: ['ratings'] });
+
+    if (!customer) {
+      throw new NotFoundException('Customer is not found');
+    }
+
+    const rates: any[] = customer.ratings
+
+    if (rates.length === 0) {
+      return { averageRate: 0, rates };
+    }
+
+    const averageRate = rates.reduce((sum, rate) => sum + rate.star, 0) / rates.length;
+
+    return { averageRate };
   }
 }

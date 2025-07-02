@@ -20,6 +20,9 @@ import { UserToken } from '../../database/entities/user-token.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import firebaseNotification from '../auth/firebase/firebase.notification';
 import { PaymentsService } from '../payments/payments.service';
+import { RateDto } from '../../common/DTOs/rate.dto';
+import { Customer } from '../../database/entities/customer.entity';
+import { Rate } from '../../database/entities/rate.entity';
 
 @Injectable()
 export class DriversService {
@@ -30,6 +33,10 @@ export class DriversService {
         private readonly userTokenRepository: Repository<UserToken>,
         @InjectRepository(Driver)
         private readonly driverRepository: Repository<Driver>,
+        @InjectRepository(Customer)
+        private readonly customerRepository: Repository<Customer>,
+        @InjectRepository(Rate)
+        private readonly rateRepository: Repository<Rate>,
         @InjectRepository(Route)
         private readonly routeRepository: Repository<Route>,
         @InjectRepository(Order)
@@ -249,7 +256,9 @@ export class DriversService {
           { status: Status.DONE as Status },
         );
 
-        return await this.paymentsService.sendPayoutToDriver(driver.paymentAccountId, route.price)
+        // return await this.paymentsService.sendPayoutToDriver(driver.paymentAccountId, route.price)
+
+        return { msg: 'success' };
     }
 
     private async sendCode(phoneNumber: string, code: string): Promise<any> {
@@ -260,5 +269,23 @@ export class DriversService {
         });
 
         return { msg: 'success' };
+    }
+
+    async doRate(driverId: number, customerId: number, rateDto: RateDto): Promise<any> {
+        const driver = await this.driverRepository.findOne({ where: { id: driverId } });
+
+        if (!driver) {
+            throw new NotFoundException('Driver not found');
+        }
+
+        const customer = await this.customerRepository.findOne({ where: { id: customerId } });
+
+        if (!customer) {
+            throw new NotFoundException('Customer is not found');
+        }
+
+        Object.assign(rateDto, { customer: customerId });
+
+        return await this.rateRepository.save(rateDto);
     }
 }

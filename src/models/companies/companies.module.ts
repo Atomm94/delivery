@@ -21,9 +21,10 @@ import { UserToken } from '../../database/entities/user-token.entity';
 import { PaymentsService } from '../payments/payments.service';
 import { Transaction } from '../../database/entities/transaction.entity';
 import { Card } from '../../database/entities/card.entity';
+import { Rate } from '../../database/entities/rate.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck, UserToken, Transaction, Card]),
+  imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck, UserToken, Transaction, Card, Rate]),
     AuthModule,
     forwardRef(() => RouteModule)
   ],
