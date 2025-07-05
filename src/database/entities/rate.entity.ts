@@ -15,8 +15,8 @@ export class Rate {
   @Column('float')
   star: number;
 
-  @Column('varchar')
-  type: string;
+  @Column('simple-array')
+  type: string[];
 
   @Column('text')
   feedback: string;

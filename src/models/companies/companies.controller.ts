@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CompanyMultipleDriverDto,
@@ -108,5 +108,18 @@ export class CompaniesController {
     const route = await this.routeService.takeRoute(user, companyTakeRouteDto);
 
     return res.send({ route })
+  }
+
+  @Get('rate')
+  @ApiBearerAuth('Authorization')
+  async getRate(
+    @Req() req,
+    @Res() res
+  ) {
+    const { user: company } = req;
+
+    const rate = await this.companiesService.getRate(company.id);
+
+    return res.json({ rate })
   }
 }

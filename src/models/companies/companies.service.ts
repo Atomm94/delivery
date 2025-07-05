@@ -97,4 +97,28 @@ export class CompaniesService {
 
     return await this.companyRepository.findOneBy({ id });
   }
+
+  async getRate(companyId: number): Promise<any> {
+    const company = await this.companyRepository.findOne({ where: { id: companyId } });
+
+    if (!company) {
+      throw new NotFoundException('Company is not found');
+    }
+
+    const drivers = await this.driverRepository.find({
+      where: { company: { id: companyId } },
+      relations: { ratings: true }
+    });
+
+
+    const allDriverRates = drivers.reduce((rates, driver) => {
+      return [...rates, ...driver.ratings];
+    }, []);
+
+    const averageRate = allDriverRates.length > 0
+      ? allDriverRates.reduce((sum, rate) => sum + rate.star, 0) / allDriverRates.length
+      : 0;
+
+    return { averageRate };
+  }
 }

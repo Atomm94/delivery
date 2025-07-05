@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class RateDto {
@@ -9,10 +9,11 @@ export class RateDto {
   @IsNumber()
   star: number;
 
-  @ApiProperty({ example: 'Service', description: 'Type of the rate feedback as a string' })
+  @ApiProperty({ example: ['Service', 'Punctuality'], description: 'Type of the rate feedback as a string' })
   @IsOptional()
-  @IsString()
-  type: string;
+  @IsArray()
+  @IsString({ each: true })
+  type: string[];
 
   @ApiProperty({ example: 'Driver punctuality and professionalism', description: 'Detailed feedback for the rating' })
   @IsOptional()
