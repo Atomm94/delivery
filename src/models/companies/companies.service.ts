@@ -1,5 +1,5 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { CompanyMultipleDriverDto, CompleteCompanyDataDto, UpdateCompanyDataDto } from '../../common/DTOs/company.dto';
+import { CompanyMultipleDriverDto, CompleteCompanyDataDto, UpdateCompanyDataDto, CompanySignUpDto } from '../../common/DTOs/company.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company } from '../../database/entities/company.entity';
@@ -37,37 +37,46 @@ export class CompaniesService {
       throw new NotFoundException('company user is not found');
     }
 
+    // Check if any driver phone number already exists
+    for (const driverData of data.drivers) {
+      const existingDriver = await this.driverRepository.findOne({
+        where: { phone_number: driverData.phone_number },
+      });
 
-    const saveDriversData = [];
+      if (existingDriver) {
+        throw new ConflictException(
+          `Driver with phone number ${driverData.phone_number} already exists`,
+        );
+      }
+    }
+
+    // Generate passwords for each driver, save hashed, return plaintext passwords
+    const saveDriversData = [] as any[];
+    const originalPasswords: string[] = [];
     for await (const driverData of data.drivers) {
-      driverData.password = await this.authService.hashPassword(driverData.password);
+      const generated = this.generatePassword();
+      originalPasswords.push(generated);
+      const hashed = await this.authService.hashPassword(generated);
+      const {
+        /* ensure any provided password is ignored */ password: _ignored,
+        ...rest
+      } = driverData as any;
       saveDriversData.push({
-        ...driverData,
+        ...rest,
+        password: hashed,
         company: companyId,
       });
     }
 
-    return await this.driverRepository.save(saveDriversData);
+    const saved = await this.driverRepository.save(saveDriversData);
+    // Return original generated passwords in response while keeping hashes in DB
+    return saved.map(
+      (drv, idx) => ({ ...drv, password: originalPasswords[idx] }) as Driver,
+    );
   }
 
 
-  // async create(companyData: Partial<Company>): Promise<Company> {
-  //   const company = await this.companyRepository.findOne({
-  //     where: { phone_number: companyData.phone_number }
-  //   });
-  //
-  //   if (company) {
-  //     throw new ConflictException('phone number is already exists');
-  //   }
-  //
-  //   companyData.password = await this.authService.hashPassword(companyData.password);
-  //
-  //   return await this.companyRepository.save(companyData);
-  // }
-
-  async complete(completeDataDto: CompleteCompanyDataDto): Promise<Company> {
-    const companyData: any = completeDtoToPartialCompanyEntity(completeDataDto);
-
+  async create(companyData: Partial<Company>): Promise<Company> {
     const company = await this.companyRepository.findOne({
       where: { phone_number: companyData.phone_number }
     });
@@ -76,13 +85,45 @@ export class CompaniesService {
       throw new ConflictException('phone number is already exists');
     }
 
-    companyData.password = await this.authService.hashPassword(companyData.password);
+    // Use provided password: hash for storage, but return original in response
+    const originalPassword = companyData.password as string;
+    const hashed = await this.authService.hashPassword(originalPassword);
 
-    return await this.companyRepository.save(companyData);
+    const toSave: Partial<Company> = {
+      name: companyData.name,
+      email: companyData.email,
+      phone_number: companyData.phone_number,
+      password: hashed,
+    };
+
+    const saved = await this.companyRepository.save(toSave);
+    return { ...saved, password: originalPassword } as Company;
+  }
+
+  async complete(id: number, completeDataDto: CompleteCompanyDataDto): Promise<Company> {
+    const updateData: any = completeDtoToPartialCompanyEntity(completeDataDto);
+
+    const { affected } = await this.companyRepository
+      .createQueryBuilder()
+      .update(Company)
+      .set(updateData)
+      .where('id = :id', { id })
+      .execute();
+
+    if (!affected) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return await this.companyRepository.findOneBy({ id });
   }
 
   async update(id: number, updateDataDto: UpdateCompanyDataDto): Promise<Company> {
     const updateData: any = updateDtoToPartialCompanyEntity(updateDataDto);
+
+    const originalPassword: string | undefined = updateData.password;
+    if (updateData.password) {
+      updateData.password = await this.authService.hashPassword(updateData.password);
+    }
 
     const { affected } = await this.companyRepository
       .createQueryBuilder()
@@ -95,7 +136,8 @@ export class CompaniesService {
       throw new NotFoundException('Company not found');
     }
 
-    return await this.companyRepository.findOneBy({ id });
+    const updated = await this.companyRepository.findOneBy({ id });
+    return originalPassword ? ({ ...updated, password: originalPassword } as Company) : (updated as Company);
   }
 
   async getRate(companyId: number): Promise<any> {
@@ -120,5 +162,14 @@ export class CompaniesService {
       : 0;
 
     return { averageRate };
+  }
+
+  private generatePassword(length: number = 12): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-={}[]:;,.?';
+    let pwd = '';
+    for (let i = 0; i < length; i++) {
+      pwd += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return pwd;
   }
 }

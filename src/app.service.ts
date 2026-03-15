@@ -23,9 +23,10 @@ export class AppService {
 
     switch (role) {
       case UserRole.COURIER:
+        // Include company relation so responses contain company and companyId when linked
         return await this.driverRepository.findOne({
           where: { phone_number },
-          relations: ['trucks']
+          relations: ['trucks', 'company']
         });
       case UserRole.COMPANY:
         return await this.companyRepository.findOneBy({ phone_number });

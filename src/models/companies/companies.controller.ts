@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Put, Req, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req, Res, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   CompanyMultipleDriverDto,
@@ -11,6 +11,7 @@ import { FilesInterceptor } from '../../interceptors/files.interceptor';
 import { getFileUrl } from '../../configs/multer.config';
 import { removeFiles } from '../../common/helpers/filePaths';
 import { RouteService } from '../routes/route.service';
+// Note: Auth guard import removed as guard is not present in the project
 
 @ApiTags( 'companies' )
 @Controller('companies')
@@ -20,15 +21,16 @@ export class CompaniesController {
     private readonly routeService: RouteService,
   ) {}
 
-  // @Post('signUp')
-  // @ApiConsumes('application/json')
-  // async signUp(@Req() req, @Res() res, @Body() signUpDto: CompanySignUpDto) {
-  //   const data = await this.companiesService.create(signUpDto);
-  //
-  //   return res.json({ message: 'Signed Up', data: { data } });
-  // }
-
   @Post('signUp')
+  @ApiConsumes('application/json')
+  @ApiBody({ type: CompanySignUpDto })
+  async signUp(@Req() req, @Res() res, @Body() signUpDto: CompanySignUpDto) {
+    const data = await this.companiesService.create(signUpDto as any);
+    return res.json({ message: 'Signed Up', data });
+  }
+
+  @Post('complete')
+  @ApiBearerAuth('Authorization')
   @ApiBody({ type: CompleteCompanyDataDto })
   async complete(
     @Req() req,
@@ -36,7 +38,8 @@ export class CompaniesController {
     @Body() completeDataDto: CompleteCompanyDataDto,
   ) {
     try {
-      const data = await this.companiesService.complete(completeDataDto);
+      const { user: company } = req;
+      const data = await this.companiesService.complete(company.id, completeDataDto);
 
       return res.json({ message: 'Successfully completed', data });
     } catch (error) {

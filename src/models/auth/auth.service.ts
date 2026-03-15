@@ -38,7 +38,7 @@ export class AuthService {
             case UserRole.COURIER:
                 user = await this.driverRepository.findOne({
                     where: { phone_number },
-                    relations: ['trucks']
+                    relations: ['trucks', 'company']
                 });
                 if (!user) {
                     throw new NotFoundException(`${role} in this phone number is not found`)
