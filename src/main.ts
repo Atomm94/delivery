@@ -7,6 +7,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 import * as path from 'node:path';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { FilesInterceptor } from './interceptors/files.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -47,6 +48,9 @@ async function bootstrap() {
     transform: true,
     whitelist: true,
   }));
+
+  // Global interceptor to handle multipart uploads and normalize bracketed form keys
+  app.useGlobalInterceptors(new FilesInterceptor());
 
   const uploadDir = join(__dirname, '..', 'uploads');
   if (!fs.existsSync(uploadDir)) {

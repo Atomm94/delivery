@@ -8,7 +8,8 @@ export function completeDtoToPartialDriverEntity(dto: CompleteDriverDataDto) {
   return {
     email: dto.email,
     social_number: dto.social_number,
-    license: dto.license,
+    // ensure license stored as array (simple-array column)
+    license: dto.license ? [dto.license] : null,
     identity: dto.identity,
     op_state: dto.op_state,
     op_cities: dto.op_cities ? dto.op_cities : null,
@@ -62,7 +63,8 @@ export function updateDtoToPartialDriverEntity(dto: UpdateDataDto) {
     password: dto.password,
     email: dto.email,
     social_number: dto.social_number,
-    license: dto.license,
+    // ensure license stored as array (simple-array column)
+    license: dto.license ? [dto.license] : null,
     identity: dto.identity,
     op_state: dto.op_state,
     op_cities: dto.op_cities ? dto.op_cities : null,

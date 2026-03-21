@@ -29,7 +29,10 @@ export class AppService {
           relations: ['trucks', 'company']
         });
       case UserRole.COMPANY:
-        return await this.companyRepository.findOneBy({ phone_number });
+        return await this.companyRepository.findOne({
+          where: { phone_number },
+          relations: ['trucks', 'drivers'],
+        });
       case UserRole.CUSTOMER:
         return await this.customerRepository.findOne({ where: { phone_number }, relations: ['addresses'] });
     }

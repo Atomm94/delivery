@@ -45,7 +45,10 @@ export class AuthService {
                 }
                 break;
             case UserRole.COMPANY:
-                user = await this.companyRepository.findOneBy({ phone_number });
+                user = await this.companyRepository.findOne({
+                    where: { phone_number },
+                    relations: ['trucks', 'drivers']
+                });
                 if (!user) {
                     throw new NotFoundException(`${role} in this phone number is not found`)
                 }

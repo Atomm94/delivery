@@ -21,11 +21,17 @@ export class CompaniesService {
   ) {}
 
   async get(condition: any): Promise<Company> {
-    return await this.companyRepository.findOne({ where: condition });
+    return await this.companyRepository.findOne({
+      where: condition,
+      relations: { trucks: true, drivers: true },
+    });
   }
 
   async getAll(condition: any): Promise<Company[]> {
-    return await this.companyRepository.find({ where: condition });
+    return await this.companyRepository.find({
+      where: condition,
+      relations: { trucks: true, drivers: true },
+    });
   }
 
   async createCompanyDrivers(companyId: number, data: CompanyMultipleDriverDto): Promise<Driver[]> {
@@ -97,7 +103,11 @@ export class CompaniesService {
     };
 
     const saved = await this.companyRepository.save(toSave);
-    return { ...saved, password: originalPassword } as Company;
+    const withRelations = await this.companyRepository.findOne({
+      where: { id: saved.id },
+      relations: { trucks: true, drivers: true },
+    });
+    return { ...(withRelations as Company), password: originalPassword } as Company;
   }
 
   async complete(id: number, completeDataDto: CompleteCompanyDataDto): Promise<Company> {
@@ -114,7 +124,10 @@ export class CompaniesService {
       throw new NotFoundException('Company not found');
     }
 
-    return await this.companyRepository.findOneBy({ id });
+    return await this.companyRepository.findOne({
+      where: { id },
+      relations: { trucks: true, drivers: true },
+    });
   }
 
   async update(id: number, updateDataDto: UpdateCompanyDataDto): Promise<Company> {
@@ -136,7 +149,10 @@ export class CompaniesService {
       throw new NotFoundException('Company not found');
     }
 
-    const updated = await this.companyRepository.findOneBy({ id });
+    const updated = await this.companyRepository.findOne({
+      where: { id },
+      relations: { trucks: true, drivers: true },
+    });
     return originalPassword ? ({ ...updated, password: originalPassword } as Company) : (updated as Company);
   }
 

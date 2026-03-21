@@ -54,12 +54,55 @@ export class CompaniesController {
   @Post('drivers')
   @ApiBearerAuth('Authorization')
   @ApiOperation({ summary: 'Register new drivers' })
+  @UseInterceptors(FilesInterceptor)
+  @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CompanyMultipleDriverDto })
   async createDrivers(
     @Body() companyMultipleDriverDto: CompanyMultipleDriverDto,
     @Req() req,
+    @UploadedFiles() files: any,
   ): Promise<any> {
     const { user: company } = req;
+
+    // If drivers came as a JSON string in multipart body, parse it
+    if (!Array.isArray(companyMultipleDriverDto?.drivers) && typeof req?.body?.drivers === 'string') {
+      try {
+        const parsed = JSON.parse(req.body.drivers);
+        if (Array.isArray(parsed)) {
+          (companyMultipleDriverDto as any).drivers = parsed;
+        }
+      } catch (_) {
+        // ignore JSON parse error; validation will handle bad payloads
+      }
+    }
+
+    // Map uploaded files to corresponding driver fields (license can be multiple)
+    if (files && companyMultipleDriverDto?.drivers?.length) {
+      companyMultipleDriverDto.drivers.map((driver, index) => {
+        const regexKey = /drivers\[(\d+)\]\[(.+)\]/;
+        const regexIndex = /drivers\[(\d+)\]/;
+
+        const license: string[] = [];
+
+        files.map((file) => {
+          const matchIndex = file['fieldname']?.match(regexIndex);
+          if (matchIndex && matchIndex[1] == String(index)) {
+            const matchKey = file['fieldname'].match(regexKey);
+            if (matchKey) {
+              if (matchKey[2] === 'license') {
+                license.push(getFileUrl(file['filename']));
+              }
+              // Assign last occurrence for non-array fields if any appear
+              driver[matchKey[2]] = getFileUrl(file['filename']);
+            }
+          }
+        });
+
+        // Ensure license array is set (even if empty)
+        (driver as any)['license'] = license;
+      });
+    }
+
     return await this.companiesService.createCompanyDrivers(company.id, companyMultipleDriverDto);
   }
 

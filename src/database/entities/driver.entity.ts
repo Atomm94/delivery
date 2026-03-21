@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany, JoinColumn, ManyToOne, RelationId } from 'typeorm';
 import { Truck } from './truck.entity';
 import { UserRole } from '../../common/enums/user-role.enum';
 import { Company } from './company.entity';
@@ -32,8 +32,8 @@ export class Driver {
     @Column({ type: 'varchar', nullable: true })
     social_number: string;
 
-    @Column({ type: 'varchar', nullable: true })
-    license: string;
+    @Column('simple-array', { nullable: true })
+    license: string[] | null;
 
     @Column({ type: 'varchar', nullable: true })
     identity: string;
@@ -91,5 +91,9 @@ export class Driver {
     @ManyToOne(() => Company, company => company.drivers, { onDelete: 'CASCADE', nullable: true })
     @JoinColumn({ name: 'companyId' })
     company: Company;
+
+    // Expose companyId in responses when driver is linked to a company
+    @RelationId((driver: Driver) => driver.company)
+    companyId: number;
 }
 

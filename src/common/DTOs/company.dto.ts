@@ -194,7 +194,19 @@ export class UpdateCompanyDataDto  {
   contact_person_info?: ContactInfoDto;
 }
 
-class CompanyDriverCompleteDto extends OmitType(CompleteDriverDataDto, ['identity', 'op_state', 'op_cities'] as const) {}
+class CompanyDriverCompleteDto extends OmitType(CompleteDriverDataDto, ['identity', 'op_state', 'op_cities', 'license'] as const) {
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    isArray: true,
+    required: false,
+    description: 'Driver license photos (multiple files allowed)'
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  license?: string[];
+}
 
 
 
@@ -215,7 +227,7 @@ export class CompanyMultipleDriverDto {
       email: 'john@example.com',
       phone_number: '+1234567890',
       social_number: '123-45-6789',
-      license: 'license.jpg',
+      license: ['license1.jpg', 'license2.jpg'],
       porter: true,
       second_porter: false,
       third_porter: false,
