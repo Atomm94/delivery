@@ -24,6 +24,7 @@ import { DriverStatusEnum } from '../../common/enums/driver-status.enum';
 import { Company } from '../../database/entities/company.entity';
 import { UserToken } from '../../database/entities/user-token.entity';
 import { CronService } from '../../cron/cron.service';
+import { generateVerificationCode } from '../../utils/code-generator';
 
 @Injectable()
 export class RouteService {
@@ -112,8 +113,8 @@ export class RouteService {
 
     for (const order of orders) {
       //TODO
-      //order.verify_code = generateVerificationCode();
-      order.verify_code = '123456';
+      order.verify_code = generateVerificationCode();
+      // order.verify_code = '123456';
       totalPrice += Number(order.price)
       order.route = saveRoute.id
       order.invoiceId = Number(order.invoiceId) || null

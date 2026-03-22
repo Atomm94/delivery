@@ -18,7 +18,7 @@ import { DriversService } from '../drivers/drivers.service';
 import { GeoGateway } from '../geo/geo.gateway';
 import { RouteModule } from '../routes/route.module';
 import { UserToken } from '../../database/entities/user-token.entity';
-import { PaymentsService } from '../payments/payments.service';
+import { PaymentsModule } from '../payments/payments.module';
 import { Transaction } from '../../database/entities/transaction.entity';
 import { Card } from '../../database/entities/card.entity';
 import { Rate } from '../../database/entities/rate.entity';
@@ -26,10 +26,11 @@ import { Rate } from '../../database/entities/rate.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Company, Driver, Route, Order, Product, OrderProduct, Address, Customer, Truck, UserToken, Transaction, Card, Rate]),
     AuthModule,
-    forwardRef(() => RouteModule)
+    forwardRef(() => RouteModule),
+    forwardRef(() => PaymentsModule),
   ],
   controllers: [CompaniesController],
-  providers: [CompaniesService, DriversService, RedisService, RouteService, GeoGateway, Company, PaymentsService],
+  providers: [CompaniesService, DriversService, RedisService, RouteService, GeoGateway, Company],
   exports: [CompaniesService, Company],
 })
 export class CompaniesModule {

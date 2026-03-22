@@ -31,7 +31,7 @@ export function completeDtoToPartialCompanyEntity(dto: CompleteCompanyDataDto) {
     state: dto.state ? dto.state : null,
     zip_code: dto.zip_code ? dto.zip_code : null,
     op_state: dto.op_state ? dto.op_state : null,
-    op_city: dto.op_city ? dto.op_city : null,
+    op_cities: dto.op_cities ? dto.op_cities : null,
     contact_person_info: dto.contact_person_info ? dto.contact_person_info : null,
     isVerified: true
   };
@@ -51,7 +51,7 @@ export function updateDtoToPartialCompanyEntity(dto: UpdateCompanyDataDto) {
     state: dto.state ? dto.state : null,
     zip_code: dto.zip_code ? dto.zip_code : null,
     op_state: dto.op_state ? dto.op_state : null,
-    op_city: dto.op_city ? dto.op_city : null,
+    op_cities: dto.op_cities ? dto.op_cities : null,
     contact_person_info: dto.contact_person_info ? dto.contact_person_info : null,
   };
 }

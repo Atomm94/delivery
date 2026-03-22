@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, NotFoundException} from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Driver } from '../../database/entities/driver.entity';
 import { Repository } from 'typeorm';
@@ -262,13 +262,26 @@ export class DriversService {
     }
 
     private async sendCode(phoneNumber: string, code: string): Promise<any> {
-        await this.twilioClient.messages.create({
-            body: `Your verification code is: ${code}`,
-            from: this.configService.get('TWILIO_PHONE_NUMBER'),
-            to: phoneNumber,
-        });
+        const from = this.configService.get<string>('TWILIO_PHONE_NUMBER');
 
-        return { msg: 'success' };
+        if (!phoneNumber) {
+            throw new BadRequestException("A 'to' phone_number is required");
+        }
+        if (!from) {
+            throw new BadRequestException('TWILIO_PHONE_NUMBER is not configured');
+        }
+
+        try {
+            await this.twilioClient.messages.create({
+                body: `Your verification code is: ${code}`,
+                from,
+                to: phoneNumber,
+            });
+            return { msg: 'success' };
+        } catch (err: any) {
+            // Surface a cleaner error upstream
+            throw new BadRequestException(err?.message || 'Failed to send verification code');
+        }
     }
 
     async doRate(driverId: number, customerId: number, rateDto: RateDto): Promise<any> {

@@ -45,8 +45,9 @@ export class Company {
     @Column({ type: 'varchar', nullable: true  })
     op_state: string;
 
-    @Column({ type: 'varchar', nullable: true  })
-    op_city: string;
+    // Operational cities where the company operates
+    @Column('simple-array', { nullable: true })
+    op_cities: string[];
 
     @Column({
         type: 'jsonb',

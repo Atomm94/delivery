@@ -110,10 +110,16 @@ export class CompleteCompanyDataDto {
   @IsString({ message: 'operation state must be a string' })
   op_state?: string;
 
-  @ApiProperty({ example: 'Los Angeles', required: false })
+  @ApiProperty({
+    type: [String],
+    description: 'A list of operational cities',
+    example: ['Los Angeles', 'San Diego'],
+    required: false,
+  })
   @IsOptional()
-  @IsString({ message: 'operation city must be a string' })
-  op_city?: string;
+  @IsArray({ message: 'Operational cities must be an array' })
+  @IsString({ each: true, message: 'Each operational city must be a string' })
+  op_cities?: string[];
 
   @ApiProperty({ type: ContactInfoDto })
   @IsOptional()
@@ -184,10 +190,16 @@ export class UpdateCompanyDataDto  {
   @IsString({ message: 'operation state must be a string' })
   op_state?: string;
 
-  @ApiProperty({ example: 'Los Angeles', required: false })
+  @ApiProperty({
+    type: [String],
+    description: 'A list of operational cities',
+    example: ['Los Angeles', 'San Diego'],
+    required: false,
+  })
   @IsOptional()
-  @IsString({ message: 'operation city must be a string' })
-  op_city?: string;
+  @IsArray({ message: 'Operational cities must be an array' })
+  @IsString({ each: true, message: 'Each operational city must be a string' })
+  op_cities?: string[];
 
   @ApiProperty({ type: ContactInfoDto, required: false })
   @IsOptional()

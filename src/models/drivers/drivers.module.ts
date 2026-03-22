@@ -21,7 +21,6 @@ import { CompaniesService } from '../companies/companies.service';
 import { RouteModule } from '../routes/route.module';
 import { Company } from '../../database/entities/company.entity';
 import { UserToken } from '../../database/entities/user-token.entity';
-import { PaymentsService } from '../payments/payments.service';
 import { PaymentsModule } from '../payments/payments.module';
 import { Transaction } from '../../database/entities/transaction.entity';
 import { Card } from '../../database/entities/card.entity';
@@ -34,9 +33,9 @@ import { Card } from '../../database/entities/card.entity';
     AuthModule,
     GeoModule,
   ],
-  providers: [DriversService, CompaniesService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, RouteService, Driver, PaymentsService],
+  providers: [DriversService, CompaniesService, IsDriverPhoneNumberUnique, GeoGateway, RedisService, RouteService, Driver],
   controllers: [DriversController],
-  exports: [DriversService, Driver, PaymentsService],
+  exports: [DriversService, Driver],
 })
 export class DriversModule {
 }

@@ -192,10 +192,13 @@ export class DriversController{
   async resendCode(
     @Req() req,
     @Res() res,
-    @Body() phone_number: string,
-    @Body() verify_code: string,
+    @Body() body: { phone_number: string; verify_code: string },
   ) {
-    const response = await this.driversService.resendCode(phone_number, verify_code);
+    if (!body?.phone_number || !body?.verify_code) {
+      return res.status(400).json({ message: 'phone_number and verify_code are required' });
+    }
+
+    const response = await this.driversService.resendCode(body.phone_number, body.verify_code);
 
     return res.send(response)
   }

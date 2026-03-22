@@ -11,6 +11,10 @@ import {
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { ApiBearerAuth, ApiBody, ApiTags } from '@nestjs/swagger';
+import { CompleteOnboardingDto } from './dto/complete-onboarding.dto';
+import { CreateCheckoutDto } from './dto/create-checkout.dto';
+import { SaveCardDto } from './dto/save-card.dto';
+import { CreateBankTokenDto } from './dto/create-bank-token.dto';
 
 @ApiBearerAuth('Authorization')
 @ApiTags('payments')
@@ -20,46 +24,30 @@ export class PaymentsController {
 
   // 🎯 Create Checkout Session
   @Post('create-checkout')
-  @ApiBody({
-    schema: {
-      properties: {
-        routeId: { type: 'integer', example: 1 },
-        price: { type: 'integer', example: 1000 },
-        paymentMethodId: { type: 'string' },
-      },
-    },
-  })
+  @ApiBody({ type: CreateCheckoutDto })
   async createCheckout(
     @Req() req,
     @Res() res,
-    @Body('routeId', ParseIntPipe) routeId: number,
-    @Body('price', ParseIntPipe) price: number,
-    @Body('paymentMethodId') paymentMethodId: string
+    @Body() body: CreateCheckoutDto,
   ) {
-    if (!routeId || !price) {
-      throw new BadRequestException('Missing required fields');
-    }
-
     const { user: customer } = req;
 
-    const payment = await this.paymentsService.createPaymentWithPaymentMethod(customer.id, routeId, price, paymentMethodId)
+    const payment = await this.paymentsService.createPaymentWithPaymentMethod(
+      customer.id,
+      body.routeId,
+      body.price,
+      body.paymentMethodId,
+    );
 
     return res.send({ message: 'checkout success', payment });
   }
 
   @Post('save-card')
-  @ApiBody({
-    schema: {
-      properties: {
-        tokenId: { type: 'string', example: 'tok_1234567890abcdef' },
-        default: { type: 'boolean', example: 'true', default: true },
-      },
-    },
-  })
+  @ApiBody({ type: SaveCardDto })
   async saveCardToken(
     @Req() req,
     @Res() res,
-    @Body() body: { tokenId: string, default: boolean },
+    @Body() body: SaveCardDto,
   ) {
     try {
       const { user: customer } = req;
@@ -90,9 +78,10 @@ export class PaymentsController {
   async getCard(
     @Req() req,
     @Res() res,
-    @Param('id') cardId: number,
+    @Param('id', ParseIntPipe) cardId: number,
   ) {
-    return res.send(await this.paymentsService.getCard(cardId));
+    const { user: customer } = req;
+    return res.send(await this.paymentsService.getCard(customer.id, cardId));
   }
 
   @Put('card/:id')
@@ -106,19 +95,21 @@ export class PaymentsController {
   async changeStatusCard(
     @Req() req,
     @Res() res,
-    @Param('id') cardId: number,
+    @Param('id', ParseIntPipe) cardId: number,
     @Body() body: { default: boolean },
   ) {
-    return res.send(await this.paymentsService.changeStatusCard(cardId, body.default));
+    const { user: customer } = req;
+    return res.send(await this.paymentsService.changeStatusCard(customer.id, cardId, body.default));
   }
 
   @Delete('card/:id')
   async deleteCard(
     @Req() req,
     @Res() res,
-    @Param('id') cardId: number,
+    @Param('id', ParseIntPipe) cardId: number,
   ) {
-    return res.send(await this.paymentsService.deleteCard(cardId));
+    const { user: customer } = req;
+    return res.send(await this.paymentsService.deleteCard(customer.id, cardId));
   }
 
   @Get('transactions')
@@ -135,9 +126,10 @@ export class PaymentsController {
   async getTransaction(
     @Req() req,
     @Res() res,
-    @Param('id') transactionId: number,
+    @Param('id', ParseIntPipe) transactionId: number,
   ) {
-    return res.send(await this.paymentsService.getTransaction(transactionId));
+    const { user: customer } = req;
+    return res.send(await this.paymentsService.getTransaction(customer.id, transactionId));
   }
 
   @Post('create-account')
@@ -145,7 +137,8 @@ export class PaymentsController {
     @Req() req,
     @Res() res,
   ) {
-    const accountId = await this.paymentsService.createConnectedAccount();
+    const { user: driver } = req;
+    const accountId = await this.paymentsService.createConnectedAccount(driver.id);
 
     return res.json({
       message: 'Driver stripe account created successfully',
@@ -153,16 +146,27 @@ export class PaymentsController {
     });
   }
 
+  @Post('create-bank-token')
+  @ApiBody({ type: CreateBankTokenDto })
+  async createBankToken(
+    @Req() req,
+    @Res() res,
+    @Body() body: CreateBankTokenDto,
+  ) {
+    const token = await this.paymentsService.createBankAccountToken(body);
+    return res.json({ tokenId: token.id });
+  }
+
   @Post('complete-account')
+  @ApiBody({ type: CompleteOnboardingDto })
   async completeAccount(
     @Req() req,
     @Res() res,
-    @Body('accountId') accountId: string,
-    @Body('tokenId') tokenId: string,
+    @Body() body: CompleteOnboardingDto,
   ) {
     const { user: driver } = req;
 
-    const account = await this.paymentsService.completeOnboarding(accountId, driver.id, tokenId);
+    const account = await this.paymentsService.completeOnboarding(driver.id, body);
 
     return res.json({
       message: 'Driver stripe account completed successfully',
